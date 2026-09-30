@@ -23,6 +23,13 @@ Custom **Fedora KDE Live 44 (aarch64)** image for the Surface Laptop 7 "Romulus1
 
 ## Download
 
+One-liner (downloads the parts, joins them, verifies the checksum):
+
+* **Windows (PowerShell):** `irm https://raw.githubusercontent.com/1Martin11/surface-laptop-7-fedora/main/download-iso.ps1 | iex`
+* **Linux/macOS:** `curl -fsSL https://raw.githubusercontent.com/1Martin11/surface-laptop-7-fedora/main/download-iso.sh | sh`
+
+Manual way:
+
 Release [v2026.09.30](https://github.com/1Martin11/surface-laptop-7-fedora/releases/tag/v2026.09.30): the ISO is split into three parts (GitHub limit 2 GB/file). Join them and verify:
 
 ```bash
