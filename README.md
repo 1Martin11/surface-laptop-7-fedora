@@ -1,72 +1,71 @@
-# Projekt Linux – Surface Laptop 7 (13,8", Snapdragon X Elite / X1E80100 "Romulus13")
+# Fedora KDE Linux on the Microsoft Surface Laptop 7 (13.8", Snapdragon X Elite / X1E80100)
 
-Ziel: 100 % Linux auf dem Surface Laptop 7, eigener Kernel, alles optimiert.
-Gebaut wird auf Martins MSI-PC in WSL2 (Ubuntu 26.04, Cross-Compile); das Surface wird nur zum Installieren gebraucht.
+Custom **Fedora KDE Live 44 (aarch64)** image for the Surface Laptop 7 "Romulus13", bootable from USB (plain dd or Ventoy) and installable with the normal Fedora installer. German documentation: [README.de.md](README.de.md), full guide in [docs/Fedora-ISO-Anleitung.md](docs/Fedora-ISO-Anleitung.md); this page is the English summary.
 
-**Stand 22.09.2026 – Fedora-Track (aktuell):** Der Ubuntu-Weg (Kernel nachträglich in ein installiertes System) endete am
-14.09. im Boot-Loop. Seitdem entsteht ein **eigenes Fedora-KDE-Live-ISO (aarch64)** mit zwei eigenen Kerneln
-(B = Ubuntu 7.3 + ItsLucas-Patches, A = ELLX 7.0), iptsd-Fork mit haptischem Klick, Firmware, MAC-Fix und
-allen Konfigurationen – bootfähig vom Stick und per Anaconda installierbar. Alles dazu:
-[docs/Fedora-ISO-Anleitung.md](docs/Fedora-ISO-Anleitung.md), Skripte in `build/fedora/`, Ergebnisse in
-`build/fedora/out/` (ISO unter `out/iso/`), Stick schreiben mit `Fedora-Stick-schreiben.ps1`.
+**Status (2026-09-30):** installed and running on real hardware next to Windows 11 (dual boot).
 
-**Stand 13.09.2026 (Ubuntu-Track, archiviert):** Kernel `7.0.0-rc4-sl7` in drei Paket-Revisionen gebaut und im arm64-Chroot getestet,
-Firmware-Paket aus dem aktuellen Microsoft-Treiberpaket erzeugt, Ziel-Installer geschrieben und im Probelauf geprüft.
+## What works
 
-## Womit anfangen
-
-| Zuerst lesen | Wofür |
+| Component | Status |
 |---|---|
-| [docs/SL7-Linux-Dossier.md](docs/SL7-Linux-Dossier.md) | Die Master-Referenz: Hardware, Kernel-Entscheidung, Firmware, Distro, Komponenten-Status, Optimierung, Quellen |
-| [docs/Build-Rezept.md](docs/Build-Rezept.md) | Nur die Befehle in Reihenfolge: bauen, Stick vorbereiten, installieren, nach dem Boot kontrollieren |
-| [docs/Offene-Punkte.md](docs/Offene-Punkte.md) | Risiken, Experimentelles, was auf dem Gerät zuerst geprüft werden muss |
+| Boot, device tree auto-selection (13.8"/15") | yes (dtbloader image, Fedora-style) |
+| KDE Plasma (Wayland), GPU acceleration | yes, Adreno X1-85 (glmark2 ~5200) |
+| Keyboard | yes (Surface Aggregator) |
+| Haptic trackpad incl. force click | yes (iptsd fork with haptic click, calibrated for 13.8") |
+| Touchscreen, pen | yes (SPI/GTCH variant; I²C variant available in the boot menu) |
+| Wi-Fi (WCN7850) | yes, factory MAC restored (sl7-mac) |
+| Bluetooth | adapter up with factory MAC |
+| Speakers | yes, **kernel volume limit verified on device** (see warning) |
+| Battery, charging, USB-C | yes (after the audio DSP is released) |
+| NVMe | yes (3.3 GB/s read) |
+| Suspend/resume | worked once in the live system, not yet tested in the installed system |
+| Camera, fingerprint | no |
 
-## Ordner
+## Download
 
-| Ordner | Inhalt |
+Release [v2026.09.30](https://github.com/1Martin11/surface-laptop-7-fedora/releases/tag/v2026.09.30): the ISO is split into three parts (GitHub limit 2 GB/file). Join them and verify:
+
+```bash
+cat Fedora-KDE-Live-44-SL7-20260930.iso.part-0 Fedora-KDE-Live-44-SL7-20260930.iso.part-1 Fedora-KDE-Live-44-SL7-20260930.iso.part-2 > Fedora-KDE-Live-44-SL7-20260930.iso
+sha256sum -c Fedora-KDE-Live-44-SL7-20260930.iso.sha256
+```
+Windows: `cmd /c copy /b part-0+part-1+part-2 Fedora-KDE-Live-44-SL7-20260930.iso` (full names), then `Get-FileHash`.
+
+## Boot and install
+
+1. Copy the ISO to a **Ventoy** stick (the image contains the initrd list Ventoy needs) or write it raw (`dd`, or `Fedora-Stick-schreiben.ps1` on Windows).
+2. On the Surface: UEFI → Secure Boot **off**; use the **USB-A** port.
+3. Boot menu: keep the first entry, **Kernel B 7.3 (ItsLucas patches), USB-C safe (audio DSP off)**. Fallbacks: Kernel A 7.0 (ELLX base), stock Fedora kernel, diagnostic entries without splash, touchscreen variants.
+4. Install with "Install to Hard Drive" (Anaconda). Automatic partitioning uses free space and reuses the Windows EFI partition; Windows stays bootable (GRUB entry + firmware menu).
+5. After the first boot run `sudo sl7-audio-freigeben` once: it loads the audio DSP, checks the kernel speaker limit (`SpkrLeft/Right PA Volume max=6`, `WSA_RX0/RX1 Digital Volume max=81`), sets the amplifiers to 0 and only then removes the block. Battery status and USB-C alt-mode appear at the same time.
+
+## Speaker warning
+
+The X1E80100 has **no hardware speaker protection** under Linux; community members have destroyed speakers. Both custom kernels carry the volume-limit patch, and the image keeps the audio DSP blocked until the limit has been verified on the device. Keep the volume at **70 % or less** and never select the PipeWire **"Pro Audio"** profile. A module blacklist is not a gentle option: it disables the whole sound card.
+
+## Kernels
+
+* **Kernel B `7.3.0-rc3-sl7b`** (default): Ubuntu 26.10 `linux-source-7.3.0` + [ItsLucas](https://github.com/ItsLucas/linux-surface-laptop-7) patches r15.1 (rfkill, QSPI touchpad, GTCH SPI touchscreen, spi-hid power, panel power, QRTR revert). Note: this Ubuntu config runs without SELinux (LSM list), so the installer writes `selinux=0`.
+* **Kernel A `7.0.0-rc4-sl7`**: ELLX 7.0.0-rc4-12 + conservative patches, fallback.
+* Device-tree variants: standard, `-i2cts` (I²C touchscreen), `-exp` (Kernel A, experimental).
+* Both are packaged as RPMs; `dnf` excludes `kernel*` so a stock update cannot take over the default entry.
+
+## Repository layout
+
+| Path | Content |
 |---|---|
-| `docs/` | die drei Dokumente oben, `dts/` (Romulus-Device-Tree-Quellen), `quellen/` (Rohdaten der Recherche), `archiv/` (abgelöster Entwurf) |
-| `build/fedora/` | **Fedora-Track:** `wsl-fedora-*.sh` (ISO-Analyse, Rootfs-Kopie, Chroot, Phase 1–4), Kernel-Skripte (`wsl-build-kernel-fedora.sh`, `wsl-*-kernel-73*.sh`, `wsl-dtb-i2cts-*.sh`), `iptsd-sl7.spec`, `grub-sl7.cfg`, `SL7-Hinweise.txt`; `out/` mit Kernel-RPMs, DTBs, iptsd-RPM, Inspektions-Protokollen und `iso/` |
-| `Fedora-Stick-schreiben.ps1` | schreibt das Fedora-ISO roh (dd-Modus) auf einen USB-Stick, optional mit Rücklesen |
-| `build/wsl-*.sh` | WSL-Skripte (Ubuntu-Track): Toolchain, Klonen, Patchen, Build, stubble-Image, Firmware, Chroot-Tests, Verifikation |
-| `build/inspect/` | Diagnose- und Prüfskripte (einmalige Analysen, Syntax- und Shellcheck-Läufe, Installer-Probelauf) |
-| `build/patches-upstream/` | `sl7-tree-full.diff` (kanonischer Patch-Stand) plus Einzelpatches zur Herkunftsdokumentation |
-| `build/out/7.0.0-rc4-sl7-N/` | fertige Kernel-Pakete, stubble-Image, DTBs, Config – höchstes N ist die neueste Revision |
-| `build/out/` | alles, was auf den Stick kommt: `SL7-INSTALLIEREN.sh` (Dach-Skript), `sl7-install-on-laptop.sh`, `sl7-check.sh`, `sl7-optimize.sh`, `START-HIER.txt`, Firmware-Paket, iptsd, MAC-Fix, Resume-Hooks |
-| `Stick-vorbereiten.ps1` | befüllt den USB-Stick automatisch (Windows, PowerShell) |
-| `iso/` | `ubuntu-26.04.1-desktop-arm64.iso`, Prüfsumme verifiziert |
-| `hardware/SL7-Hardware-Dump.ps1` | auf dem Surface unter Windows ausführen, liefert eine komplette Hardware-Inventur als ZIP |
-| `gits/` | geklonte Community-Repos |
+| `build/fedora/` | the whole pipeline: `wsl-fedora-*.sh` phases 1–4 (rootfs copy, chroot update, iptsd RPM, kernels, dtbloader images, firmware, ISO build with xorriso), QEMU tests (`qemu-drive.py`, `qemu-install.py`), `grub-sl7.cfg`, `sl7-audio-freigeben.sh`, udev rule, `ventoy-initrd.cfg` |
+| `build/patches-upstream/` | kernel patches and DTS sources |
+| `docs/` | German guide, research dossier, open issues, device-tree sources, collected community sources |
+| `hardware/` | hardware inventory script (Windows) and `sl7-ssh.py` (remote maintenance of the live/installed system) |
+| `Fedora-Stick-schreiben.ps1` | raw USB writer for Windows |
 
-## Kurzablauf Fedora-Track (aktuell)
+Build host: Windows 11 + WSL2 (Ubuntu), cross-compiled kernels, Fedora rootfs in a qemu-user chroot, boot tests in `qemu-system-aarch64` (including a Ventoy chain test).
 
-1. Auf dem PC: `Fedora-Stick-schreiben.ps1` ausführen (als Administrator; schreibt `build/fedora/out/iso/Fedora-KDE-Live-44-SL7-*.iso` roh auf den Stick, `-Pruefen` liest zurück) **oder** das ISO einfach auf den Ventoy-Stick kopieren (ab Ausgabe 20260930 Ventoy-tauglich, liegt schon auf `D:\`; im Ventoy-Menü „Boot in normal mode").
-2. Am Surface: Secure Boot im UEFI auf „None“, Stick am **USB-A**-Port, beim Einschalten Lautstärke-Leiser halten.
-3. Im GRUB-Menü den ersten Eintrag lassen (Kernel B, USB-C-sicher) – bei Problemen die Diagnose-Einträge, Kernel A oder „Fedora-Original“.
-4. Im Live-System prüfen (Reihenfolge wichtig, erst dann Ton): `amixer -c0 contents | grep -A3 'PA Volume'` (platform_max 6),
-   `systemctl status 'iptsd@*'`, `sl7-mac all`, `libinput list-devices`, `cat /sys/firmware/devicetree/base/model`.
-5. Installieren mit „Auf Festplatte installieren“ (Anaconda); nach dem ersten Start `/var/lib/sl7/postinstall.log` und `sudo grubby --info=ALL` ansehen.
+## Open items
 
-## Kurzablauf Ubuntu-Track (archiviert, endete im Boot-Loop)
+Suspend test in the installed system, Bluetooth pairing, touchscreen fine-tuning, haptic feedback while dragging (needs driver work: the spi-hid device exposes no HID haptic capability), camera, cleanup of old Ubuntu leftovers on the EFI partition.
 
-1. Auf dem PC: `Stick-vorbereiten.ps1` ausführen. Kopiert alles Nötige als Ordner `SL7-Installation` auf den USB-Stick.
-2. Auf dem Surface (Ubuntu ist schon installiert), Terminal öffnen und starten:
+## Credits
 
-   ```
-   sudo bash SL7-INSTALLIEREN.sh
-   ```
-
-   Das Skript macht Selbsttest, Probelauf, fragt nach und installiert dann alles.
-3. Neu starten, im Bootmenü den Kernel mit der Endung `-sl7` wählen.
-4. Bericht abrufen: `sudo bash sl7-check.sh` — sagt Punkt für Punkt, was läuft.
-5. Optional danach: `sudo bash sl7-optimize.sh` für Speicher, Stromsparen und Grafik.
-
-Ohne Netz auf dem Surface ist das kein Problem: Es wird nichts heruntergeladen.
-
-## Warnung: Lautsprecher
-
-Linux hat für den Snapdragon X Elite **keinen aktiven Lautsprecherschutz**. In der Community sind dadurch
-Lautsprecher dauerhaft zerstört worden. Unser Kernel enthält ab Revision 2 Ubuntus Volume-Limit-Patch.
-Trotzdem gilt: Lautstärke höchstens 70 %, niemals das PipeWire-Profil "Pro Audio" wählen.
-Eine Modul-Blacklist ist **kein** sanfter Teilschutz, sie legt die ganze Soundkarte still.
-Einzelheiten in [docs/Offene-Punkte.md](docs/Offene-Punkte.md), Abschnitt 1.1.
+ItsLucas (linux-surface-laptop-7), bryce-hoehn, the ELLX project, alex-lentz (iptsd haptic-click fork), valeronm (sl7-mac), fQwQf (I²C touchscreen), the Fedora and Ubuntu concept1 / x1e communities, horizontblau and nix1e write-ups. Firmware blobs come from Microsoft's driver package.
