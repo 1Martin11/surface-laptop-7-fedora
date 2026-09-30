@@ -1,0 +1,1061 @@
+[
+ {
+  "topic": "Surface Laptop 7 (X1E80100, romulus13) Linux-Community-Stand 2026-08-06 bis 2026-09-22: Repos, Kernel-Trees, Upstream-Serien, Distro-Images",
+  "summary": "Stand 2026-09-22, 20 Abrufe verbraucht, alle Angaben aus den gelisteten Quellen.\n\n1) bryce-hoehn/linux-surface-laptop-7: keine Aktivität nach 2026-08-06. Letzter Merge ist PR #22 \"updated description + mac address patch\" (merged 2026-08-06). Offene Issues: #23 \"Fixing iptsd and Two-Finger Scroll\" (2026-07-30, systemd-Units + udev-Regeln), #21 \"Factory Wi-Fi/BT MAC addresses can be derived from UEFI\" (valeronm, zuletzt 2026-08-06), #13 Touchscreen, #11 USB-C Display, #1 Wifi. Branches: main (af76542) und bryce-hoehn-mac-patch (9784e02). Forks: nur shadowmite (Push 2026-03-14) und DanielDoesDesign (2025-05-23), nichts Neues.\n\n2) linux-surface #1590 seit 2026-09-12: vier Kommentare, keine technischen Neuigkeiten. itpropro (09-12, 09-13) bezeichnet die Beiträge von horizontblau als \"AI slop\" und bittet um Bann; ProgrammerIn-wonderland (09-12) vermutet nur Übersetzung per KI; OptimisticPeach (09-21) Einsteigerfrage. Konsequenz: die von horizontblau stammende spi10-Touchscreen-DT-Variante ist mit Vorsicht zu behandeln.\n\n3) ELLX-Kernel (ProgrammerIn-wonderland): letzter Commit 0e9944fa 2026-05-14 \"webcam dtb patch for Surface Laptop 7 (#2)\". Tree basiert auf Ubuntu 7.0.0-22.22 (Tobias Heider), enthält \"Add scruggo's qcom-geni-spi and spi-hid\" (2026-04-10), \"add spi-hid back in kconfig\" (05-12), \"Add in Romulus ath12k enumeration fix\" (03-23) und die spi-hid-Serie (Jingyuan Liang / Angela Czubak / Jarrett Schultz). public.hgci.org/software/ELLX/: installer/ 11-Jun-2026, fixes/ 17-May, surface-laptop-7-firmware/ + kernels/ 14-May, iptsd/ 12-May. Seit unserem Tag unverändert.\n\n4) Neue Kernel-Trees und Upstream: (a) ItsLucas/surface-laptop-7-ubuntu-kernel: Ubuntu-26.10-ARM64-Kernel mit \"Romulus13 Wi-Fi / touchpad / SPI touchscreen / power patches\", Releases 2026-09-17 (7.2.0-5-sl7.4.1) bis 2026-09-19 (7.3.0-5-sl7.15.1, neuestes), alle Prerelease, mit linux-image .deb (~197 MB), linux-source .deb, unsigned tar.zst, BUILD.json, SHA256SUMS, SIGNING. Das ist der aktuellste bekannte SL7-Patchstack auf 7.3. (b) linux-arm-msm 2026-09-07: \"[PATCH 0/2] arm64: dts: qcom: enable touchscreen on Surface Laptop 7 (13.8\")\" von fQwQf: Patch 1 erlaubt optionalen Reset-GPIO im hid-over-i2c-Binding, Patch 2 fügt den Touchscreen-Node (ITCH MSHW0468, I2C-Adresse 0x34, HID-Descriptor Register 0x0000) zum romulus13-DT hinzu; \"verified working on this machine (keyboard and touchscreen functional)\". Noch keine Antworten. Damit ist die I2C-Variante (unsere i2c8) auf echter Hardware bestätigt, während ItsLucas von \"SPI touchscreen\" spricht; Widerspruch offen. (c) Ubuntu-concept-PPA: linux-qcom-x1e 7.3.0-15.15 (Stonking, 2026-09-17), 7.2.0-18.18 (Resolute, 2026-09-09), 7.0.0-34.34 (Questing, 2026-05-15); ubuntu-x1e-settings 34~ppa8.26.04 (2026-09-02). (d) spi-hid upstream: v2 2026-03-24, v3 2026-04-02, v4 2026-06-09; kein v5/v6 gefunden, nicht gemerged. (e) QSPI: linux-spi-Thread \"spi: geni-qcom: any planned QSPI support?\" (Carter, 2026-06-05): Touchpad ist HID-over-SPI an GENI QUP, Protokoll 9 in Mainline unbekannt; Carter kritisiert am 06-10 den linux-surface/scuggo-Patch (fehlende DT-Binding-Doku, unerklärte msleep(10), Autorenschaft); Mukesh Savaliya (Qualcomm) 2026-07-01: \"Yes, we are working on this driver to upstream. It's in our plan.\" Kein Upstream-Patch sichtbar.\n\n5) Distro-Images: denislopt/omarchy-surface-laptop7 v2026.09.16-rc1 (Arch/Omarchy, nur Romulus15): Kernel 7.2.5-1-aarch64-ARCH, UKI, physisch getestet 2026-09-16 (USB-Boot, Install, Cold Boot, Suspend). Funktioniert: Tastatur, Display, Wi-Fi, SPI-Touchpad und -Touchscreen, Akku, Suspend/Resume. Nicht: Audio, Kamera, NPU, Pen, Hibernation. Secure Boot muss aus. Bekannt: \"unexplained freeze followed by automatic reboot\", Ursache unklar. ISO 4.506.071.040 Bytes in Split-Parts, SHA256 952a25b8…dedc0. Dazu Gist cicorias \"Omarchy surface laptop 7 aarm64 snapdobuild\". NixOS: orvitpng/nix1e letzter Commit 2026-06-17 \"mkModule & spi-hid update\"; scuggo/x1e-nixos letzter Commit 2026-07-01 \"bump linux to 7.1.2\", 2026-06-16 \"add qcom_battmgr, 7.1 uses it instead of surface EC for battery info\", 2026-04-21 \"power tuning: s2idle, usb runtime pm, blacklist qcom_battmgr + qcrypto\". Fedora: Wiki Snapdragon_WoA_Laptop_Install nennt Live-Cmdline clk_ignore_unused pd_ignore_unused systemd.tpm2_wait=0 modprobe.blacklist=qcom_q6v5_pas; Fedora-44-Feature (Phoronix) wählt den DTB auf WoA-Laptops automatisch; Discussion-Thread 188069 (2026-04-15, F44) meldet nicht bootende Live-Medien und verweist aufs Wiki. Kein Fedora-KDE-Image speziell für den SL7 gefunden. Arch Linux ARM linux-aarch64 laut Suche bei 7.2.3-2 mit Romulus15-Doku (revidiert 2026-09-09).",
+  "facts": [
+   {
+    "claim": "bryce-hoehn/linux-surface-laptop-7: letzter Merge PR #22 \"updated description + mac address patch\" am 2026-08-06; keine Issues/PRs danach; Branches main (af76542…) und bryce-hoehn-mac-patch (9784e02…); Forks nur shadowmite (pushed 2026-03-14) und DanielDoesDesign (2025-05-23).",
+    "source": "https://api.github.com/repos/bryce-hoehn/linux-surface-laptop-7/issues?state=all , /pulls , /branches , /forks",
+    "confidence": "high",
+    "source_date": "2026-09-22"
+   },
+   {
+    "claim": "Offene Issues bei bryce-hoehn: #23 \"Fixing iptsd and Two-Finger Scroll (Surface Snapdragon X, ARM64)\" (2026-07-30, PunkLab-it, systemd-Units + udev-Regeln), #21 \"Factory Wi-Fi/BT MAC addresses can be derived from UEFI\" (valeronm, updated 2026-08-06), #13 Touchscreen, #11 USB-C Display output, #1 Wifi.",
+    "source": "https://api.github.com/repos/bryce-hoehn/linux-surface-laptop-7/issues?state=all",
+    "confidence": "high",
+    "source_date": "2026-09-22"
+   },
+   {
+    "claim": "linux-surface #1590 seit 2026-09-12 nur 4 Kommentare: itpropro 2026-09-12 (\"Can you all please report @horizontblau … AI slop answers\"), ProgrammerIn-wonderland 2026-09-12 (vermutet nur KI-Übersetzung), itpropro 2026-09-13, OptimisticPeach 2026-09-21 (Einsteigerfrage). Keine technischen Neuigkeiten.",
+    "source": "https://api.github.com/repos/linux-surface/linux-surface/issues/1590/comments?since=2026-09-12T00:00:00Z",
+    "confidence": "high",
+    "source_date": "2026-09-21"
+   },
+   {
+    "claim": "ELLX-Kernel: neuester Commit 0e9944fa 2026-05-14 \"webcam dtb patch for Surface Laptop 7 (#2)\"; enthält \"Add scruggo's qcom-geni-spi and spi-hid\" (2026-04-10), \"add spi-hid back in kconfig\" (2026-05-12), \"Add in Romulus ath12k enumeration fix\" (2026-03-23), Basis Ubuntu \"Changelog for 7.0.0-22.22\" (Tobias Heider, 2026-03-26).",
+    "source": "https://api.github.com/repos/ProgrammerIn-wonderland/ELLX-Kernel/commits",
+    "confidence": "high",
+    "source_date": "2026-05-14"
+   },
+   {
+    "claim": "public.hgci.org/software/ELLX/ Listing: installer/ 11-Jun-2026, fixes/ 17-May-2026, surface-laptop-7-firmware/ 14-May-2026, kernels/ 14-May-2026, iptsd/ 12-May-2026, README.txt 14-May-2026, ELLX.png 15-May-2026. Keine Änderung seit Juni.",
+    "source": "https://public.hgci.org/software/ELLX/",
+    "confidence": "high",
+    "source_date": "2026-06-11"
+   },
+   {
+    "claim": "Neuer Kernel-Tree ItsLucas/surface-laptop-7-ubuntu-kernel: \"Ubuntu 26.10 ARM64 + Romulus13 Wi-Fi / touchpad / SPI touchscreen / power patches\"; Releases (alle Prerelease): 7.2.0-5-sl7.4.1 (2026-09-17T15:21:35Z), 7.2.0-5-sl7.5.1 (2026-09-18), 7.3.0-5-sl7.8.1 (2026-09-19T08:21), 7.3.0-5-sl7.14.1 (2026-09-19T13:43), 7.3.0-5-sl7.15.1 (2026-09-19T16:15:55Z, Tag ubuntu-7.3.0-5.5-pa179322ad9e2ac22-r15.1). Assets: linux-image .deb ~196.9 MB, linux-source .deb, sl7-…-unsigned.tar.zst ~157 MB, BUILD.json, SHA256SUMS, SIGNING.",
+    "source": "https://api.github.com/repos/ItsLucas/surface-laptop-7-ubuntu-kernel/releases",
+    "confidence": "high",
+    "source_date": "2026-09-19"
+   },
+   {
+    "claim": "Upstream-Serie \"[PATCH 0/2] arm64: dts: qcom: enable touchscreen on Surface Laptop 7 (13.8\")\" von fQwQf, 2026-09-07 05:43:56 auf linux-arm-msm/linux-devicetree/linux-input: Patch 1 optionaler Reset-GPIO im HID-over-I2C-Binding (OF-Treiber handhabt ihn bereits), Patch 2 Touchscreen-Node ITCH MSHW0468, I2C-Adresse 0x34, HID-Descriptor Register 0x0000 im romulus13-DT; \"The touchscreen has been verified working on this machine (keyboard and touchscreen functional; other devices still in progress)\". Keine Antworten zum Abrufzeitpunkt.",
+    "source": "https://ratatoskr.run/linux-arm-msm/2026/09/17522699/t ; https://ratatoskr.run/linux-input/2026/09/17522701/t",
+    "confidence": "high",
+    "source_date": "2026-09-07"
+   },
+   {
+    "claim": "Ubuntu concept PPA x1e: linux-qcom-x1e / linux-meta-qcom-x1e 7.3.0-15.15 (Stonking, 2026-09-17), 7.2.0-18.18 (Resolute, 2026-09-09), 7.0.0-34.34 (Questing, 2026-05-15), 6.17.0-8.8 (Plucky, 2025-09-01); ubuntu-x1e-settings 34~ppa8.26.04 (Resolute, 2026-09-02); qcom-firmware-extract 15 (Plucky, 2025-08-19).",
+    "source": "https://launchpad.net/~ubuntu-concept/+archive/ubuntu/x1e/+packages",
+    "confidence": "high",
+    "source_date": "2026-09-17"
+   },
+   {
+    "claim": "spi-hid Transport-Treiber upstream: PATCH 00/12 (März 2026), v2 00/11 2026-03-24, v3 00/11 2026-04-02, v4 00/11 2026-06-09. Kein v5/v6 in den Suchergebnissen; kein Merge sichtbar.",
+    "source": "https://ratatoskr.run/lkml/2026/06/17106641/t ; https://ratatoskr.run/lkml/2026/04/3494714/t ; https://ratatoskr.run/linux-trace-kernel/2026/03/3476918/t",
+    "confidence": "medium",
+    "source_date": "2026-06-09"
+   },
+   {
+    "claim": "linux-spi Thread \"spi: geni-qcom: any planned QSPI support?\" (Carter, 2026-06-05): SL7-Touchpad ist HID-over-SPI an GENI QUP, SE meldet Protokoll 9, Mainline spi-geni-qcom kennt es nicht; Val Packett 2026-06-07 verweist auf linux-surface-Patches (\"almost ready for review\"); Carter 2026-06-10 nennt Mängel (fehlende DT-Binding-Doku, unerklärte msleep(10), Autorenschaft); Mukesh Savaliya (Qualcomm) 2026-07-01: \"Yes, we are working on this driver to upstream. It's in our plan.\" Verwiesener Patch: https://github.com/scuggo/x1e-nixos/blob/931cf99…/kernel/modules/qcom-qspi/spi-geni-qcom.patch",
+    "source": "https://ratatoskr.run/linux-spi/2026/06/17091838/t",
+    "confidence": "high",
+    "source_date": "2026-07-01"
+   },
+   {
+    "claim": "denislopt/omarchy-surface-laptop7 v2026.09.16-rc1 \"Surface Laptop 7 (15-inch) – Community Test ISO 2026.09.16\": Kernel 7.2.5-1-aarch64-ARCH, UKI, nur Romulus15; physisch getestet 2026-09-16 (USB-Boot, Fresh Install, Cold Boot, Suspend). Funktioniert: Tastatur, Display, Wi-Fi, SPI-Touchpad, SPI-Touchscreen, Akku, Suspend/Resume. Nicht validiert/nicht funktionierend: Audio, Kamera, NPU, Pen, Hibernation (deaktiviert). Secure Boot muss aus. Known issue: \"unexplained freeze followed by automatic reboot\". ISO 4.506.071.040 Bytes als Split-Parts + assemble-iso.py, SHA256 952a25b88b87e9a6a2e161ff4f3fb69d1ed14316baa6f1cefe31c86cb60dedc0.",
+    "source": "https://github.com/denislopt/omarchy-surface-laptop7/releases/tag/v2026.09.16-rc1",
+    "confidence": "high",
+    "source_date": "2026-09-16"
+   },
+   {
+    "claim": "orvitpng/nix1e: letzter Commit b274dd7 2026-06-17 \"mkModule & spi-hid update\"; davor \"spi-hid v3!!!\" (06-02), \"devicetree and spi-hid improvements\" (06-05), \"give up on kvm/EL2 for now\" (06-05), \"vendor in x1e-nixos\" (05-27). Seit Juni unverändert.",
+    "source": "https://api.github.com/repos/orvitpng/nix1e/commits",
+    "confidence": "high",
+    "source_date": "2026-06-17"
+   },
+   {
+    "claim": "scuggo/x1e-nixos: letzter Commit ca7db70 2026-07-01 \"bump linux to 7.1.2\"; c8afdbf 2026-06-16 \"add qcom_battmgr, 7.1 uses it instead of surface EC for battery info\"; 1fb1fe0 2026-04-21 \"power tuning: s2idle, usb runtime pm, blacklist qcom_battmgr + qcrypto\"; 0569ea2 2026-04-22 \"platform_profile: expose legacy sysfs on DT-only systems\"; 931cf99 2026-05-29 \"add VRR\".",
+    "source": "https://api.github.com/repos/scuggo/x1e-nixos/commits",
+    "confidence": "high",
+    "source_date": "2026-07-01"
+   },
+   {
+    "claim": "Fedora Wiki Snapdragon_WoA_Laptop_Install: auf X1E/X1P-Laptops für das Live-ISO Kernel-Cmdline clk_ignore_unused pd_ignore_unused systemd.tpm2_wait=0 modprobe.blacklist=qcom_q6v5_pas; Fedora 44 Feature: Live-AArch64-ISOs sollen den richtigen Device Tree beim Boot automatisch wählen.",
+    "source": "https://fedoraproject.org/wiki/Snapdragon_WoA_Laptop_Install ; https://www.phoronix.com/news/Fedora-44-Approves-DTB-WOA",
+    "confidence": "medium",
+    "source_date": "2026"
+   },
+   {
+    "claim": "Fedora Discussion 188069 (2026-04-15, Fedora 44): Live-Medien (Workstation Live ISO) booten/installieren auf Snapdragon-aarch64-Laptops nicht, mehrere bekannte Kernel-Probleme erfordern zusätzliche Cmdline-Parameter; verweist auf das WoA-Wiki. Konkrete Symptome/Fixes im Thread nicht enthalten.",
+    "source": "https://discussion.fedoraproject.org/t/live-media-fail-to-boot-on-snapdragon-aarch64-laptops/188069",
+    "confidence": "medium",
+    "source_date": "2026-04-15"
+   },
+   {
+    "claim": "Suchergebnis: Arch Linux ARM linux-aarch64 bei 7.2.3-2-aarch64-ARCH; Arch-aarch64-Doku für x1e80100-microsoft-romulus15 revidiert 2026-09-09; Gist cicorias \"Omarchy surface laptop 7 aarm64 snapdobuild\"; dwhinham/archiso-aarch64-sp11 (Arch für Surface Pro 11).",
+    "source": "WebSearch-Zusammenfassung; https://gist.github.com/cicorias/6da75542f9e2b4a7b6f58a61ba3979d6 ; https://github.com/dwhinham/archiso-aarch64-sp11",
+    "confidence": "low",
+    "source_date": "2026-09-09"
+   },
+   {
+    "claim": "Weitere spi-geni-qcom-Serien 2026: \"spi: qcom-geni: Use GPIO to notify...\" v1–v4 (Aug 2026), \"[PATCH v2] spi: qcom-geni: Use GSI mode if DMA...\" (Jun 2026), \"Enable SPI on SA8255p\" v2 (Mai 2026); keine davon fügt QSPI/Protokoll 9 hinzu (aus Titeln, nicht geprüft).",
+    "source": "https://ratatoskr.run/lkml/2026/08/17453945/t ; https://ratatoskr.run/linux-arm-msm/2026/06/17139127/t",
+    "confidence": "low",
+    "source_date": "2026-08"
+   }
+  ],
+  "recommendations": [
+   "Kernel-Basis für das Fedora-KDE-Image auf 7.3 heben: den Patchstack aus ItsLucas/surface-laptop-7-ubuntu-kernel Release 7.3.0-5-sl7.15.1 (2026-09-19) ziehen (linux-source .deb bzw. sl7-…-unsigned.tar.zst + BUILD.json lesen), mit unserem sl7-tree-full.diff (7.0.0-rc4-12) vergleichen und die Romulus13-Patches (Wi-Fi, Touchpad, Touchscreen, Power) übernehmen; alternativ Ubuntu-concept linux-qcom-x1e 7.3.0-15.15 als Basis-Tree.",
+   "Touchscreen: die fQwQf-Serie vom 2026-09-07 (hid-over-i2c, MSHW0468 @ I2C 0x34, HID-Descriptor 0x0000, optionaler Reset-GPIO) ist die einzige auf romulus13-Hardware bestätigte Variante; unsere i2c8-Variante damit abgleichen und primär einbauen. Die spi10-Variante (horizontblau) nachrangig behandeln, da der Autor in #1590 als KI-generiert kritisiert wurde. Zuerst klären, was ItsLucas mit \"SPI touchscreen\" meint (BUILD.json/Patches lesen).",
+   "Touchpad: weiterhin scuggo-QSPI-Patch (qcom-geni-spi Protokoll 9) + spi-hid v4-Serie aus ELLX verwenden; Qualcomm hat am 2026-07-01 eigenes Upstream-QSPI angekündigt, aber noch nichts gepostet – nicht darauf warten.",
+   "Boot-Loop-Analyse: Fedora-Wiki-Cmdline für das Live-ISO übernehmen (clk_ignore_unused pd_ignore_unused systemd.tpm2_wait=0 modprobe.blacklist=qcom_q6v5_pas) zusätzlich zu arm64.nopauth und GRUB cutmem; beachten, dass auch das Omarchy-Image (7.2.5) einen \"unexplained freeze followed by automatic reboot\" meldet – Logs via pstore/rd.debug oder externes USB-Serial sichern, bevor weiter gebaut wird.",
+   "Fedora 44 KDE Live 44-1.7 als Basis prüfen: das Fedora-44-Feature zur automatischen DTB-Wahl für WoA-Laptops sollte enthalten sein; prüfen, ob der romulus13-DTB im Fedora-Kernel-Paket bereits liegt und wie das Live-Image den DTB lädt (kein manuelles ISO-Patchen mehr nötig).",
+   "Power/Suspend/Akku aus scuggo/x1e-nixos übernehmen: s2idle, USB runtime PM, Blacklist qcrypto; ab Kernel 7.1 liefert qcom_battmgr die Akkudaten statt Surface-EC (Duplicate-Battery-Patch aus bryce-hoehn PR #15 weiterhin relevant).",
+   "Omarchy-Build (denislopt/omarchy-surface-laptop7) als Referenz für UKI+DTB-Live-ISO-Bau auf Arch-Basis lesen und den Ablauf auf Fedora livemedia-creator/kiwi übertragen; Secure Boot am Gerät deaktivieren.",
+   "MAC-Adressen: Verfahren aus bryce-hoehn Issue #21 / PR #22 (Factory-MAC aus UEFI-Variablen) ins Image einbauen; iptsd/Zwei-Finger-Scroll-Units aus Issue #23 übernehmen."
+  ],
+  "open_questions": [
+   "Gibt es inzwischen Antworten/Reviews auf die fQwQf-Touchscreen-Serie vom 2026-09-07 (Patch 1 Binding-Änderung, Patch 2 romulus13-DT)? Welcher I2C-Bus (i2c8?) wird im Patch verwendet – im Cover Letter nicht genannt.",
+   "Widerspruch: ItsLucas nennt \"SPI touchscreen\" für Romulus13, fQwQf verwendet hid-over-i2c. Gibt es zwei Panel-Varianten des 13.8\" oder ist eine Angabe falsch? BUILD.json und Patches von ItsLucas noch nicht gelesen.",
+   "Wurde spi-hid v5 nach Juni 2026 gepostet oder für 7.4 gemerged? Suche fand nur v2–v4.",
+   "Enthält Ubuntu-concept linux-qcom-x1e 7.3.0-15.15 bereits Romulus-Touchpad/Touchscreen-Patches oder nur den Ubuntu-SAUCE-Stack?",
+   "Bringt das Fedora-KDE-44-1.7-ISO tatsächlich das automatische DTB-Feature mit und liegt x1e80100-microsoft-romulus13.dtb im Fedora-Kernel bei?",
+   "Ursache des Ubuntu-Boot-Loops weiterhin unbekannt; Omarchy meldet ähnlichen Freeze+Reboot auf 7.2.5 – gemeinsamer Auslöser (z. B. Thermal/Panic/Watchdog)?",
+   "URL der Arch-Linux-ARM-Doku (revidiert 2026-09-09) für romulus15 nicht verifiziert; Inhalt des cicorias-Gists nicht gelesen.",
+   "Hat Qualcomm (Mukesh Savaliya) seit 2026-07-01 einen QSPI-Patch für spi-geni-qcom gepostet? Nicht im Budget geprüft."
+  ],
+  "sources": [
+   "https://api.github.com/repos/bryce-hoehn/linux-surface-laptop-7/issues?state=all&sort=created&direction=desc&per_page=40",
+   "https://api.github.com/repos/bryce-hoehn/linux-surface-laptop-7/pulls?state=all&sort=updated&direction=desc&per_page=30",
+   "https://api.github.com/repos/bryce-hoehn/linux-surface-laptop-7/branches?per_page=50",
+   "https://api.github.com/repos/bryce-hoehn/linux-surface-laptop-7/forks?sort=newest&per_page=40",
+   "https://api.github.com/repos/linux-surface/linux-surface/issues/1590/comments?since=2026-09-12T00:00:00Z&per_page=100",
+   "https://api.github.com/repos/ProgrammerIn-wonderland/ELLX-Kernel/commits?per_page=25",
+   "https://public.hgci.org/software/ELLX/",
+   "https://launchpad.net/~ubuntu-concept/+archive/ubuntu/x1e/+packages",
+   "https://api.github.com/repos/orvitpng/nix1e/commits?per_page=25",
+   "https://api.github.com/repos/scuggo/x1e-nixos/commits?per_page=20",
+   "https://ratatoskr.run/linux-arm-msm/2026/09/17522699/t",
+   "https://ratatoskr.run/linux-input/2026/09/17522701/t",
+   "https://api.github.com/repos/ItsLucas/surface-laptop-7-ubuntu-kernel/releases?per_page=10",
+   "https://github.com/ItsLucas/surface-laptop-7-ubuntu-kernel",
+   "https://github.com/denislopt/omarchy-surface-laptop7/releases/tag/v2026.09.16-rc1",
+   "https://discussion.fedoraproject.org/t/live-media-fail-to-boot-on-snapdragon-aarch64-laptops/188069",
+   "https://ratatoskr.run/linux-spi/2026/06/17091838/t",
+   "https://ratatoskr.run/lkml/2026/06/17106641/t",
+   "https://ratatoskr.run/lkml/2026/04/3494714/t",
+   "https://ratatoskr.run/linux-trace-kernel/2026/03/3476918/t",
+   "https://ratatoskr.run/linux-devicetree/2026/03/3436977/t",
+   "https://github.com/linux-surface/spi-hid",
+   "https://github.com/scuggo/x1e-nixos/blob/931cf9966ba3a213946329ce95b07635a34cd839/kernel/modules/qcom-qspi/spi-geni-qcom.patch",
+   "https://fedoraproject.org/wiki/Snapdragon_WoA_Laptop_Install",
+   "https://www.phoronix.com/news/Fedora-44-Approves-DTB-WOA",
+   "https://discussion.fedoraproject.org/t/microsoft-surface-laptop-7-fedora-41-ws-install-arm64/144552",
+   "https://discussion.fedoraproject.org/t/snapdragon-x-elite-fedora-42-system-bring-up-and-looking-for-collaborators-or-sigs/153631",
+   "https://gist.github.com/cicorias/6da75542f9e2b4a7b6f58a61ba3979d6",
+   "https://github.com/dwhinham/archiso-aarch64-sp11",
+   "https://bugs.launchpad.net/ubuntu-concept/+bug/2084951",
+   "https://www.phoronix.com/news/Microsoft-Surface-7-X1-Linux-DT",
+   "https://oftc.catirclogs.org/aarch64-laptops/search?q=surface",
+   "https://ratatoskr.run/lkml/2026/08/17453945/t",
+   "https://ratatoskr.run/linux-arm-msm/2026/06/17139127/t"
+  ]
+ },
+ {
+  "topic": "Fedora auf Snapdragon X Elite (X1E80100) 2026 – Stand fuer Surface Laptop 7 (romulus13) KDE-Live-ISO",
+  "summary": "Stand 2026-09-22, 20 Web-Abrufe verbraucht. (1) Fedora-Wiki \"Snapdragon WoA Laptop Install\" zielt aktuell auf Fedora Workstation 44 und listet nur Lenovo ThinkPad X13s, ThinkPad T14s Gen6 und Yoga Slim 7x; Surface Laptop 7 / romulus / X1E80100 werden nicht genannt. Ablauf: Windows-Treiber aktualisieren + Platte verkleinern, aarch64-Live-USB, im GRUB-Eintrag Kernelparameter anhaengen, normal installieren, danach Workarounds. Cmdline fuer X1E/X1P verbatim: \"clk_ignore_unused pd_ignore_unused systemd.tpm2_wait=0 modprobe.blacklist=qcom_q6v5_pas\" (kein arm64.nopauth, kein cutmem; nopauth+efi=noruntime nur fuer 8cx Gen3). Der Blacklist-Eintrag darf entfallen, wenn von USB-A gebootet wird; Grund: \"Rebooting the ADSP resets the TCPM ... looks like the USB drive is unplugged halfway through boot\". Post-Install verbatim: rm -f /etc/modprobe.d/anaconda-denylist.conf; echo scmi-cpufreq > /etc/modules-load.d/scmi-cpufreq.conf; grubby --update-kernel=ALL --args=\"systemd.tpm2_wait=0\"; dracut install_items+=\" /lib/firmware/updates/qcom/x1*/*/*/*.mbn* \" und ...*.elf*; qcom-firmware-extract aus updates-testing kopiert DSP-Firmware aus der Windows-Partition nach /lib/firmware/updates/. Die Wiki-Seite sagt nichts zu DTB-Bereitstellung; das steht im Fedora-44-Change \"Automatic DTB selection for aarch64 EFI systems\" (Owner Hans de Goede, Neal Gompa; zuletzt 2026-04-14): Live-ISOs bekommen ein neues Subpaket kernel-dtb-loader = vmlinuz mit eingebettetem systemd-stub (Stubble), HWID-zu-DTB-Mapping und DTBs (\"an incomplete UKI containing just the systemd-stub and the DTBs, but not an initrd nor a kernel commandline\"); grub2 wurde dafuer gefixt; fedora-kiwi-descriptions stellt Live-ISOs von kernel-core auf kernel-dtb-loader um. Installierte Systeme \"will keep using the kernel-core package, with the DTB specified manually in /etc/default/grub\" (GRUB devicetree). Ob romulus13 im HWID-Mapping der KDE-Live-44-1.7 steckt, konnte nicht verifiziert werden (packages-Seite fuer kernel-dtb-loader = 404). (2) Kernelstand laut packages.fedoraproject.org: F44 GA (2026-04-28) mit 6.19.14; aktuell F44 updates 7.2.6-200.fc44, updates-testing 7.2.7-200.fc44; F45 stable 7.2.6-300.fc45, testing 7.2.7-300.fc45; Rawhide 7.3.0-0.rc4.38.fc46. Mainline enthaelt arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus.dtsi (BSD-3, Copyright 2024 QUIC; WCN7850-PMU, WCD9385+WSA, PS8830-Retimer, GPU firmware qcdxkmsuc8380.mbn), d.h. ein 7.2er Fedora-Kernel bringt x1e80100-microsoft-romulus13.dtb unter /usr/lib/modules/<ver>/dtb/qcom/ bzw. /boot/dtb-<ver>/ mit (Dateiliste nicht direkt geprueft). (3) Community: kein offizieller Fedora-SIG; Matrix #arm:fedoraproject.org und #_oftc_#aarch64-laptops:matrix.org. Copr radical1/snapdragon-x-elite ist veraltet (kernel 6.15.0-0.rc2.22.x1e vom 2025-02-17, fedora-x1e-settings 2-1, qcom-firmware-extract 2-1); Copr kevin/x1e80100kernel (BT-Patch) und ein F42-Live-CD-Thread (163699) fuer Yoga Slim 7x existieren; Bring-up-Thread zuletzt Sep 2025. Neuer Thread \"Live media fail to boot on Snapdragon aarch64 laptops\" (discussion 188069) gefunden, nicht mehr abgerufen. (4) SL7-spezifisch: Fedora-Discussion 144552 (Feb–Apr 2025): Fedora-41-Live \"hangs in a boot loop until I restart it and remove the USB\", keine erfolgreiche Installation dokumentiert; Verweis auf linux-surface Issue #1590 und giantdwarf17/linux-surface-laptop-7. Keine 2026er Fedora-44/45-Berichte fuer SL7 gefunden. (5) Firmware: qcom-firmware-20260309-1.fc44 liefert usr/lib/firmware/qcom/x1e80100/{adsp,adsp_dtb,cdsp,cdsp_dtb,gen70500_zap}.mbn.xz plus Vendor-Ordner LENOVO/, ASUSTeK/, dell/, hp/ – kein microsoft/. atheros-firmware (Rawhide 20260916-1.fc46, F44 20260309-1.fc44 + Update 20260519) enthaelt ath12k/WCN7850/hw2.0/{amss,board-2,m3}.bin.xz; Changelog 2026-02-22 \"qcom: add QUPv3 firmware for x1e80100 platform\" + WCN7850-board-Updates, 2026-05-19 x1e80100-ADSP/CDSP-Updates. Alle Fedora-Firmware ist xz-komprimiert; geraetespezifische Microsoft-Blobs und die gepatchte board-2.bin gehoeren nach /usr/lib/firmware/updates/... (Loader sucht updates/ zuerst) und muessen per dracut install_items in die initramfs.",
+  "facts": [
+   {
+    "claim": "Fedora Wiki 'Snapdragon WoA Laptop Install' targets Fedora Workstation 44 and lists Lenovo ThinkPad X13s, ThinkPad T14s gen6, Yoga Slim 7x; Surface Laptop 7 / X1E80100 / romulus not mentioned.",
+    "source": "https://fedoraproject.org/wiki/Snapdragon_WoA_Laptop_Install",
+    "source_date": "2026 (revision 775997)",
+    "confidence": "high"
+   },
+   {
+    "claim": "Wiki kernel cmdline for Snapdragon X Elite/Plus X1E/X1P: \"clk_ignore_unused pd_ignore_unused systemd.tpm2_wait=0 modprobe.blacklist=qcom_q6v5_pas\"; for 8cx Gen3 additionally \"efi=noruntime arm64.nopauth\". Blacklist may be omitted when booting from USB-A.",
+    "source": "https://fedoraproject.org/wiki/Snapdragon_WoA_Laptop_Install",
+    "source_date": "2026",
+    "confidence": "high"
+   },
+   {
+    "claim": "Wiki known issue: \"Rebooting the ADSP resets the TCPM...looks like the USB drive is unplugged halfway through boot\" (USB Type-C boot); EFI firmware wrongly advertises TPM2 -> 90 s delay, fixed by systemd.tpm2_wait=0; scmi-cpufreq does not autoload; ADSP firmware not in host-only initramfs.",
+    "source": "https://fedoraproject.org/wiki/Snapdragon_WoA_Laptop_Install",
+    "source_date": "2026",
+    "confidence": "high"
+   },
+   {
+    "claim": "Wiki post-install commands verbatim: sudo rm -f /etc/modprobe.d/anaconda-denylist.conf; echo scmi-cpufreq | sudo tee /etc/modules-load.d/scmi-cpufreq.conf; sudo grubby --update-kernel=ALL --args=\"systemd.tpm2_wait=0\"; echo 'install_items+=\" /lib/firmware/updates/qcom/x1*/*/*/*.mbn* \"' | sudo tee -a /etc/dracut.conf.d/qcom-adsp-fw.conf; same for *.elf*; sudo dnf --enable-repo=updates-testing install qcom-firmware-extract; sudo qcom-firmware-extract.",
+    "source": "https://fedoraproject.org/wiki/Snapdragon_WoA_Laptop_Install",
+    "source_date": "2026",
+    "confidence": "high"
+   },
+   {
+    "claim": "Wiki: \"On most models these firmwares must be copied from the Windows partition\" and \"the linux-firmware repository does not contain firmware files for all supported models\"; device-specific blobs go to /lib/firmware/updates/qcom/x1*/<vendor>/<model>/.",
+    "source": "https://fedoraproject.org/wiki/Snapdragon_WoA_Laptop_Install",
+    "source_date": "2026",
+    "confidence": "high"
+   },
+   {
+    "claim": "Wiki page contains no information on how the DTB is provided (no dtbloader/grub devicetree/kernel-install instructions).",
+    "source": "https://fedoraproject.org/wiki/Snapdragon_WoA_Laptop_Install",
+    "source_date": "2026",
+    "confidence": "medium"
+   },
+   {
+    "claim": "Fedora 44 Change 'Automatic DTB selection for aarch64 EFI systems' (owners Hans de Goede, Neal Gompa; last updated 2026-04-14; FESCo #3533; tracker bug #2431731): Live ISOs use a new subpackage kernel-dtb-loader = modified vmlinuz embedding systemd-stub (Stubble), hardware-id-to-DTB mappings and DTBs, described as \"an incomplete UKI containing just the systemd-stub and the DTBs, but not an initrd nor a kernel commandline\"; grub2 fixed to boot systemd-stub images; fedora-kiwi-descriptions switches Live ISOs from kernel-core to kernel-dtb-loader; Stubble packaged (bug #2421973).",
+    "source": "https://fedoraproject.org/wiki/Changes/Automatic_DTB_selection_for_aarch64_EFI_systems",
+    "source_date": "2026-04-14",
+    "confidence": "high"
+   },
+   {
+    "claim": "Change page: installed systems \"will keep using the kernel-core package, with the DTB specified manually in /etc/default/grub\" (i.e. GRUB devicetree line, not dtbloader.efi in the ESP).",
+    "source": "https://fedoraproject.org/wiki/Changes/Automatic_DTB_selection_for_aarch64_EFI_systems",
+    "source_date": "2026-04-14",
+    "confidence": "high"
+   },
+   {
+    "claim": "packages.fedoraproject.org kernel-dtb-loader page returns HTTP 404; whether the kernel-dtb-loader HWID mapping in Fedora-KDE-Desktop-Live-44-1.7 includes Microsoft romulus13/romulus15 is unverified.",
+    "source": "https://packages.fedoraproject.org/pkgs/kernel/kernel-dtb-loader/",
+    "source_date": "2026-09-22",
+    "confidence": "high"
+   },
+   {
+    "claim": "Fedora 44 released 2026-04-28 with kernel 6.19.14 (GA).",
+    "source": "https://ostechnix.com/fedora-linux-44-released/ ; https://9to5linux.com/fedora-linux-44-is-now-available-for-download-heres-whats-new",
+    "source_date": "2026-04",
+    "confidence": "medium"
+   },
+   {
+    "claim": "kernel-core versions (packages.fedoraproject.org, 2026-09-22): Rawhide 7.3.0-0.rc4.38.fc46; Fedora 45 stable 7.2.6-300.fc45, testing 7.2.7-300.fc45; Fedora 44 updates 7.2.6-200.fc44, updates-testing 7.2.7-200.fc44; Fedora 43 updates 7.2.6-100.fc43.",
+    "source": "https://packages.fedoraproject.org/pkgs/kernel/kernel-core/",
+    "source_date": "2026-09-22",
+    "confidence": "high"
+   },
+   {
+    "claim": "Mainline Linux contains arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus.dtsi (SPDX BSD-3-Clause, Copyright (c) 2024 Qualcomm Innovation Center), 1579 lines, with WCN7850-PMU (WLAN/BT), WCD9385 codec + WSA speakers, two Parade PS8830 USB-C retimers (i2c3/i2c7), GPU status okay with zap firmware qcdxkmsuc8380.mbn, eDP backlight; touchpad/touchscreen/EC nodes were beyond the fetched excerpt.",
+    "source": "https://github.com/torvalds/linux/blob/master/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus.dtsi",
+    "source_date": "2026-09-22",
+    "confidence": "high"
+   },
+   {
+    "claim": "Fedora kernel-core on aarch64 ships DTBs under /boot/dtb-<ver>/ (symlink /boot/dtb) e.g. 'devicetree /boot/dtb/qcom/x1e80100-lenovo-yoga-slim7x.dtb' used in the F42 bring-up thread; therefore Fedora kernel 7.2.x should include x1e80100-microsoft-romulus13.dtb (file list not directly verified).",
+    "source": "https://discussion.fedoraproject.org/t/snapdragon-x-elite-fedora-42-system-bring-up-and-looking-for-collaborators-or-sigs/153631",
+    "source_date": "2025-09",
+    "confidence": "medium"
+   },
+   {
+    "claim": "No official Fedora SIG for Snapdragon X Elite; community channels Matrix #arm:fedoraproject.org and #_oftc_#aarch64-laptops:matrix.org; contributors Gurney Buchanan (Yoga Slim 7x), Peter Sarapkin (Vivobook S15), reports for Medion SPRCHRGD 14 and T14s Gen6; Christopher Palmer built an FC42 Live CD (thread 163699); BT patched kernel copr kevin/x1e80100kernel; latest post Sept 2025.",
+    "source": "https://discussion.fedoraproject.org/t/snapdragon-x-elite-fedora-42-system-bring-up-and-looking-for-collaborators-or-sigs/153631",
+    "source_date": "2025-09",
+    "confidence": "high"
+   },
+   {
+    "claim": "Copr radical1/snapdragon-x-elite is stale: kernel 6.15.0-0.rc2.22.x1e (2025-02-17), fedora-x1e-settings 2-1 and qcom-firmware-extract 2-1 (2025-02-22); chroots fedora-42..45 + rawhide aarch64; no dtbloader package.",
+    "source": "https://copr.fedorainfracloud.org/api_3/package/list?ownername=radical1&projectname=snapdragon-x-elite&with_latest_build=True",
+    "source_date": "2026-09-22",
+    "confidence": "high"
+   },
+   {
+    "claim": "Fedora Discussion 'Microsoft Surface Laptop 7 - Fedora 41 WS Install ARM64' (2025-02-13 to 2025-04-16): Fedora 41 Live USB \"Everytime, it hangs in a boot loop until I restart it and remove the USB\"; Ubuntu install succeeded; no successful Fedora install documented; links to linux-surface issue #1590 and giantdwarf17/linux-surface-laptop-7.",
+    "source": "https://discussion.fedoraproject.org/t/microsoft-surface-laptop-7-fedora-41-ws-install-arm64/144552",
+    "source_date": "2025-04-16",
+    "confidence": "high"
+   },
+   {
+    "claim": "No 2026 Fedora 44/45 reports for Surface Laptop 7 Snapdragon found in search; results only for Intel SL7 Business (Fedora 41) and older Surface models.",
+    "source": "WebSearch \"Surface Laptop 7\" Fedora 44/45 dtbloader romulus",
+    "source_date": "2026-09-22",
+    "confidence": "medium"
+   },
+   {
+    "claim": "A Fedora Discussion thread 'Live media fail to boot on Snapdragon aarch64 laptops' (t/188069) exists; not fetched (budget).",
+    "source": "https://discussion.fedoraproject.org/t/live-media-fail-to-boot-on-snapdragon-aarch64-laptops/188069",
+    "source_date": "2026",
+    "confidence": "medium"
+   },
+   {
+    "claim": "Phoronix: Fedora 44 approved feature for automatic DTB selection; Hans de Goede (now Qualcomm) leads; Fedora 44 'could work nicely out of the box' on Snapdragon WoA laptops.",
+    "source": "https://www.phoronix.com/news/Fedora-44-Approves-DTB-WOA ; https://www.phoronix.com/news/Fedora-44-ARM-OOTB",
+    "source_date": "2026",
+    "confidence": "high"
+   },
+   {
+    "claim": "qcom-firmware-20260309-1.fc44 (built 2026-03-10) ships usr/lib/firmware/qcom/x1e80100/{adsp.mbn.xz, adsp_dtb.mbn.xz, cdsp.mbn.xz, cdsp_dtb.mbn.xz, gen70500_zap.mbn.xz} and vendor dirs LENOVO/{21N1,83ED}, ASUSTeK/{vivobook-16,vivobook-s15,zenbook-a14}, dell/{inspiron-14-plus-7441,latitude-7455,xps13-9345}, hp/omnibook-x14; no microsoft/ directory; all files xz-compressed.",
+    "source": "https://packages.fedoraproject.org/pkgs/linux-firmware/qcom-firmware/fedora-44.html",
+    "source_date": "2026-03-10",
+    "confidence": "high"
+   },
+   {
+    "claim": "Fedora 44 linux-firmware update 20260519 adds ADSP firmware updates for x1e80100.",
+    "source": "https://linuxsecurity.com/advisories/fedora/linux-firmware-fedora-44-2026-2b07c67f06",
+    "source_date": "2026-05-19",
+    "confidence": "medium"
+   },
+   {
+    "claim": "atheros-firmware Rawhide 20260916-1.fc46 (built 2026-09-16) ships ath12k/WCN7850/hw2.0/{amss.bin.xz, board-2.bin.xz, m3.bin.xz, Notice.txt.xz}; changelog 2026-02-22 'qcom: add QUPv3 firmware for x1e80100 platform' + ath12k WCN7850 board file updates; 2026-05-19 x1e80100 ADSP/CDSP updates; F44 has atheros-firmware-20260309-1.fc44.",
+    "source": "https://packages.fedoraproject.org/pkgs/linux-firmware/atheros-firmware/fedora-rawhide.html ; https://packages.fedoraproject.org/pkgs/linux-firmware/atheros-firmware/fedora-44-updates-testing.html",
+    "source_date": "2026-09-16",
+    "confidence": "high"
+   },
+   {
+    "claim": "qcom-firmware-extract package page on packages.fedoraproject.org returned 404 (URL guess); tool exists at least in copr radical1 (v2-1) and wiki says it is in Fedora updates-testing.",
+    "source": "https://packages.fedoraproject.org/pkgs/qcom-firmware-extract/qcom-firmware-extract/",
+    "source_date": "2026-09-22",
+    "confidence": "medium"
+   },
+   {
+    "claim": "Fedora 45 schedule page (fedorapeople.org) blocked by Anubis; Fedora 45 final release date not verified. packages.fedoraproject.org already lists a 'Fedora 45' stable column (7.2.6-300.fc45), so F45 is branched with nightlies available.",
+    "source": "https://fedorapeople.org/groups/schedule/f-45/f-45-key-tasks.html ; https://packages.fedoraproject.org/pkgs/kernel/kernel-core/",
+    "source_date": "2026-09-22",
+    "confidence": "medium"
+   },
+   {
+    "claim": "Search snippet from the Wiki: \"With Fedora 45 this should no longer be necessary\" refers to workarounds needed on F44 (context not extracted verbatim).",
+    "source": "https://fedoraproject.org/wiki/Snapdragon_WoA_Laptop_Install (via WebSearch snippet)",
+    "source_date": "2026",
+    "confidence": "low"
+   }
+  ],
+  "recommendations": [
+   "Lokal (ohne Web-Budget) pruefen, ob Fedora-KDE-Desktop-Live-44-1.7.aarch64.iso und die 45-Nightly bereits kernel-dtb-loader nutzen: /images/pxeboot/vmlinuz bzw. /boot/efi-Inhalt mit 'objdump -h' / 'stubble'-Sektionen (.dtbauto, .hwids) auslesen und nach 'romulus' greppen; falls romulus13 fehlt, eigene Stubble/ukify-UKI mit x1e80100-microsoft-romulus13.dtb (.dtbauto + SMBIOS-HWID) in die ISO einbauen (unsere bestehende ukify/stubble-Pipeline).",
+   "Fuer die installierte Fedora: entweder GRUB 'devicetree /boot/dtb/qcom/x1e80100-microsoft-romulus13.dtb' (GRUB_DEFAULT_DTB / /etc/default/grub, wie im Fedora-Change beschrieben) oder eigene UKI im ESP; kernel-install/dracut-Pfade der Fedora beachten (BLS-Eintraege in /boot/loader/entries).",
+   "Kernel-Cmdline nach Fedora-Wiki fuer X1E: 'clk_ignore_unused pd_ignore_unused systemd.tpm2_wait=0' plus fuer USB-C-Bootstick 'modprobe.blacklist=qcom_q6v5_pas'; bei 64-GB-Modell weiterhin GRUB cutmem 0x8800000000 0x8fffffffff aus dem Ubuntu-Image uebernehmen; arm64.nopauth laut Fedora fuer X1E nicht noetig.",
+   "Boot-Loop-Hypothese fuer den Ubuntu-Versuch: ADSP-Start (qcom_q6v5_pas) resettet TCPM/USB und/oder Panic nach Plymouth; beim naechsten Test 'modprobe.blacklist=qcom_q6v5_pas panic=0 plymouth.enable=0 systemd.log_level=debug' und rd.break / Serial-over-USB nicht verfuegbar -> stattdessen Journal auf ESP persistieren (journald Storage=persistent, ggf. /var/log/journal auf dem Stick) und pstore/efi-pstore einschalten, um endlich Logs zu bekommen.",
+   "Fedora-Kernel 7.2.7 (F44 updates-testing / F45) als Basis erwaegen statt ELLX 7.0-rc4: romulus-DTS ist mainline; unseren Patch-Stack (dwc3 reinit-phy, Speaker-Volume-Limit, hamoa QMP PHY, Touchpad-Reset, i2c8/spi10-Touchscreen-Varianten, iris, Thermal) auf 7.2.x rebasen und als Fedora-kernel-RPM (fedpkg/rpmbuild mit kernel.spec + Patches) bauen, damit dnf/kernel-install/dracut-Integration sauber bleibt.",
+   "Firmware: Microsoft-Blobs aus MSI 26.053 nach /usr/lib/firmware/updates/qcom/x1e80100/microsoft/Romulus/ (exakten firmware-name-Pfad aus romulus.dtsi Zeilen >1000 pruefen: qcadsp8380.mbn, qccdsp8380.mbn, qcdxkmsuc8380.mbn, adsp_dtb/cdsp_dtb) und gepatchte board-2.bin nach /usr/lib/firmware/updates/ath12k/WCN7850/hw2.0/board-2.bin (unkomprimiert reicht; Fedora-Blobs sind .xz); dracut install_items wie im Wiki (x1*/*/*/*.mbn* und *.elf*) in /etc/dracut.conf.d/, sonst fehlt ADSP in der host-only initramfs.",
+   "Post-Install-Workarounds aus dem Wiki in die ISO/Kickstart uebernehmen: anaconda-denylist.conf loeschen, scmi-cpufreq in modules-load.d, systemd.tpm2_wait=0 via grubby; 'Live media fail to boot on Snapdragon aarch64 laptops' (discussion 188069) beim naechsten Budget lesen.",
+   "Speaker-Schutz: Fedora-Kernel hat keinen Ubuntu-SAUCE-Volume-Limit-Patch -> unseren Patch zwingend mitbauen und zusaetzlich ALSA-UCM/PipeWire-Limits setzen; niemals Pro-Audio-Profil; keine modprobe-Blacklist von snd_soc_wsa884x.",
+   "Community-Copr radical1 (Kernel 6.15-rc2 von Feb 2025) nicht verwenden; kevin/x1e80100kernel nur als Patch-Quelle fuer Bluetooth ansehen; kein Fedora-SIG vorhanden, Fragen im Matrix #arm:fedoraproject.org / #aarch64-laptops stellen.",
+   "Touchpad (haptisch, kraftsensitiv, 'virtueller Klick') und Touchscreen bleiben die eigentlichen Unbekannten: bryce-hoehn-Repo-Stand (2026-08-06) ist unveraendert; DT-Varianten i2c8/spi10 auf dem Fedora-Kernel als separate .dtbauto-Eintraege oder GRUB-Menueeintraege anbieten, damit Martin ohne Rebuild testen kann."
+  ],
+  "open_questions": [
+   "Enthaelt kernel-dtb-loader (Fedora 44 GA / F45 nightly KDE Live) das HWID-Mapping fuer Microsoft Surface Laptop 7 (romulus13/romulus15)? packages-Seite 404, Live-ISO nicht inspiziert.",
+   "Exakter firmware-name-Pfad in x1e80100-microsoft-romulus.dtsi (ADSP/CDSP/GPU-zap) – nur qcdxkmsuc8380.mbn bestaetigt, Rest im nicht abgerufenen Dateiteil (Zeilen 1000–1579).",
+   "Fedora-45-Release-Termin (fedorapeople blockiert durch Anubis) und ob KDE-Live-45 die im Wiki angekuendigten Vereinfachungen ('With Fedora 45 this should no longer be necessary') schon enthaelt.",
+   "Inhalt des Threads 'Live media fail to boot on Snapdragon aarch64 laptops' (discussion 188069) – moeglicherweise gleicher Boot-Loop wie bei Martin.",
+   "Ist qcom-firmware-extract wirklich in Fedora updates-testing (Wiki) oder nur im Copr? Unterstuetzt es Surface/romulus (DMI-Liste)?",
+   "Ob die Fedora-Kernel-Config CONFIG_FW_LOADER_COMPRESS_XZ/ZSTD und die updates/-Suchreihenfolge fuer unkomprimierte Ersatz-Blobs ausreicht (angenommen ja, nicht geprueft).",
+   "Ob der Ubuntu-Boot-Loop durch qcom_q6v5_pas/TCPM-Reset, GPU/msm-Panic oder cutmem/EFI-Memory (64 GB) verursacht wurde – keine Logs."
+  ],
+  "sources": [
+   "https://fedoraproject.org/wiki/Snapdragon_WoA_Laptop_Install",
+   "https://fedoraproject.org/wiki/Changes/Automatic_DTB_selection_for_aarch64_EFI_systems",
+   "https://packages.fedoraproject.org/pkgs/kernel/kernel-core/",
+   "https://packages.fedoraproject.org/pkgs/kernel/kernel-dtb-loader/ (404)",
+   "https://packages.fedoraproject.org/pkgs/linux-firmware/qcom-firmware/fedora-44.html",
+   "https://packages.fedoraproject.org/pkgs/linux-firmware/atheros-firmware/fedora-rawhide.html",
+   "https://packages.fedoraproject.org/pkgs/linux-firmware/atheros-firmware/fedora-44-updates-testing.html",
+   "https://linuxsecurity.com/advisories/fedora/linux-firmware-fedora-44-2026-2b07c67f06",
+   "https://github.com/torvalds/linux/blob/master/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus.dtsi",
+   "https://discussion.fedoraproject.org/t/microsoft-surface-laptop-7-fedora-41-ws-install-arm64/144552",
+   "https://discussion.fedoraproject.org/t/snapdragon-x-elite-fedora-42-system-bring-up-and-looking-for-collaborators-or-sigs/153631",
+   "https://discussion.fedoraproject.org/t/x1e-fc42-live-cd-for-lenovo-yoga-slim7x/163699",
+   "https://discussion.fedoraproject.org/t/live-media-fail-to-boot-on-snapdragon-aarch64-laptops/188069",
+   "https://discussion.fedoraproject.org/t/snapdragon-x-elite-support-any-updates/139753",
+   "https://copr.fedorainfracloud.org/api_3/package/list?ownername=radical1&projectname=snapdragon-x-elite&with_latest_build=True",
+   "https://copr.fedorainfracloud.org/coprs/radical1/snapdragon-x-elite/ (Anubis-blockiert)",
+   "https://copr.fedorainfracloud.org/coprs/kevin/x1e80100kernel/",
+   "https://www.phoronix.com/news/Fedora-44-Approves-DTB-WOA",
+   "https://www.phoronix.com/news/Fedora-44-ARM-OOTB",
+   "https://ostechnix.com/fedora-linux-44-released/",
+   "https://9to5linux.com/fedora-linux-44-is-now-available-for-download-heres-whats-new",
+   "https://fedorapeople.org/groups/schedule/f-45/f-45-key-tasks.html (Anubis-blockiert)",
+   "https://packages.fedoraproject.org/pkgs/qcom-firmware-extract/qcom-firmware-extract/ (404)",
+   "https://www.phoronix.com/news/Microsoft-Surface-7-X1-Linux-DT",
+   "https://learn.microsoft.com/en-us/answers/questions/5912474/linux-on-a-surface-laptop-7th-edition-snapdragon-x"
+  ]
+ },
+ {
+  "topic": "Surface Laptop 7 (X1E, romulus13) haptisches Touchpad unter Linux 2026: iptsd upstream vs. alex-lentz-Fork vs. orvitpng-Patch, Betriebsarten, SIGILL/BTI, Fedora-44-Build, udev/systemd/Kalibrierung",
+  "summary": "Stand 22.09.2026, 20 Web-Abrufe plus lokale Klone/JSON-Kopien (gits/alex-lentz_iptsd, docs/quellen/ls1590-comments-2026.json, horizontblau-sl7.txt, build/out/ellx-iptsd).\n\n(1) Upstream linux-surface/iptsd: letzte Releases v3.1.0 (29.12.2025), v3.0.1 (04.05.2025), v3 (14.09.2024). Keine Release-Notiz erwähnt Surface Laptop 7, X1E, aarch64, Haptik oder physischen Klick. SL7-Support ist upstream nicht gelandet.\n\n(2) alex-lentz/iptsd (letzter Push 17.07.2026, HEAD 3663e96) setzt auf v3.1.0 auf und trägt vier eigene Commits: 388cdf8 (02.05.2026) parst IPTS-Frame-Typ 0x94, Byte 2 Bit 1 (bytes[2] & 0x02) → samples::Button → on_button → BTN_LEFT; zusätzlich is_button_input() für eigenständige HID-Button-Reports (USAGE_PAGE_BUTTON/BUTTON_1, data[1] & 0x01). 43f422a (02.05.2026): systemd-sleep-Hook, der nach Resume „udevadm trigger --action=add --subsystem-match=hidraw“ feuert, plus Restart=on-failure/RestartSec=2 im Template-Unit. 16169f6 (12.07.2026): [Touchpad] ButtonDebounceMs (Default 25 ms) gegen Doppelklick-Flackern und DisableOnPalm-Klick-Leck. Der Autor hat das Intel-Modell; ProgrammerIn-wonderland (15\" X1E, 18.05.2026) und horizontblau (13.8\" X1E, 23.08.2026) bestätigen den physischen Klick auf Snapdragon. Build: meson/ninja, CLI11, Eigen3, fmt, inih, GSL, spdlog, cmake (optional cairomm, SDL2); keine Prebuilts; Fedora braucht semanage/restorecon nur bei „ninja install“.\n\n(3) orvitpng hat keinen iptsd-Fork auf GitHub (Repos: meca, nix1e, rnnoise). Sein Patch ist ein ~10-Zeilen-Anhang in #1590 vom 26.05.2026 (user-attachments/files/28241222/iptsd-touchpad_click.patch), Inhalt nicht abgerufen (Budget). Kritik am anderen Fork: vermische HID- und IPTS-Ebene, „covers more area … more room for bugs“, aber dessen systemd-Änderung sei sinnvoll. 02.09.2026: „that other fork actually missed the obvious solution“; Gerät inzwischen verkauft. nix1e enthält keinen iptsd-Code (nur spi-hid-Chromium-Serie + fullduplex.patch, touchpad.dtsi mit gpio3 IRQ, gpio120 Reset, gpio65 Regler mit 1 s Startup).\n\n(4) Drei Betriebsarten (orvitpng 04.06./09.06./10.06.2026): generischer HID-Maus-Modus (für die UEFI-Oberfläche), beworbenes HID-Multitouch, das hid-multitouch bindet, aber nie Daten liefert, und ein IPTS-artiger Heatmap-Modus. iptsd schaltet um: runner.run() ruft set_mode(Multitouch) → sucht Feature-Report mit Vendor-Usage USAGE_SET_MODE=0xC8 (1 Byte) und sendet {report_id, 1} per set_feature; beim Stop Singletouch (0). horizontblau-Messung 27.08.2026: mit iptsd liefern alle fünf Kernel-Nodes 0 Events, nur das uinput-Gerät; ohne iptsd liefert der „Mouse“-Node REL_X/REL_Y/BTN_LEFT; der „Touchpad“-Node (hid-multitouch, PRESSUREPAD) bleibt immer stumm. Gerät: 045E:0C77 an 88c000.spi (spi19).\n\n(5) SIGILL: horizontblau 23.08.2026 – ELLX-Binary stürzt bei jedem Aufruf (auch --help) mit SIGILL; Ursache inkonsistente Branch-Protection zwischen Paketkomponenten (indirekter Sprung ohne BTI-Landepad). Abhilfe: objcopy --remove-section=.note.gnu.property oder Neubau mit durchgängig -mbranch-protection=standard. ProgrammerIn-wonderland lief dasselbe Deb – also nicht universell (vermutlich kernelabhängige BTI-Durchsetzung). qemu-user erzeugt keine BTI-Faults → nur auf echter Hardware testbar.\n\n(6) Fedora: iptsd.spec (Upstream, 22.09.2026) BuildRequires meson, gcc-g++, cmake, cmake(CLI11), pkgconfig(eigen3), pkgconfig(fmt), pkgconfig(inih), cmake(Microsoft.GSL), pkgconfig(spdlog), pkgconfig(cairomm-1.0), pkgconfig(sdl2), pkgconfig(systemd), pkgconfig(udev), systemd-rpm-macros; Build „%meson --buildtype=release --debug“; Paketbau via „rpkg local“. Kein hidrd/libinput. Kein COPR gefunden; linux-surface-Repo/GitHub-Actions liefern nur Upstream-Builds (ohne Klick-Fix). Das ELLX-Deb (3.1.0-1 arm64) enthält weder iptsd@.service noch 50-iptsd.rules noch Sleep-Hook (dpkg-deb -c verifiziert; Community-Issue #23, 30.07.2026).\n\n(7) udev/systemd: 50-iptsd.rules = SUBSYSTEM==\"hidraw\", ACTION==\"add\", TAG+=\"systemd\", PROGRAM iptsd-check-device --quiet, PROGRAM systemd-escape --path, ENV{SYSTEMD_WANTS}+=\"iptsd@$result.service\". Unit: StopWhenUnneeded=yes, BindsTo=%i.device, ExecStart=/usr/bin/iptsd /%I. Kein LIBINPUT_IGNORE_DEVICE upstream; horizontblau-Regel: LIBINPUT_IGNORE_DEVICE=1 nur für ID_INPUT_TOUCHPAD==\"1\" an ID_PATH platform-88c000.spi-cs-0, Mouse-Node sichtbar lassen. iptsd-calibrate /dev/hidrawN schreibt iptsd_calib_045E_0C77_<unix>_{0,2,10}mm.conf ins cwd und empfiehlt cp der 2mm-Datei nach /etc/iptsd.d/91-calibration-045E-0C77.conf. Config-Loader lädt /usr/share/iptsd (Presets) dann /etc/iptsd.d, Match über [Device] Vendor/Product. iptsd-find-hidraw ist deprecated und sucht nur Touchscreens; für das Pad „iptsd-foreach -t touchpad -- echo {}“.",
+  "facts": [
+   {
+    "claim": "linux-surface/iptsd releases: v3.1.0 (29 Dec), v3.0.1 (04 May), v3 (14 Sep) — keine Erwähnung von Surface Laptop 7, X1E, aarch64, haptic, click, force oder BTN_LEFT in den Release-Notes. Commit a83bc12 'iptsd v3.1.0' von qzed datiert 29.12.2025.",
+    "source": "https://github.com/linux-surface/iptsd/releases ; lokaler Klon gits/alex-lentz_iptsd git log",
+    "source_date": "2026-09-22",
+    "confidence": "high"
+   },
+   {
+    "claim": "alex-lentz/iptsd: 'personal fork of linux-surface/iptsd, vibe coded (you have been warned) to get my MS Surface Laptop 7 Intel haptic trackpad to work'; Patches auf v3.1.0; HEAD 3663e96 (Merge PR #2), letzter Fork-Commit 6dc65ef 17.07.2026.",
+    "source": "https://github.com/alex-lentz/iptsd (README) ; https://github.com/alex-lentz/iptsd/commits/master",
+    "source_date": "2026-09-22",
+    "confidence": "high"
+   },
+   {
+    "claim": "Commit 388cdf8 (02.05.2026) 'ipts/parser, daemon: Fix physical click on Sensel haptic touchpad': parser.hpp default-Zweig prüft type_byte == 0x94, liest bytes[2] & 0x02 → samples::Button{active, pressure 1.0/0.0} → on_button → touch.hpp emit(EV_KEY, BTN_LEFT). Zusätzlich is_button_input() (Input-Report mit USAGE_PAGE_BUTTON/USAGE_BUTTON_1, nicht Touch-Data) → runner is_button_data → process_button_report → daemon on_button_report: data[1] & 0x01. 105 Zeilen +, 8 −, 7 Dateien.",
+    "source": "https://github.com/alex-lentz/iptsd/commit/388cdf8 ; lokaler Klon src/ipts/parser.hpp, src/ipts/protocol/descriptor.hpp, src/apps/daemon/daemon.hpp",
+    "source_date": "2026-05-02",
+    "confidence": "high"
+   },
+   {
+    "claim": "Commit 43f422a (02.05.2026) 'etc: Fix iptsd not recovering after sleep when hidraw device persists': etc/systemd-sleep/iptsd = '[ \"$1\" = \"post\" ] && udevadm trigger --action=add --subsystem-match=hidraw'; iptsd@.service.in erhält Restart=on-failure, RestartSec=2.",
+    "source": "lokaler Klon gits/alex-lentz_iptsd etc/systemd-sleep/iptsd, etc/systemd/iptsd@.service.in",
+    "source_date": "2026-05-02",
+    "confidence": "high"
+   },
+   {
+    "claim": "Commit 16169f6 (12.07.2026) 'daemon: Add button debounce and fix palm-suppression click leak': [Touchpad] ButtonDebounceMs (Default 25 ms) verwirft Button-Übergänge innerhalb des Fensters ('rapid press/release flicker from the firmware's raw pressure-threshold bit that was causing intermittent double-clicks'); update(const Button&) prüft jetzt auch is_blocked()/DisableOnPalm.",
+    "source": "lokaler Klon gits/alex-lentz_iptsd git show 16169f6; src/core/linux/config-loader.hpp Zeile 161-163",
+    "source_date": "2026-07-12",
+    "confidence": "high"
+   },
+   {
+    "claim": "Fork-Build-Deps laut README: C++-Compiler, meson, ninja, CLI11, Eigen3, fmt, inih/INIReader, gsl, spdlog, cmake; optional cairomm, SDL2 (Plot-Tools). Build: meson setup build; ninja -C build; sudo ninja -C build install. Keine Prebuilt-Pakete/CI im Fork. meson.build setzt cpp_std=c++17 und b_lto=true; Optionen service_manager=[systemd], sample_config=true, debug_tools=[calibrate,dump,perf,plot,show], access_checks=true.",
+    "source": "https://github.com/alex-lentz/iptsd README ; lokaler Klon meson.build, meson_options.txt",
+    "source_date": "2026-09-22",
+    "confidence": "high"
+   },
+   {
+    "claim": "Fork-README Fedora/SELinux (nur nach 'ninja install' nötig): sudo semanage fcontext -a -t systemd_unit_file_t -s system_u /usr/lib/systemd/system/iptsd@.service ; sudo semanage fcontext -a -t usr_t -s system_u '/usr/local/bin/ipts.*' ; sudo restorecon -vF /usr/lib/systemd/system/iptsd@.service ; sudo restorecon -vF /usr/local/bin/ipts* — 'When you build your own package, everything will just work.'",
+    "source": "lokaler Klon gits/alex-lentz_iptsd README.md Zeilen 102-113",
+    "source_date": "2026-07-17",
+    "confidence": "high"
+   },
+   {
+    "claim": "orvitpng (26.05.2026): 'I did end up very lightly (and I mean like 10 lines to do the bare minimum of what I need) patching iptsd'; Anhang iptsd-touchpad_click.patch unter https://github.com/user-attachments/files/28241222/iptsd-touchpad_click.patch. Zum anderen Fork: 'It seems to mix up the separation between HID and IPTS ... The fork covers more area, which could mean more room for bugs ... The other fork does seem to modify the systemd script in a positive way, so that patch you may want to apply as well.'",
+    "source": "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-4538424148 (lokale Kopie ls1590-comments-2026.json)",
+    "source_date": "2026-05-26",
+    "confidence": "high"
+   },
+   {
+    "claim": "orvitpng (02.09.2026): 'I did patch up iptsd to work better as that other fork actually missed the obvious solution. And I did get touchscreen to work a few months back'; hat das Gerät verkauft ('I ended up getting rid of the damn thing').",
+    "source": "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-5503481916",
+    "source_date": "2026-09-02",
+    "confidence": "high"
+   },
+   {
+    "claim": "orvitpng-GitHub-Profil hat nur drei Repos (meca, nix1e zuletzt 17.06.2026, rnnoise-Fork); kein iptsd-Fork. nix1e-README: 'Swapped the spi-hid driver for a patched-up newer series submitted by Chromium ... This properly powers the trackpad and fixes suspend.' nix1e enthält keinen iptsd-Code; https://github.com/orvitpng/nix1e/tree/main/modules liefert 404.",
+    "source": "https://github.com/orvitpng?tab=repositories ; https://github.com/orvitpng/nix1e ; lokale Kopie docs/quellen/nix1e/README",
+    "source_date": "2026-09-22",
+    "confidence": "high"
+   },
+   {
+    "claim": "nix1e touchpad.dtsi: TP_RESET gpio120, TP_INT gpio3 (bias-pull-up), TP_VDD gpio65 als regulator-fixed 'tp_reg' mit startup-delay-us 1000000, enable-active-high; gpi_dma2 okay; Bus &spi19.",
+    "source": "lokale Kopie docs/quellen/nix1e/touchpad.dtsi",
+    "source_date": "2026-07-01",
+    "confidence": "high"
+   },
+   {
+    "claim": "Drei Modi (orvitpng 04.06.2026): 'the device supports 3 modes: a generic HID mode (I imagine this was included so the BIOS interface could have a cursor without having to do multitouch calculations), a standard Windows Precision Touchpad OR HID multitouch interface (regardless, hid-multitouch would be able to handle the device), and an Intel Precise Touch & Stylus (IPTS) interface. Without iptsd, the hid-generic driver has been serving us the slop made for the BIOS interface'.",
+    "source": "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-4626861568",
+    "source_date": "2026-06-04",
+    "confidence": "high"
+   },
+   {
+    "claim": "orvitpng 09.06.2026: 'The device itself actually advertises multitouch capabilities over HID. In fact, the kernel's hid-multitouch driver even attaches to it and creates a multitouch device. The catch is that it never actually reports data, even with the driver telling the controller to use multitouch.' 10.06.2026: 'The touchscreen and touchpad both work fine under iptsd now ... I'd hoped the touchpad would support standard HID multitouch, but it doesn't ... this device instead sends the raw heatmaps in an IPTS-adjacent format.' Vermutung: von Microsoft angepasstes Sensel-Pad; jedes Touch-Gerät bringt eigenen 'TouchPenProcessor' in den Firmware-Blobs.",
+    "source": "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-4664168705 und #issuecomment-4674651781",
+    "source_date": "2026-06-10",
+    "confidence": "high"
+   },
+   {
+    "claim": "Modus-Umschaltung in iptsd: runner.run() → m_ipts.set_mode(Mode::Multitouch=1); set_mode() sucht per find_modesetting_report() einen Feature-Report (is_set_mode: Type Feature, 1 Byte, Usage USAGE_PAGE_VENDOR/USAGE_SET_MODE=0xC8) und sendet std::array<u8,2>{report_id, mode} via m_hid->set_feature(); beim Beenden set_mode(Singletouch=0).",
+    "source": "lokaler Klon gits/alex-lentz_iptsd src/core/linux/runner.hpp 115-185, src/ipts/device.hpp 165-185, src/ipts/protocol/descriptor.hpp",
+    "source_date": "2026-07-17",
+    "confidence": "high"
+   },
+   {
+    "claim": "horizontblau-Messung (27.08.2026): 'With iptsd running, all five kernel nodes emit exactly zero events — the three unnamed ABS collections, \"Mouse\" and \"Touchpad\" alike. Only iptsd's uinput device reports: 3365 events, ABS_MT_POSITION_X/Y, BTN_TOUCH, BTN_LEFT. With iptsd stopped, the same swipe gives 2380 events on the \"Mouse\" node: REL_X=718, REL_Y=758, BTN_LEFT 8 press/release.' Der 'Touchpad'-Node (hid-multitouch, ABS_MT_*, INPUT_PROP_PRESSUREPAD) ist in beiden Läufen stumm.",
+    "source": "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-5444899521",
+    "source_date": "2026-08-27",
+    "confidence": "high"
+   },
+   {
+    "claim": "Touchpad meldet sich als 045E:0C77 an 88c000.spi (spi19), Touchscreen als 045E:0C6E an a88000.spi.",
+    "source": "horizontblau-Writeup (lokale Kopie docs/quellen/horizontblau-sl7.html) ; #1590 Kommentar 2026-08-23",
+    "source_date": "2026-08-25",
+    "confidence": "high"
+   },
+   {
+    "claim": "SIGILL (horizontblau 23.08.2026): 'The shipped iptsd binary cannot start on this hardware. It crashes with SIGILL on every invocation, including --help, before touching any device — inconsistent branch-protection flags between the package's components, so an indirect jump lands on an address without a valid BTI landing pad. objcopy --remove-section=.note.gnu.property on a copy makes it run; rebuilding from source with consistent -mbranch-protection=standard fixes it properly.'",
+    "source": "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-5388535015",
+    "source_date": "2026-08-23",
+    "confidence": "high"
+   },
+   {
+    "claim": "Das SIGILL ist nicht universell: ProgrammerIn-wonderland (18.05.2026) 'Haptic clicks work for me on the binaries i published for the SL7 15in X1E' mit demselben ELLX-Deb; Notliam99 und PunkLab-it (Issue #23) nutzten das Deb ebenfalls lauffähig.",
+    "source": "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-4476602784 ; https://github.com/bryce-hoehn/linux-surface-laptop-7/issues/23",
+    "source_date": "2026-07-30",
+    "confidence": "medium"
+   },
+   {
+    "claim": "Fedora iptsd.spec (Upstream): Version 3.1.0; BuildRequires meson, gcc-g++ (oder clang), cmake, cmake(CLI11), pkgconfig(eigen3), pkgconfig(fmt), pkgconfig(inih), cmake(Microsoft.GSL), pkgconfig(spdlog), pkgconfig(cairomm-1.0), pkgconfig(sdl2), pkgconfig(systemd), pkgconfig(udev), systemd-rpm-macros; %build '%meson --buildtype=release --debug' + %meson_build; %files: /etc/iptsd.conf (noreplace), %dir /etc/iptsd.d, %dir /usr/share/iptsd, Binaries iptsd, -check-device, -calibrate, -dump, -find-hidraw, -find-service, -foreach, -perf, -plot, -show, -systemd, %{_unitdir}/iptsd@.service, %{_udevrulesdir}/50-iptsd.rules; keine %post-Scriptlets. Kein hidrd, kein libinput.",
+    "source": "https://raw.githubusercontent.com/linux-surface/iptsd/master/iptsd.spec",
+    "source_date": "2026-09-22",
+    "confidence": "high"
+   },
+   {
+    "claim": "pkg-fedora.sh: dnf install rpmdevtools rpm-sign rpkg python3-setuptools 'dnf-command(builddep)'; dnf builddep -y *.spec; Bau via 'rpkg local --outdir $PWD/rpm'. Upstream-README: iptsd im linux-surface-Paketrepo, GitHub Actions bauen Arch/Debian/Fedora-Pakete pro Commit (Artefakt '<distro>-latest'). Kein COPR für iptsd gefunden.",
+    "source": "https://raw.githubusercontent.com/linux-surface/iptsd/master/.github/scripts/pkg-fedora.sh ; WebSearch 'iptsd Fedora package copr aarch64 2026'",
+    "source_date": "2026-09-22",
+    "confidence": "high"
+   },
+   {
+    "claim": "ELLX-Deb iptsd_3.1.0-1_arm64.deb (Maintainer-Feld Dorian Stoll, Depends systemd, udev, libc6>=2.38, libgcc-s1>=4.5, libstdc++6>=12, Installed-Size 3765) enthält nur /etc/iptsd.conf, /etc/iptsd.d/ (leer), /usr/bin/iptsd, -calibrate, -check-device, -dump, -find-hidraw, -foreach, -perf und zehn Presets unter /usr/share/iptsd (kein SL7-Preset). Es fehlen iptsd@.service, 50-iptsd.rules, system-sleep/iptsd, iptsd-systemd, iptsd-find-service, iptsd-show, iptsd-plot.",
+    "source": "dpkg-deb -c/-f über WSL auf build/out/ellx-iptsd/iptsd_3.1.0-1_arm64.deb (Quelle https://public.hgci.org/software/ELLX/iptsd/alex-lentz_iptsd/)",
+    "source_date": "2026-09-22",
+    "confidence": "high"
+   },
+   {
+    "claim": "Community-Issue bryce-hoehn#23 (PunkLab-it, 30.07.2026, offen, 0 Kommentare): 'The installed .deb package (iptsd 3.1.0-1 arm64) didn't include the files needed for systemd and udev integration'; manuell /usr/lib/systemd/system/iptsd@.service und /etc/udev/rules.d/50-iptsd.rules angelegt, daemon-reload, udevadm trigger --subsystem-match=hidraw --action=add → iptsd@dev-hidraw3.service aktiv; Kalibrierung 'sudo cp iptsd_calib_045E_0C77_1785392979_2mm.conf /etc/iptsd.d/91-calibration-045E-0C77.conf'; Ergebnis: Zwei-Finger-Scroll funktioniert.",
+    "source": "https://github.com/bryce-hoehn/linux-surface-laptop-7/issues/23 (lokale Kopie docs/quellen/issue23.json)",
+    "source_date": "2026-07-30",
+    "confidence": "high"
+   },
+   {
+    "claim": "50-iptsd.rules.in (Upstream/Fork identisch): SUBSYSTEM==\"hidraw\", ACTION==\"add\", TAG+=\"systemd\", PROGRAM=\"@bindir@/iptsd-check-device --quiet $env{DEVNAME}\", PROGRAM=\"/bin/systemd-escape --path $env{DEVNAME}\", ENV{SYSTEMD_WANTS}+=\"iptsd@$result.service\". Kein LIBINPUT_IGNORE_DEVICE upstream. iptsd@.service.in: StopWhenUnneeded=yes, BindsTo=%i.device, Type=simple, ExecStart=@bindir@/iptsd /%I (+ Fork: Restart=on-failure, RestartSec=2). etc/meson.build installiert Unit nach systemdsystemunitdir, Regel nach <udevdir>/rules.d, Sleep-Hook nach systemdsleepdir, Presets nach presetdir.",
+    "source": "lokaler Klon gits/alex-lentz_iptsd etc/udev/50-iptsd.rules.in, etc/systemd/iptsd@.service.in, etc/meson.build",
+    "source_date": "2026-07-17",
+    "confidence": "high"
+   },
+   {
+    "claim": "horizontblau (23.08.2026): 'A udev rule with LIBINPUT_IGNORE_DEVICE=1 on ID_PATH=platform-88c000.spi-cs-0 fixes that — but it must also match ID_INPUT_TOUCHPAD==\"1\", because the same controller reports the physical button through a separate node (spi 045E:0C77 Mouse). Hide that one too and you lose clicking entirely.' Korrektur 27.08.: die Regel blendet nur den nie belieferten hid-multitouch-Node aus; der Mouse-Node bleibt sichtbar als Zeiger, wenn iptsd nicht läuft.",
+    "source": "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-5388535015 und #issuecomment-5444899521",
+    "source_date": "2026-08-27",
+    "confidence": "high"
+   },
+   {
+    "claim": "iptsd-calibrate schreibt drei Dateien ins aktuelle Verzeichnis: iptsd_calib_<VVVV>_<PPPP>_<unixtime>_{0mm,2mm,10mm}.conf (Slack 0.0/0.1/0.5) und empfiehlt 'sudo cp <2mm-Datei> <ConfigDir>/91-calibration-<VVVV>-<PPPP>.conf' (ConfigDir = /etc/iptsd.d). Config-Loader lädt zuerst PresetDir (/usr/share/iptsd), dann ./etc/presets, dann ConfigDir; Zuordnung über [Device] Vendor/Product.",
+    "source": "lokaler Klon gits/alex-lentz_iptsd src/apps/calibrate/calibrate.hpp 108-135, src/core/linux/config-loader.hpp 44-128",
+    "source_date": "2026-07-17",
+    "confidence": "high"
+   },
+   {
+    "claim": "ELLX-Kalibrierung 91-calibration-045E-0C77.conf (15\"-Gerät, ProgrammerIn-wonderland 14./18.05.2026): '# Samples: 1273 / # Slack: 0.500' [Device] Vendor=0x045E Product=0x0C77 [Contacts] SizeMin=0.200 SizeMax=6.200 AspectMin=1.000 AspectMax=5.600. instructions.txt: 'Then calibrate your trackpad! This is really important or it will feel really awful. sudo iptsd-calibrate /dev/hidraw1 ... drag your e along the edges and then throughout the trackpad.' Alternative Nutzerkalibrierung (Notliam99 21.05.2026): SizeMin 0.944, SizeMax 1.796, AspectMin 1.006, AspectMax 1.516, ActivationThreshold 40, DeactivationThreshold 10, OrientationThresholdMax 5.",
+    "source": "build/out/ellx-iptsd/91-calibration-045E-0C77.conf und instructions.txt ; #1590 Kommentare 4455242633, 4480923947, 4503672817",
+    "source_date": "2026-05-21",
+    "confidence": "high"
+   },
+   {
+    "claim": "iptsd-find-hidraw ist deprecated ('please use iptsd-foreach') und ruft intern 'run-iptsd-foreach -t touchscreen -i 0' auf — findet also Touchscreens, nicht Touchpads. Für das Pad: 'sudo iptsd-foreach -t touchpad -- echo {}' (Ausgabe bei ProgrammerIn-wonderland: /dev/hidraw1; bei PunkLab-it: hidraw3 → hidraw-Nummern instabil).",
+    "source": "lokaler Klon etc/scripts/iptsd-find-hidraw, etc/scripts/iptsd-foreach ; bryce-hoehn README ; #1590 Kommentar 4476602784",
+    "source_date": "2026-09-22",
+    "confidence": "high"
+   },
+   {
+    "claim": "bryce-hoehn README (letzter Commit af76542, 06.08.2026): 'Touchpad ✅ Works with the ELLX iptsd package - custom calibration may be required'; Installation aus iptsd/alex-lentz_iptsd/iptsd_3.1.0-1_arm64.deb; 'Trackpad support is much better with this setup, but suspend can still leave it in a broken state'; Reset-Tipp: Reboot nach Windows und zurück. Sleep-Hook ellx-fixes/trackpad macht unbind/bind aller spiN.M an /sys/bus/spi/drivers/spi_hid im 'post'-Fall.",
+    "source": "lokaler Klon gits/bryce-hoehn_linux-surface-laptop-7/README.md ; build/out/ellx-fixes/trackpad",
+    "source_date": "2026-08-06",
+    "confidence": "high"
+   },
+   {
+    "claim": "ProgrammerIn-wonderland (18./21.05.2026): 'I think it's not the click that's sensitive but the tap to click that's unreasonably sensitive. I turned off tap to click in my DEs settings' und 'I disabled tap to click on my DEs settings and rely on haptic click instead'. Zwei eng beieinander liegende Finger werden verworfen ('then it drops the input').",
+    "source": "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-4476602784, #issuecomment-4480923947, #issuecomment-4503814859",
+    "source_date": "2026-05-21",
+    "confidence": "high"
+   },
+   {
+    "claim": "cicorias-Gist 'Omarchy surface laptop 7 aarm64 snapdobuild' (zuletzt 09.09.2026): 'Trackpad: iptsd 3.1.0, then iptsd-calibrate over the whole pad surface including edges.' — keine Angaben zu Fork/BTI. kyjus25/iptsd ist ein weiterer Fork mit identischem README wie alex-lentz (keine eigenen Änderungen erkennbar).",
+    "source": "https://gist.github.com/cicorias/6da75542f9e2b4a7b6f58a61ba3979d6 ; https://github.com/kyjus25/iptsd",
+    "source_date": "2026-09-09",
+    "confidence": "medium"
+   },
+   {
+    "claim": "Fedora hat eine Change-Seite 'Aarch64 PointerAuthentication' (Standard-Flags -mbranch-protection=standard für aarch64-Pakete); Versionsnummer/Fedora-44-Status nicht verifiziert.",
+    "source": "https://fedoraproject.org/wiki/Changes/Aarch64_PointerAuthentication (nur Suchtreffer, nicht abgerufen)",
+    "source_date": "2026-09-22",
+    "confidence": "low"
+   }
+  ],
+  "recommendations": [
+   "iptsd für die Fedora-44-Live-ISO aus dem alex-lentz-Fork (HEAD 3663e96, Stand 17.07.2026, enthält 0x94-Klick, Sleep-Hook, Debounce) bauen — nicht Upstream 3.1.0 (kein physischer Klick) und nicht das ELLX-Deb (fehlende Unit/Regel, SIGILL-Risiko).",
+   "Bau als RPM über das Upstream-iptsd.spec (rpkg local bzw. rpmbuild mit Fedoras Standard-Hardening-Flags) im aarch64-Chroot oder mock, damit alle Objekte durchgängig mit -mbranch-protection=standard übersetzt sind; danach 'readelf -n /usr/bin/iptsd' auf 'AArch64 feature: BTI' prüfen. BuildRequires: meson gcc-c++ cmake cli11-devel eigen3-devel fmt-devel inih-devel guidelines-support-library-devel spdlog-devel cairomm-devel SDL2-devel systemd-devel systemd-rpm-macros (Paketnamen für GSL/inih auf F44 aarch64 vor dem Bau per dnf provides verifizieren).",
+   "SIGILL kann in qemu-user nicht reproduziert werden (keine BTI-Emulation) — 'iptsd --help' auf dem echten SL7 testen; als Notfall-Fallback 'objcopy --remove-section=.note.gnu.property /usr/bin/iptsd' im Installer/README vorsehen.",
+   "In die ISO/Installation einbauen: /usr/lib/systemd/system/iptsd@.service (mit Restart=on-failure), /usr/lib/udev/rules.d/50-iptsd.rules, /usr/lib/systemd/system-sleep/iptsd (udevadm trigger hidraw nach Resume), zusätzlich ELLX-Hook 'trackpad' (spi_hid unbind/bind) als zweite Resume-Absicherung.",
+   "Kalibrierung: ELLX-Datei (15\"-Modell) als Startwert nach /etc/iptsd.d/91-calibration-045E-0C77.conf legen, aber im Erstlauf-Hinweis 'sudo iptsd-foreach -t touchpad -- echo {}' und 'sudo iptsd-calibrate /dev/hidrawN' (Finger über die gesamte Fläche inkl. Ränder, Ctrl+C, 2mm-Datei kopieren) dokumentieren; iptsd-find-hidraw nicht verwenden (deprecated, sucht nur Touchscreens).",
+   "Optionale libinput-Regel nach horizontblau: LIBINPUT_IGNORE_DEVICE=1 nur für den hid-multitouch-Node (ID_INPUT_TOUCHPAD==\"1\" an ID_PATH platform-88c000.spi-cs-0), den 'Mouse'-Node sichtbar lassen — er ist der Fallback-Zeiger, wenn iptsd nicht läuft. Vor dem Ausrollen mit 'libinput list-devices' auf dem Gerät gegenprüfen.",
+   "KDE-Default: Tap-to-Click aus (Community-Erfahrung: zu empfindlich), haptischer Klick über BTN_LEFT; ButtonDebounceMs=25 und DisableOnPalm in /etc/iptsd.d testen.",
+   "orvitpngs 10-Zeilen-Patch (https://github.com/user-attachments/files/28241222/iptsd-touchpad_click.patch) per curl/gh herunterladen und gegen 388cdf8 diffen — seine 'obvious solution' ist unbekannt und könnte den Klick robuster lösen; ebenso nix1e mit Branch 'master' statt 'main' erneut listen.",
+   "Kernel-Seite bleibt Voraussetzung: spi-hid + QSPI-Hack auf spi19, Reset gpio120, IRQ gpio3, Regler gpio65 mit 1 s Startup (nix1e) — deckt sich mit unserem Touchpad-Reset/Regulator-Fix; ohne spi-hid gibt es kein hidraw und iptsd startet nie.",
+   "Rückmeldung an bryce-hoehn#23: Fork-Paket ohne Unit/Regel und SIGILL/BTI-Befund als konkrete Ergänzung eintragen."
+  ],
+  "open_questions": [
+   "Inhalt von orvitpngs iptsd-touchpad_click.patch (user-attachments 28241222, 26.05.2026): Liest er den Klick aus einem separaten HID-Button-Report statt aus Frame 0x94? Nicht abgerufen (Budget).",
+   "Existiert in orvitpng/nix1e ein iptsd-Modul/Overlay unter einem anderen Branch (main liefert 404 für modules/)?",
+   "Publiziert das linux-surface-Fedora-Repo aarch64-RPMs von iptsd 3.1.0, und wäre ein solches Paket (ohne Klick-Patch) als Basis brauchbar? Nicht verifiziert.",
+   "Setzt Fedora 44 auf aarch64 standardmäßig -mbranch-protection=standard, und erzwingt der Fedora-Kernel BTI für Userspace? Nur Change-Seite als Suchtreffer, nicht abgerufen.",
+   "Genaue Fedora-Paketnamen für cmake(Microsoft.GSL) (guidelines-support-library-devel?) und pkgconfig(inih) (inih-devel?) auf F44 aarch64.",
+   "Warum stürzte das ELLX-Deb nur bei horizontblau mit SIGILL, bei ProgrammerIn-wonderland/PunkLab-it aber nicht (Kernel-BTI-Konfiguration? unterschiedliche Deb-Version?).",
+   "Ist die Debounce/Palm-Änderung vom 12.07.2026 im ELLX-Deb (gebaut ~Mai 2026) enthalten? Vermutlich nicht.",
+   "Passende Kalibrierwerte für das 13.8\"-Gerät (romulus13): ELLX-Datei stammt vom 15\"-Modell; Notliam99s Werte stammen von unbekannter Größe."
+  ],
+  "sources": [
+   "https://github.com/linux-surface/iptsd/releases (abgerufen 2026-09-22)",
+   "https://github.com/alex-lentz/iptsd (README, abgerufen 2026-09-22)",
+   "https://github.com/alex-lentz/iptsd/commits/master (abgerufen 2026-09-22)",
+   "https://github.com/alex-lentz/iptsd/commit/388cdf8 (Commit 2026-05-02, abgerufen 2026-09-22)",
+   "https://github.com/orvitpng?tab=repositories (abgerufen 2026-09-22)",
+   "https://github.com/orvitpng/nix1e (abgerufen 2026-09-22; /tree/main/modules → 404)",
+   "https://api.github.com/repos/linux-surface/linux-surface/issues/1590/comments?per_page=100 (28 Kommentare bis 2025-04-05, abgerufen 2026-09-22)",
+   "https://github.com/linux-surface/linux-surface/issues/1590 Kommentare 2026 (lokale Kopie docs/quellen/ls1590-comments-2026.json, 100 Stück ab 2026-05-01): #issuecomment-4538424148 (orvitpng 2026-05-26), -4626861568 (2026-06-04), -4664168705 (2026-06-09), -4674651781 (2026-06-10), -5503481916 (2026-09-02), -4476602784/-4480923947/-4503814859 (ProgrammerIn-wonderland 2026-05), -4455242633 (Kalibrierung 2026-05-14), -4503672817 (Notliam99 2026-05-21), -5388535015 (horizontblau 2026-08-23), -5444899521 (horizontblau 2026-08-27)",
+   "https://github.com/bryce-hoehn/linux-surface-laptop-7 (README, Commit af76542 2026-08-06; lokaler Klon)",
+   "https://github.com/bryce-hoehn/linux-surface-laptop-7/issues/23 (PunkLab-it 2026-07-30; lokale Kopie docs/quellen/issue23.json)",
+   "https://raw.githubusercontent.com/linux-surface/iptsd/master/iptsd.spec (abgerufen 2026-09-22)",
+   "https://raw.githubusercontent.com/linux-surface/iptsd/master/.github/scripts/pkg-fedora.sh (abgerufen 2026-09-22)",
+   "https://github.com/linux-surface/iptsd/tree/master/etc (abgerufen 2026-09-22)",
+   "https://gist.github.com/cicorias/6da75542f9e2b4a7b6f58a61ba3979d6 (zuletzt aktiv 2026-09-09)",
+   "https://github.com/kyjus25/iptsd (abgerufen 2026-09-22)",
+   "https://horizontblau.de/linux/surface-laptop-7-linux.html (lokale Kopie docs/quellen/horizontblau-sl7.html/.txt, Stand 2026-08-29)",
+   "https://public.hgci.org/software/ELLX/iptsd/alex-lentz_iptsd/ (Deb + 91-calibration-045E-0C77.conf + instructions.txt; lokale Kopie build/out/ellx-iptsd, dpkg-deb-Inhalt via WSL 2026-09-22)",
+   "Lokaler Klon C:\\Users\\Martin\\Desktop\\Projekt Linux ARM\\gits\\alex-lentz_iptsd (HEAD 3663e96, 2026-07-16): etc/udev/50-iptsd.rules.in, etc/systemd/iptsd@.service.in, etc/systemd-sleep/iptsd, etc/meson.build, etc/scripts/iptsd-find-hidraw, etc/scripts/iptsd-foreach, src/ipts/parser.hpp, src/ipts/device.hpp, src/ipts/protocol/descriptor.hpp, src/core/linux/runner.hpp, src/core/linux/config-loader.hpp, src/apps/daemon/daemon.hpp, src/apps/calibrate/calibrate.hpp, meson.build, meson_options.txt, README.md",
+   "Lokale Kopie docs/quellen/nix1e/README und touchpad.dtsi (orvitpng/nix1e, Stand 2026-07-01)",
+   "WebSearch 'iptsd SIGILL BTI branch protection aarch64 ELLX Surface Laptop 7 touchpad' (2026-09-22)",
+   "WebSearch 'iptsd Fedora package copr aarch64 2026 linux-surface' (2026-09-22)",
+   "https://fedoraproject.org/wiki/Changes/Aarch64_PointerAuthentication (nur Suchtreffer, nicht abgerufen)"
+  ]
+ },
+ {
+  "topic": "Boot-Schleifen auf Snapdragon-X-Elite-Laptops (Surface Laptop 7) nach Custom-Kernel: Community-Berichte, technische Ursachen, Diagnose ohne Logs, bekannte Cmdlines (Stand 2026-09-22)",
+  "summary": "Rohdaten aus 20 Web-Abrufen (Launchpad, GitHub-API, Discourse-Suche, Fedora-Wiki, ratatoskr/lore, Gists) plus lokalen Prüfungen im ELLX-Tree 7.0.0-rc4-12 und im gespeicherten Kommentar-Korpus (linux-surface #1590, 2026-05-10 bis 2026-09-02).\n\nCommunity-Berichte: Der einzige dokumentierte SL7-Boot-Loop nach Kernel-Installation in 2026 ist perchbirdd (14.05.2026, 13\" X Elite, 16 GB): Ubuntu-Concept-Image (resolute-desktop-arm64+x1e.iso) + ELLX-Kernel-Debs + Firmware-Tar + iptsd → \"Get stuck in bootloop - turning off quiet and splash in GRUB gives no output. Screen just flashes and the system reboots.\" Dieselben Schritte auf dem offiziellen Resolute-arm64-Image booteten. ProgrammerIn-wonderlands erste Rückfragen: \"Do you have 64GB ram?\" und \"Wondering if this is related to stubble... My image is meant to be booted with grub\". Eine Ursache wurde nie festgestellt. Am 04.09.2026 meldet s0ulk1dz77 (Discourse #2162, SL7 Modell 2036, X Plus) mit den X1E-Images \"only a bootloop that backs back directly to the grub menu without a log or message\", unbeantwortet. Ältere Fälle: Launchpad #2084951 (Joel Stanley 27.10.2024: Entfernen von clk_ignore_unused/pd_ignore_unused ließ das System booten; bezog sich auf frühe 6.11/6.12-Concept-Images), foglem 03/2026 (fehlende Zeile terminal_output gfxterm → Hänger/Bootloop; Installer ohne cutmem für 64-GB-Geräte), cnusr25 (Surface Pro 11, 09/2025: nach fester DTB-Angabe \"the wachtdog and reboot stopped\", danach kein Bild). Im #1590-Korpus gibt es nach dem 14.05.2026 keinen weiteren Boot-Loop-Bericht; OliW07 meldet Spontan-Reboots im Betrieb (alle 4-5 h) und Cold-Reboots nach Suspend.\n\nTechnische Ursachen: (a) 64-GB-Modelle: \"the hypervisor will panic otherwise on access of the upper 32GB of ram\" – cutmem 0x8800000000 0x8fffffffff gehört auch in die installierte GRUB-Konfiguration (ProgrammerIn-wonderland 22.05.2026). (b) Unsere Kernel-Config hat CONFIG_PANIC_TIMEOUT=0: Ein Kernel-Panic bleibt stehen, startet nicht neu. Ein Neustart ohne jede Ausgabe spricht daher für einen Reset auf Firmware-/Hypervisor-Ebene (Gunyah-Panic, XPU-Zugriff auf reservierte Ressourcen, z. B. Clocks/Power-Domains oder ein von der Firmware belegtes QUP) oder einen Watchdog. (c) Watchdog: In EL1 ist auf x1e80100 der SBSA-GWDT (arm,sbsa-gwdt @1c840000, im DT ohne status = aktiv) via Gunyah zuständig, der APSS-WDT ist \"reserved\" (Abel Vesa, Serie angewandt 21.01.2026). Treiber sbsa_gwdt=m, Default-Timeout 10 s, WATCHDOG_HANDLE_BOOT_ENABLED=y. (d) ADSP-Start setzt den USB-Typ-C-Mux zurück → Live-USB-Stick verschwindet mitten im Boot (Fedora-Wiki, deshalb modprobe.blacklist=qcom_q6v5_pas beim Installieren); qcom_q6v5_pas probt bei 0,96 s vor Verfügbarkeit von /lib/firmware und versucht es nicht erneut (horizontblau). (e) efi=noruntime ist laut Fedora-Wiki nur für 8cx Gen 3 nötig; auf X1E nicht empfohlen und bricht sl7-mac (efivarfs). (f) stubble ersetzt jeden vom Bootloader übergebenen DTB (stubble.dtb_override=false), ELLX ist ohne stubble gebaut. (g) Unser Rev.3 unterscheidet sich vom nachweislich bootenden ELLX 7.0.0-rc4-12 durch die Patch-Sammlung (gleichzeitig aktive i2c8- und spi10-Touchscreen-Knoten, iris, Touchpad-Regulator, CPU-Trips, USB-PHY) plus stubble-Verpackung und dracut.\n\nDiagnose ohne Speicher: Es gibt im x1e80100/hamoa/romulus-DT keinen ramoops-Knoten (lokal geprüft; reserved-memory enthält nur linux,cma 128 MB). efi_pstore (=m) schreibt nur bei Panic/Oops, nicht bei Hardware-Reset. PSTORE_RAM=m mit mem_name-Parameter ist vorhanden; ob DRAM einen Gunyah-Reset übersteht, ist unbelegt. NETCONSOLE=m (dynamic) und USB-Ethernet-Treiber sind da. Praktikabel: quiet splash entfernen, loglevel=7 ignore_loglevel console=tty0 plymouth.enable=0 initcall_debug, Stock-Kernel-Eintrag gegen ELLX-Prebuilt und Rev.1 bisektieren, persistentes Journal aus dem Live-System lesen (journalctl -D /mnt/var/log/journal --list-boots), externe USB-Tastatur für GRUB.\n\nBekannte Cmdlines 2026: Fedora-Wiki (X1E): clk_ignore_unused pd_ignore_unused systemd.tpm2_wait=0 modprobe.blacklist=qcom_q6v5_pas. Omarchy/ALARM-Gist (09.09.2026, SL7 ungetestet): initramfs_async=0 clk_ignore_unused pd_ignore_unused arm64.nopauth systemd.tpm2_wait=0 modprobe.blacklist=qcom_q6v5_pas console=tty0 loglevel=7, ohne quiet splash. rengaret (T14s, 7.0.0-32-qcom-x1e): clk_ignore_unused pd_ignore_unused cma=128M efi=noruntime. dwhinham SP11: clk_ignore_unused pd_ignore_unused loglevel=7. Ubuntu-x1e-ISO: clk_ignore_unused pd_ignore_unused arm64.nopauth + cutmem. Unser Installer hängt clk_ignore_unused pd_ignore_unused an Ubuntus Standard \"quiet splash\" an.",
+  "facts": [
+   {
+    "claim": "Launchpad bug #2084951 \"[X1E] Add support for Surface Laptop 7\" (Status Confirmed, letzter Kommentar 20.07.2025): Kenneth Fechter 22.10.2024: \"the grub screen, but it just continually boot loops and I can't get to the edit screen or navigate the boot options.\" Tobias Heider: \"Is the keyboard simply not working in grub? sounds like it would just timeout and load the default entry which crashes because the dtb is missing\"",
+    "source": "https://bugs.launchpad.net/ubuntu-concept/+bug/2084951",
+    "source_date": "2024-10-22",
+    "confidence": "high"
+   },
+   {
+    "claim": "Joel Stanley, Launchpad #2084951, 27.10.2024: \"I found removing the clk_ignore_unused and pd_ignore_unused options allowed the system to boot. Once you've booted, make that permanent by editing /etc/default/grub.d/ubuntu-x1e-settings.cfg and running sudo update-grub.\" – bezog sich auf das frühe oracular-Concept-Image (6.11/6.12), mehrere Nutzer bestätigten damals.",
+    "source": "https://bugs.launchpad.net/ubuntu-concept/+bug/2084951",
+    "source_date": "2024-10-27",
+    "confidence": "high"
+   },
+   {
+    "claim": "perchbirdd (linux-surface #1590, 14.05.2026, 13\" X Elite, 16 GB RAM): Concept-Image resolute-desktop-arm64+x1e.iso + ELLX-Kernel-Debs + Firmware-Tar + iptsd → \"Get stuck in bootloop - turning off `quiet` and `splash` in GRUB gives no output. Screen just flashes and the system reboots.\" Mit dem offiziellen Resolute-arm64-Image booteten dieselben Schritte (Trackpad ja, WLAN/BT erst nach board-2.bin-Nachlieferung).",
+    "source": "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-4453639197",
+    "source_date": "2026-05-14",
+    "confidence": "high"
+   },
+   {
+    "claim": "ProgrammerIn-wonderland antwortete auf perchbirdds Boot-Loop zuerst \"Do you have 64GB ram?\" und dann: \"Wondering if this is related to stubble... My image is meant to be booted with grub (like Ubuntu 24.10 which I upgraded from) but I think newer Ubuntu wants stubble, I might have to rebuild for supporting that\". Eine Ursache des Concept-Image-Boot-Loops wurde im Thread nie festgestellt.",
+    "source": "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-4453438598",
+    "source_date": "2026-05-14",
+    "confidence": "high"
+   },
+   {
+    "claim": "ProgrammerIn-wonderland, #1590, 22.05.2026: \"If you have a 64GB ram device, you'll have to type in `cutmem 0x8800000000 0x8fffffffff` into your grub config post install. This is because the hypervisor will panic otherwise on access of the upper 32GB of ram. This is because qualcomm added a fun hypervisor bug.\"",
+    "source": "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-4522925440",
+    "source_date": "2026-05-22",
+    "confidence": "high"
+   },
+   {
+    "claim": "Im gespeicherten #1590-Korpus (100 Kommentare, 10.05.2026 bis 02.09.2026) gibt es nach perchbirdd (14.05.2026) keinen weiteren Boot-Loop-Bericht; GitHub-API-Abfrage since=2026-04-13 lieferte 47 Kommentare, jüngster 14.05.2026 21:07 UTC (Seite 1).",
+    "source": "https://api.github.com/repos/linux-surface/linux-surface/issues/1590/comments?since=2026-04-13T00:00:00Z&per_page=100 und lokal docs/quellen/ls1590-comments-2026.json",
+    "source_date": "2026-09-02",
+    "confidence": "medium"
+   },
+   {
+    "claim": "OliW07 (#1590, 14.04.2026, 16 GB): \"random crashes, where the screen freezes for about 5 seconds and then the device reboots - I'm getting this roughly every 4 - 5 hours of use\"; 18.04.2026: \"The suspend crashes are a big problem with no progress yet - cold reboots anytime you leave the device for a few minutes\".",
+    "source": "https://github.com/linux-surface/linux-surface/issues/1590",
+    "source_date": "2026-04-14",
+    "confidence": "high"
+   },
+   {
+    "claim": "Discourse ubuntu-concept-Thread #2162, s0ulk1dz77, 04.09.2026, Surface Laptop 7 Modell 2036 (Snapdragon X Plus): \"haven't had any sucess with the X1E images only a bootloop that backs back directly to the grub menu without a log or message\" – keine Antwort sichtbar.",
+    "source": "https://discourse.ubuntu.com/t/ubuntu-concept-snapdragon-x-elite/48800/2162",
+    "source_date": "2026-09-04",
+    "confidence": "high"
+   },
+   {
+    "claim": "Discourse-Suche im Thread 48800 (\"surface laptop 7\" reboot): foglem 19.03.2026 #1599 \"Bootloops when I do get it to start\"; #1616 \"missing the terminal_output gfxterm line...hangs/bootloops\"; 20.03.2026 #1647: Installer ohne \"cutmem 0x8800000000\" für 64-GB-Modelle; pekeht 11.02.2025 #546 \"stuck in a boot loop using Rufus\"; technuggets 28.08.2025 #1122: SL7 mit 25.04 nach Deaktivieren von Secure Boot.",
+    "source": "https://discourse.ubuntu.com/search.json?q=%22surface%20laptop%207%22%20reboot%20topic%3A48800",
+    "source_date": "2026-03-20",
+    "confidence": "medium"
+   },
+   {
+    "claim": "cnusr25 (Discourse #1177, 20.09.2025, Surface Pro 11): \"I modified the grubcfg, seted grub timeout equal to 0, and seted fixed use dtb file of Surface Laptop 7. Then the wachtdog and reboot stopped.\" Danach kein Bild; #1214 (09.10.2025): nach Rückgängigmachen \"still keep restarting\" beim Kernel-Laden.",
+    "source": "https://discourse.ubuntu.com/t/ubuntu-concept-snapdragon-x-elite/48800/1177",
+    "source_date": "2025-09-20",
+    "confidence": "medium"
+   },
+   {
+    "claim": "Fedora-Wiki \"Snapdragon WoA Laptop Install\" (Fedora Workstation 44): Cmdline für X Elite/Plus: \"clk_ignore_unused pd_ignore_unused systemd.tpm2_wait=0 modprobe.blacklist=qcom_q6v5_pas\"; für 8cx Gen 3 zusätzlich \"efi=noruntime arm64.nopauth\". Begründungen: clk_ignore_unused verhindert Abschalten unbeanspruchter Clocks (Boot-Fehler, wenn nicht alle Clock-Consumer built-in); pd_ignore_unused analog für Power-Domains (sync_state soll das erübrigen); systemd.tpm2_wait=0 gegen 90-s-Wartezeit auf /dev/tpmrm0; modprobe.blacklist=qcom_q6v5_pas weil ADSP-Neustart den USB-Typ-C-Mux zurücksetzt, \"the USB drive is unplugged halfway through the boot\"; efi=noruntime nur 8cx Gen 3 \"workaround issues in the EFI firmware\".",
+    "source": "https://fedoraproject.org/wiki/Snapdragon_WoA_Laptop_Install",
+    "source_date": "2026",
+    "confidence": "high"
+   },
+   {
+    "claim": "Fedora-Wiki: Modellspezifische ADSP-Firmware muss per dracut-Konfiguration in die Initramfs; mit Fedora 45 soll das durch einen Upstream-dracut-Fix \"no longer be necessary\". Keine Surface-Laptop-7-/romulus-Hinweise, keine Angaben zur DTB-Auswahl.",
+    "source": "https://fedoraproject.org/wiki/Snapdragon_WoA_Laptop_Install",
+    "source_date": "2026",
+    "confidence": "high"
+   },
+   {
+    "claim": "cicorias-Gist (Omarchy/ALARM 7.2.3-2-aarch64-ARCH, zuletzt 09.09.2026, SL7 romulus15): chainloader-Cmdline \"initramfs_async=0 clk_ignore_unused pd_ignore_unused arm64.nopauth systemd.tpm2_wait=0 modprobe.blacklist=qcom_q6v5_pas console=tty0 loglevel=7\"; quiet splash weglassen (schwarzes Panel auf OLED, LUKS-Prompt unsichtbar), plymouth.enable=0 für installierte Systeme; \"gpu hw init failed: -2\" = fehlende GPU-Firmware; \"no one has booted this stack on a Surface Laptop 7\".",
+    "source": "https://gist.github.com/cicorias/6da75542f9e2b4a7b6f58a61ba3979d6",
+    "source_date": "2026-09-09",
+    "confidence": "high"
+   },
+   {
+    "claim": "rengaret (Discourse #1842, 02.05.2026, ThinkPad T14s, Kernel 7.0.0-32-qcom-x1e, KVM/EL2-Versuche): Cmdline \"clk_ignore_unused pd_ignore_unused cma=128M efi=noruntime\", DTB x1e78100-lenovo-thinkpad-t14s-el2.dtb.",
+    "source": "https://discourse.ubuntu.com/t/ubuntu-concept-snapdragon-x-elite/48800/1842",
+    "source_date": "2026-05-02",
+    "confidence": "high"
+   },
+   {
+    "claim": "dwhinham linux-surface-pro-11 build.sh (Commit 2025-10-28, 6.17): GRUB_CMDLINE_LINUX_DEFAULT=\"clk_ignore_unused pd_ignore_unused loglevel=7\".",
+    "source": "lokal gits/dwhinham_linux-surface-pro-11/build.sh Zeile 147",
+    "source_date": "2025-10-28",
+    "confidence": "high"
+   },
+   {
+    "claim": "Watchdog auf x1e80100: Abel Vesa \"[PATCH v3 0/3] arm64: dts: qcom: x1e80100: Enable APSS watchdog in EL2\" (24.12.2025, angewandt 21.01.2026 von Bjorn Andersson): \"The watchdog support in EL1 is SBSA compliant, handled by Gunyah hypervisor\", in EL2 APSS-WDT; apss_watchdog in hamoa.dtsi status = \"reserved\" /* Reserved by Gunyah */, x1-el2.dtso setzt okay. Keine Aussage zu Timeout-Verhalten.",
+    "source": "https://ratatoskr.run/linux-arm-msm/2025/12/3345334/t",
+    "source_date": "2025-12-24",
+    "confidence": "high"
+   },
+   {
+    "claim": "Lokaler ELLX-Tree 7.0.0-rc4-12: hamoa.dtsi enthält sbsa_watchdog: watchdog@1c840000 compatible \"arm,sbsa-gwdt\" ohne status (aktiv) und apss_watchdog status \"reserved\". Unsere .config: CONFIG_ARM_SBSA_WATCHDOG=m, CONFIG_QCOM_WDT=m, CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED=y, CONFIG_WATCHDOG_OPEN_TIMEOUT=0; sbsa_gwdt DEFAULT_TIMEOUT 10 s, Modulparameter timeout/action/nowayout.",
+    "source": "lokal /work/sl7/kernel/ellx-7.0-sl7 (hamoa.dtsi 8897-9119, .config, drivers/watchdog/sbsa_gwdt.c)",
+    "source_date": "2026-09-22",
+    "confidence": "high"
+   },
+   {
+    "claim": "Unsere .config: CONFIG_PANIC_TIMEOUT=0 (Panic bleibt stehen, kein automatischer Reboot), CONFIG_PSTORE=y, CONFIG_EFI_VARS_PSTORE=m, CONFIG_PSTORE_RAM=m, CONFIG_PSTORE_BLK=m, CONFIG_PSTORE_COMPRESS=y, PSTORE_CONSOLE nicht gesetzt, CONFIG_NETCONSOLE=m + NETCONSOLE_DYNAMIC=y, zahlreiche USB_NET_*=m (AX88179, CDC_ETHER/NCM, RNDIS, SMSC95XX), CONFIG_CRASH_DUMP=y, CONFIG_KEXEC=y, CONFIG_MAGIC_SYSRQ=y, CONFIG_CMDLINE=\"console=ttyAMA0\" mit CMDLINE_FROM_BOOTLOADER=y; CONFIG_SERIAL_QCOM_GENI=m, DRM_MSM=m, NVME=m, PCIE_QCOM=y, PHY_QCOM_QMP_PCIE=y, SCSI_UFS_QCOM=m, QCOM_Q6V5_PAS=m.",
+    "source": "lokal /work/sl7/kernel/ellx-7.0-sl7/.config",
+    "source_date": "2026-09-22",
+    "confidence": "high"
+   },
+   {
+    "claim": "Kein ramoops-/pstore-Knoten in x1e80100.dtsi, hamoa.dtsi, x1e80100-microsoft-romulus.dtsi/romulus13.dts; reserved-memory in romulus.dtsi enthält nur linux,cma (shared-dma-pool, 128 MB, reusable). ramoops in qcom-DTs nur für apq8016/msm8953/msm8992/sm8150-Geräte. fs/pstore/ram.c hat Modulparameter mem_address, mem_size, mem_name, record_size, console_size.",
+    "source": "lokal /work/sl7/kernel/ellx-7.0-sl7/arch/arm64/boot/dts/qcom, fs/pstore/ram.c",
+    "source_date": "2026-09-22",
+    "confidence": "high"
+   },
+   {
+    "claim": "horizontblau (gespeicherter Bericht): \"Nach einem Neustart stehen beide Coprozessoren wieder auf offline: qcom_q6v5_pas probt schon bei 0,96 s, da ist /lib/firmware noch nicht verfügbar — und der Treiber versucht es kein zweites Mal.\"",
+    "source": "lokal docs/quellen/horizontblau-sl7.txt Zeile 444 (https://horizontblau.de/linux/surface-laptop-7-linux.html)",
+    "source_date": "2026-08",
+    "confidence": "high"
+   },
+   {
+    "claim": "valpackett (#1590, 19.08.2026): \"Stubble will override the provided dtb unless you pass `stubble.dtb_override=false`.\" horizontblau (23.08./25.08.2026) bestätigt: auf Ubuntus 7.0.0-29-generic (stubble) kam kein GRUB-DTB durch; auf ELLX (ohne stubble) wirkt eine GRUB-devicetree-Zeile direkt. ProgrammerIn-wonderland (23.08.2026): \"I built my kernel without stubble because I actually do still experiment with my DTB\".",
+    "source": "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-5345582455",
+    "source_date": "2026-08-25",
+    "confidence": "high"
+   },
+   {
+    "claim": "horizontblau (#1590, 17.08.2026): \"if touchpad and touchscreen go silent at the same time while both still enumerate cleanly, power the machine off completely rather than rebooting. The 5 V supply for the touch units is only reset by an actual power-down; a warm reboot leaves them wedged.\"",
+    "source": "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-5315535375",
+    "source_date": "2026-08-17",
+    "confidence": "high"
+   },
+   {
+    "claim": "bryce-hoehn README (Stand 06.08.2026): \"Ventoy is required to enable keyboard support in GRUB\"; \"If the trackpad gets into a bad state, the easiest known reset right now is to reboot into Windows and then back into Linux.\" Kein GRUB-Cmdline-Rezept im README.",
+    "source": "lokal gits/bryce-hoehn_linux-surface-laptop-7/README.md (https://github.com/bryce-hoehn/linux-surface-laptop-7)",
+    "source_date": "2026-08-06",
+    "confidence": "high"
+   },
+   {
+    "claim": "scuggo x1e-nixos kernel.nix (gespeicherte Kopie) listet in der Initrd-Modulliste u. a. qcom_q6v5_pas, qcom_pil_info, efi_pstore, msm, nvme_core, qcom_battmgr, ucsi_glink, phy_qcom_qmp_combo. orvitpngs nix1e-Ordner (audio/touchpad/touchscreen/qspi/video .dtsi) enthält keine kernelParams.",
+    "source": "lokal docs/quellen/x1e-nixos/kernel.nix, docs/quellen/nix1e/",
+    "source_date": "2026-09-13",
+    "confidence": "high"
+   },
+   {
+    "claim": "Unser Installer sl7-install-on-laptop.sh schreibt /etc/default/grub.d/90-sl7.cfg mit GRUB_CMDLINE_LINUX_DEFAULT=\"$GRUB_CMDLINE_LINUX_DEFAULT clk_ignore_unused pd_ignore_unused\" (+ module_blacklist=snd_soc_wsa884x bei SL7_NO_SPEAKER=1), d. h. Ubuntus Standard \"quiet splash\" bleibt; stubble-Image als /boot/vmlinuz-<ver>, Fallback-Eintrag mit devicetree /boot/sl7-romulus13.dtb, dracut --force --kver.",
+    "source": "lokal build/out/sl7-install-on-laptop.sh Zeilen 112-160",
+    "source_date": "2026-09-13",
+    "confidence": "high"
+   },
+   {
+    "claim": "Suchtreffer (nicht direkt abgerufen): ThinkPad T14s Gen 6 mit Firmware < 2.18 (Feb. 2025) → \"mount: mounting efivarfs on /sys/firmware/efi/efivars failed: operation not supported\" und Reboot-Schleife; efi=noruntime wird dort als Workaround genannt.",
+    "source": "WebSearch-Zusammenfassung (linuxvox.com/blog/linux-on-snapdragon-x-elite, dredyson.com)",
+    "source_date": "2026",
+    "confidence": "low"
+   },
+   {
+    "claim": "Watchdog-Serie \"[PATCH v3 0/5] watchdog: qcom: Support NMI\" (09/2026): Bei hartem CPU-Lockup mit deaktivierten Interrupts feuert der normale Pretimeout-Interrupt nicht; der Qualcomm-Bark-Interrupt soll zum (Pseudo-)NMI werden, um Total-Lockups zu diagnostizieren.",
+    "source": "https://ratatoskr.run/linux-arm-msm/2026/09/17501669/t (nur Suchzusammenfassung)",
+    "source_date": "2026-09",
+    "confidence": "low"
+   },
+   {
+    "claim": "Discourse #2063 (grealish, 02.08.2026) behandelt allgemeine Kernel-Stabilität (Kamera, Audio, USB-C-Dock, Suspend) ohne SL7-/Boot-Loop-Bezug; Launchpad-Kommentar-Stand endet 20.07.2025.",
+    "source": "https://discourse.ubuntu.com/t/ubuntu-concept-snapdragon-x-elite/48800/2063",
+    "source_date": "2026-08-02",
+    "confidence": "medium"
+   }
+  ],
+  "recommendations": [
+   "Bisektion statt Raten: Erst prüfen, ob der Ubuntu-Stock-Kernel-Eintrag (26.04.1 generic, stubble) im installierten System überhaupt bootet; dann ELLX-Prebuilt 7.0.0-rc4-12 (public.hgci.org/software/ELLX, ohne stubble, DTB per GRUB devicetree) als nachweislich bootende Referenz; dann eigene Rev.1 (nur dwc3); erst dann Rev.3. Die Differenz Rev.3 vs. ELLX (gleichzeitig aktive i2c8+spi10-Touchscreen-Knoten, iris, Touchpad-Regulator, CPU-Trips, USB-PHY-Supply, stubble-Verpackung, dracut) ist der Hauptverdächtige.",
+   "RAM-Größe des Geräts feststellen (Windows: wmic memorychip / Hardware-Dump). Bei 64 GB muss cutmem 0x8800000000 0x8fffffffff in jede GRUB-Menüzeile des installierten Systems (custom menuentry oder 10_linux-Hook), sonst Hypervisor-Panic beim Zugriff auf die oberen 32 GB – passt zu 'Logo erscheint, dann Reset'.",
+   "Für den nächsten Testboot die Cmdline auf sichtbar stellen: quiet splash entfernen, plymouth.enable=0 loglevel=7 ignore_loglevel console=tty0 initcall_debug systemd.show_status=1 (optional earlycon=efifb keep_bootcon, um den letzten Initcall vor dem Reset auf dem Panel zu sehen). Da CONFIG_PANIC_TIMEOUT=0 ist, bleibt ein echter Kernel-Panic stehen; ein Neustart ohne Ausgabe deutet auf Hypervisor/XPU-Fault oder Watchdog.",
+   "Watchdog-Hypothese prüfen: Auf einem bootenden Kernel cat /sys/class/watchdog/watchdog0/{identity,bootstatus,state,timeout} und dmesg | grep -i -E 'sbsa|watchdog'; testweise modprobe.blacklist=sbsa_gwdt bzw. sbsa_gwdt in die dracut-Initramfs zwingen (force_drivers+=\" sbsa_gwdt \") und vergleichen, ob sich das Reboot-Timing (~10 s) ändert.",
+   "Persistentes Journal auswerten: Vom Live-System die Root-Partition mounten und journalctl -D /mnt/var/log/journal --list-boots sowie journalctl -D ... -b -1 -k -o short-monotonic; so sieht man, wie weit jeder Loop-Boot kam (Ubuntu hat /var/log/journal standardmäßig). Zusätzlich /etc/systemd/journald.conf Storage=persistent, SyncIntervalSec=1s, ForwardToKMsg/ForwardToConsole=yes setzen.",
+   "pstore realistisch einschätzen: efi_pstore hilft nur bei Panic/Oops (kmsg-dump), nicht bei Hardware-Reset. Für ramoops gibt es keinen DT-Knoten auf x1e80100; Option: reserve_mem=8M:4096:oops ramoops.mem_name=oops ramoops.record_size=0x20000 ramoops.console_size=0x40000 (Modulparameter mem_name ist im Tree vorhanden) oder eigener reserved-memory-Knoten im romulus13-DTB – vorher verifizieren, ob DRAM einen Gunyah-Reset übersteht (unbelegt).",
+   "netconsole über USB-Ethernet vorbereiten (NETCONSOLE=m, ax88179/cdc_ncm/rndis als Module): In der dracut-Initramfs rd.driver.pre=netconsole plus netconsole=@/,@<PC-IP>/ oder per configfs nach dem Boot; nur sinnvoll, wenn der Reset nach dem Laden der USB-Treiber passiert.",
+   "Fedora-Live/Installer: modprobe.blacklist=qcom_q6v5_pas für die Live-Session (ADSP-Neustart wirft den USB-Stick ab), nach der Installation entfernen und die modellspezifische ADSP/CDSP-Firmware (qcom/x1e80100/microsoft/Romulus/*) in die dracut-Initramfs aufnehmen (install_items oder Fedora-45-dracut), weil qcom_q6v5_pas bei 0,96 s probt und nicht erneut versucht.",
+   "Cmdline-Basis für Fedora-KDE-ISO (Community-Konsens 2026): clk_ignore_unused pd_ignore_unused systemd.tpm2_wait=0 (+ modprobe.blacklist=qcom_q6v5_pas nur im Live-Modus); arm64.nopauth optional (Ubuntu-ISO setzt es, Fedora nicht); efi=noruntime nicht setzen (bricht sl7-mac/efivarfs, auf X1E laut Fedora nicht nötig); für stubble-Kernel bei GRUB-devicetree stubble.dtb_override=false.",
+   "GRUB-Zugang sichern: externe USB-Tastatur für das GRUB-Menü einplanen (Community: interne Tastatur in GRUB nur mit Ventoy zuverlässig), GRUB_TIMEOUT_STYLE=menu, GRUB_TIMEOUT=10, GRUB_RECORDFAIL_TIMEOUT=30; damit lässt sich beim nächsten Loop der Stock-Kernel bzw. der Fallback-Eintrag wählen.",
+   "Vor jedem Testboot komplett ausschalten (kein Warm-Reboot), sonst bleiben Touchpad/Touchscreen-5V-Versorgung verklemmt (horizontblau 17.08.2026) – das kann sonst als zusätzlicher Fehler fehlinterpretiert werden.",
+   "Aktuelle Community-Erfahrungswerte beachten: Secure Boot auf None; Concept-Image ist keine sichere Alternative (perchbirdd); Discourse #2162 (04.09.2026) zeigt, dass X1E-Images auf SL7 Modell 2036 auch ohne Custom-Kernel loopen können – daher Live-Boot des unveränderten Fedora-ISOs als Basislinie testen, bevor der eigene Kernel ins Spiel kommt."
+  ],
+  "open_questions": [
+   "Bootet auf Martins SL7 der unveränderte Ubuntu-26.04.1-Stock-Kernel-Eintrag (stubble) im installierten System, oder loopt auch der? (nicht getestet, kein GRUB-Zugang)",
+   "RAM-Ausstattung von Martins Gerät (16/32/64 GB) – bei 64 GB fehlt im installierten GRUB das cutmem.",
+   "Lässt die SL7-Firmware/Gunyah den SBSA-GWDT beim Kernel-Handoff laufen (bootstatus/state auf einem bootenden Kernel prüfen)? Wenn ja, reicht die Modul-Ladung aus der Initramfs?",
+   "Übersteht der DRAM-Inhalt einen Gunyah-/PMIC-Reset (Voraussetzung für ramoops-Diagnose)? Unbelegt für x1e80100.",
+   "Kollidiert einer der beiden experimentellen Touchscreen-Knoten (i2c8 hid-over-i2c, spi10 QSPI) mit einer von Firmware/TZ reservierten QUP-Instanz und löst so einen XPU-Reset aus? horizontblau nutzt spi10 auf ELLX erfolgreich, aber ohne gleichzeitigen i2c8-Knoten.",
+   "Wendet Ubuntus installierter GRUB (26.04.1) das smbios/cutmem-Rezept der ISO auch in /boot/grub/grub.cfg an, oder nur die ISO-grub.cfg?",
+   "Discourse #2162 (04.09.2026, Modell 2036 X Plus) ist unbeantwortet – ob dort ein 64-GB-/cutmem- oder gfxterm-Problem vorlag, ist unbekannt.",
+   "War cnusr25s 'watchdog and reboot stopped' (Surface Pro 11, 2025) ein echter Watchdog-Befund oder nur Beschreibung des Loop-Verhaltens?",
+   "Wurde Secure Boot auf Martins Gerät auf None gesetzt (technuggets 2025 brauchte das für 25.04)?",
+   "Enthält Fedora 45 (Nightly 20260921) tatsächlich den dracut-Fix für modellspezifische ADSP-Firmware, und erkennt Fedoras Kernel-Image den romulus13-DTB automatisch?"
+  ],
+  "sources": [
+   "https://bugs.launchpad.net/ubuntu-concept/+bug/2084951",
+   "https://github.com/linux-surface/linux-surface/issues/1590",
+   "https://api.github.com/repos/linux-surface/linux-surface/issues/1590/comments?since=2026-04-13T00:00:00Z&per_page=100",
+   "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-4453639197",
+   "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-4522925440",
+   "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-5345582455",
+   "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-5315535375",
+   "https://github.com/linux-surface/linux-surface/issues/1590#issuecomment-5414902827",
+   "https://discourse.ubuntu.com/t/ubuntu-concept-snapdragon-x-elite/48800/2162",
+   "https://discourse.ubuntu.com/t/ubuntu-concept-snapdragon-x-elite/48800/1177",
+   "https://discourse.ubuntu.com/t/ubuntu-concept-snapdragon-x-elite/48800/1842",
+   "https://discourse.ubuntu.com/t/ubuntu-concept-snapdragon-x-elite/48800/2063",
+   "https://discourse.ubuntu.com/search.json?q=%22surface%20laptop%207%22%20reboot%20topic%3A48800",
+   "https://fedoraproject.org/wiki/Snapdragon_WoA_Laptop_Install",
+   "https://gist.github.com/cicorias/6da75542f9e2b4a7b6f58a61ba3979d6",
+   "https://ratatoskr.run/linux-arm-msm/2025/12/3345334/t",
+   "https://ratatoskr.run/linux-arm-msm/2026/09/17501669/t",
+   "https://github.com/jglathe/linux_ms_dev_kit/wiki/Bootable-Image-for-multiple-Snapdragon-(SC8280XP)-and-Snapdragon-X-Elite-(X1E80100)-laptops",
+   "https://forum.zorin.com/t/kernel-7-0-0-28-on-microsoft-surface/66558",
+   "https://github.com/bryce-hoehn/linux-surface-laptop-7",
+   "https://horizontblau.de/linux/surface-laptop-7-linux.html",
+   "https://github.com/scuggo/x1e-nixos",
+   "https://linuxvox.com/blog/linux-on-snapdragon-x-elite/",
+   "lokal: /work/sl7/kernel/ellx-7.0-sl7 (hamoa.dtsi, x1e80100-microsoft-romulus.dtsi, .config, fs/pstore/ram.c, drivers/watchdog/sbsa_gwdt.c)",
+   "lokal: C:\\Users\\Martin\\Desktop\\Projekt Linux ARM\\docs\\quellen\\ls1590-comments-2026.json",
+   "lokal: C:\\Users\\Martin\\Desktop\\Projekt Linux ARM\\docs\\quellen\\horizontblau-sl7.txt",
+   "lokal: C:\\Users\\Martin\\Desktop\\Projekt Linux ARM\\docs\\quellen\\x1e-nixos\\kernel.nix",
+   "lokal: C:\\Users\\Martin\\Desktop\\Projekt Linux ARM\\build\\out\\sl7-install-on-laptop.sh",
+   "lokal: C:\\Users\\Martin\\Desktop\\Projekt Linux ARM\\gits\\dwhinham_linux-surface-pro-11\\build.sh",
+   "lokal: C:\\Users\\Martin\\Desktop\\Projekt Linux ARM\\docs\\SL7-Linux-Dossier.md"
+  ]
+ },
+ {
+  "topic": "Fedora-kompatibles aarch64-Kernelpaket aus eigenem Tree (ELLX 7.0-rc4 / Mainline) per Cross-Build auf x86: binrpm-pkg, kernel-install/BLS, zboot, UKI/.dtbauto auf Fedora 44 aarch64 (Stand 2026-09-22)",
+  "summary": "Kernaussage: Der Weg \"make binrpm-pkg\" aus unserem Tree passt nahtlos in Fedoras kernel-install-Mechanik, und Fedora 44 aarch64 bootet bereits heute ab Werk mit einem systemd-stub-Image, das den Romulus13-DTB per SMBIOS-HWID selbst auswählt.\n\n(1) Upstream-Packaging (scripts/package/kernel.spec, in Linux master und wortgleich in unserem lokalen ELLX-7.0-rc4-Tree geprüft): Pakete kernel, kernel-headers, kernel-devel (nur mit CONFIG_MODULES) und optional kernel-debuginfo. %install kopiert `$(make -s image_name)` nach /lib/modules/<ver>/vmlinuz (bei uns verifiziert: arch/arm64/boot/vmlinuz.efi, weil CONFIG_EFI_ZBOOT=y), dazu System.map und config nach /lib/modules/<ver>/ und `dtbs_install` nach /lib/modules/<ver>/dtb; /boot/{vmlinuz,System.map,config}-<ver> und /boot/dtb-<ver>/* sind %ghost. %post ruft `kernel-install add <ver> /lib/modules/<ver>/vmlinuz` (falls vorhanden), kopiert sonst nach /boot und /boot/dtb-<ver>, depmod nur bei fehlender modules.dep; %preun `kernel-install remove`. Kein dracut/new-kernel-pkg im Spec. Wichtig für Cross-Builds: scripts/Makefile.package setzt bei CC != HOSTCC `--without=devel`, d.h. kernel-devel entsteht beim Cross-Build NICHT; rpmbuild läuft mit `--target aarch64-linux --build-in-place --noprep` auf dem Host (WSL hat rpmbuild/rpm/sbsign/ukify 259/aarch64-gcc, aber kein mock).\n\n(2) Fedora-Seite, direkt aus dem EROFS-Rootfs der Fedora-KDE-Desktop-Live-44-1.7.aarch64.iso (Build 2026-04-22) gelesen: Kernel 6.19.10-300.fc44.aarch64, Pakete kernel, kernel-modules(-core/-extra) und kernel-uki-dtbloader (kein kernel-core!). /usr/lib/modules/<ver>/ enthält vmlinuz-dtbloader.efi (kein plain vmlinuz), /boot/vmlinuz-<ver> ist identisch mit dem ISO-Bootkernel (20.741.632 Byte): PE32+ mit .sdmagic \"#### LoaderInfo: systemd-stub 259.5-1.fc44 ####\", 21 .dtbauto-Sektionen (u.a. microsoft,romulus13/romulus15/denali/blackrock/arcata), .hwids (93 Einträge, darunter \"Microsoft Corporation Surface\"), .uname, .linux = innerer zboot-PE (16,65 MB, zstd). /boot/dtb-<ver>/qcom hat 340 DTBs inkl. x1e80100-microsoft-romulus13.dtb. GRUB 2.12-56.fc44, shim 16.1-5, systemd 259.5, dracut 108-6 (hostonly=yes, hostonly_cmdline=no), qcom-firmware-20260309, mesa 26.0.3, pipewire 1.6.2, plasma-desktop 6.6.4, anaconda 44.30. Live-grub.cfg: `linux ($root)/boot/aarch64/loader/linux quiet rhgb root=live:CDLABEL=Fedora-KDE-Live-44 rd.live.image` + `initrd` - keine devicetree-Zeile, kein cutmem, kein clk_ignore_unused. kernel-install-Plugins: 10-devicetree (nur /boot/dtb-Symlink für u-boot), 20-grub.install (kopiert KERNEL_IMAGE -> /boot/vmlinuz-<ver>, dtb -> /boot/dtb-<ver>, schreibt BLS /boot/loader/entries/<machine-id>-<ver>.conf mit Optionen aus /etc/kernel/cmdline bzw. /proc/cmdline; `devicetree /dtb-<ver>/$GRUB_DEVICETREE` nur bei gesetztem GRUB_DEVICETREE in /etc/default/grub), 50-dracut (erzeugt /boot/initramfs-<ver>.img; nimmt eine Datei \"initrd\" neben dem Kernel als vorgefertigt), 95-set-boot-entry (saved_entry). /usr/lib/systemd/boot ist leer (kein sd-stub/hwids im Live-Image installiert).\n\n(3) Fedora-Change \"Automatic DTB selection for aarch64 EFI systems\" (F44, akzeptiert, zuletzt 2026-04-14, Owner Hans de Goede/Neal Gompa): \"incomplete UKI\" nur Stub+DTBs, GRUB liefert initrd+cmdline; GRUB-Bug mit systemd-stub-Images \"fixed\". Der Live-ISO beweist: Fedora-GRUB 2.12-56 bootet Stub-PE-Images mit initrd-Übergabe.\n\n(4) zboot: Fedora seit Feb 2023 CONFIG_EFI_ZBOOT=y (make_target vmlinuz.efi); alte GRUBs scheitern mit \"invalid magic number\", ab grub2 2.06-88.fc37 gefixt - für F44 irrelevant.\n\n(5) UKI/ukify: --devicetree-auto und --hwids seit systemd v257, .dtbauto/.hwids-Auswahl durch systemd-stub (erster Treffer über SMBIOS-HWIDs, sonst über Firmware-DT-compatible; SL7 liefert keinen Firmware-DT, also HWID-Pflicht). 90-uki-copy nur bei layout=uki nach $BOOT/EFI/Linux; Fedora-Default ist BLS/grub2.\n\nNicht verifizierbar (Anubis-Sperre auf src.fedoraproject.org und docs.fedoraproject.org): Fedora-kernel.spec \"--with cross\", Bauweise von kernel-uki-dtbloader, Quick-Doc zum Custom-Kernel. WoA-Wiki: Fedora Workstation 44 Live, Cmdline für X Elite \"clk_ignore_unused pd_ignore_unused systemd.tpm2_wait=0 modprobe.blacklist=qcom_q6v5_pas\", qcom-firmware-extract für modellspezifische Firmware; SL7 dort nicht gelistet.",
+  "facts": [
+   {
+    "claim": "Upstream kernel.spec (Linux master, identisch in /work/sl7/kernel/ellx-7.0-sl7/scripts/package/kernel.spec Zeilen 102-193): `cp $(make -s image_name) %{buildroot}/lib/modules/%{KERNELRELEASE}/vmlinuz`; System.map und config nach /lib/modules/<ver>/; `INSTALL_DTBS_PATH=.../lib/modules/%{KERNELRELEASE}/dtb dtbs_install` wenn arch/$SRCARCH/boot/dts existiert; %ghost /boot/{System.map,config,vmlinuz}-<ver> und /boot/dtb-<ver>/*",
+    "source": "https://raw.githubusercontent.com/torvalds/linux/master/scripts/package/kernel.spec + lokaler Tree (WSL) 2026-09-22",
+    "confidence": "high",
+    "source_date": "2026-09-22"
+   },
+   {
+    "claim": "kernel.spec %post: `if [ -x /usr/bin/kernel-install ]; then /usr/bin/kernel-install add %{KERNELRELEASE} /lib/modules/%{KERNELRELEASE}/vmlinuz; fi`, danach cmp/cp von vmlinuz/System.map/config nach /boot/<file>-<ver>, `cp -r /lib/modules/<ver>/dtb /boot/dtb-<ver>` bei Abweichung, depmod nur wenn modules.dep fehlt; %preun `kernel-install remove`. Kein dracut, new-kernel-pkg, mkinitrd im Spec.",
+    "source": "lokaler Tree ellx-7.0-sl7 scripts/package/kernel.spec + GitHub torvalds/linux master",
+    "confidence": "high",
+    "source_date": "2026-09-22"
+   },
+   {
+    "claim": "Subpakete: kernel (Provides kernel-%{KERNELRELEASE}), kernel-headers (/usr/include), kernel-devel (%if with_devel = CONFIG_MODULES=y; /usr/src/kernels/<ver> + build-Symlink), kernel-debuginfo optional; Version = KERNELRELEASE mit '-' -> '_'",
+    "source": "GitHub torvalds/linux scripts/package/kernel.spec + mkspec",
+    "confidence": "high",
+    "source_date": "2026-09-22"
+   },
+   {
+    "claim": "scripts/Makefile.package: `ifneq ($(CC),$(HOSTCC)) rpm-no-devel = --without=devel` -> beim Cross-Build entsteht KEIN kernel-devel; rpmbuild-Aufruf: `rpmbuild -bb rpmbuild/SPECS/kernel.spec --define='_topdir ...' --target $(UTS_MACHINE)-linux --build-in-place --noprep --define='_smp_mflags %{nil}' $(rpm -q rpm || --nodeps)`",
+    "source": "lokaler Tree /work/sl7/kernel/ellx-7.0-sl7/scripts/Makefile.package Zeilen 65-81",
+    "confidence": "high",
+    "source_date": "2026-09-22"
+   },
+   {
+    "claim": "ELLX-Tree .config: CONFIG_EFI_ZBOOT=y, CONFIG_EFI_STUB=y, CONFIG_MODULE_SIG=y, CONFIG_MODULE_COMPRESS_ZSTD=y; `make -s ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- image_name` liefert arch/arm64/boot/vmlinuz.efi (arch/arm64/Makefile: KBUILD_IMAGE := $(boot)/vmlinuz.efi bei EFI_ZBOOT, sonst Image.gz; Targets install/zinstall)",
+    "source": "lokaler WSL-Lauf 2026-09-22",
+    "confidence": "high",
+    "source_date": "2026-09-22"
+   },
+   {
+    "claim": "WSL-Host (Ubuntu 26.04): rpmbuild, rpm, sbsign, ukify 259 (259.5-0ubuntu3.4), aarch64-linux-gnu-gcc vorhanden; mock fehlt; /usr/lib/systemd/boot/efi enthält nur x64-Stubs; wsl-build-stubble.sh lädt stubble:arm64 (stubble.efi, hwids, sbat, finddtbs.py) und ruft `ukify build --linux=vmlinuz.efi --stub=stubble.efi --hwids=... --sbat=... --devicetree-auto=...`",
+    "source": "lokaler WSL-Lauf + build/wsl-build-stubble.sh",
+    "confidence": "high",
+    "source_date": "2026-09-22"
+   },
+   {
+    "claim": "Fedora-KDE-Desktop-Live-44-1.7.aarch64.iso (Dateien vom 2026-04-22): Kernel 6.19.10-300.fc44.aarch64; installierte Kernelpakete: kernel, kernel-modules, kernel-modules-core, kernel-modules-extra, kernel-tools, kernel-uki-dtbloader-6.19.10-300.fc44.aarch64 (kein kernel-core)",
+    "source": "rpm --dbpath auf extrahiertem /usr/lib/sysimage/rpm des EROFS-Rootfs (LiveOS/squashfs.img ist EROFS, lzma)",
+    "confidence": "high",
+    "source_date": "2026-04-22"
+   },
+   {
+    "claim": "/usr/lib/modules/6.19.10-300.fc44.aarch64/ enthält vmlinuz-dtbloader.efi (+ .vmlinuz-dtbloader.efi.hmac), System.map, config, dtb/, build, source, modules.* - aber KEIN plain 'vmlinuz'; /boot/vmlinuz-6.19.10-300.fc44.aarch64 hat 20.741.632 Byte = identisch groß wie der ISO-Bootkernel boot/aarch64/loader/linux",
+    "source": "dump.erofs --ls auf LiveOS/squashfs.img",
+    "confidence": "high",
+    "source_date": "2026-04-22"
+   },
+   {
+    "claim": "ISO-Bootkernel boot/aarch64/loader/linux: PE32+ EFI application ARM64, 30 Sektionen: .text .rodata .data .sbat .sdmagic .reloc, 21x .dtbauto, .hwids (10.928 Byte), .uname ('6.19.10-300.fc44.aarch64'), .linux (16.650.752 Byte, innerer PE32+ mit .text .sbat .data = zboot, zstd). .sdmagic = '#### LoaderInfo: systemd-stub 259.5-1.fc44 ####'. .sbat: systemd-stub,1,...,259; systemd-stub.fedora 259.5-1.fc44; kernel.fedora kernel-core 6.19.10-300.fc44; kernel-dtbloader.fedora kernel-uki-virt 6.19.10-300.fc44",
+    "source": "aarch64-linux-gnu-objdump/objcopy auf extrahiertem Kernel, WSL 2026-09-22",
+    "confidence": "high",
+    "source_date": "2026-04-22"
+   },
+   {
+    "claim": ".dtbauto-Compatible-Strings im Fedora-44-Bootkernel umfassen microsoft,romulus13 und microsoft,romulus15 (sowie microsoft,denali/blackrock/arcata, lenovo,thinkpad-t14s(-lcd/-oled), lenovo,yoga-slim7x, lenovo,thinkpad-x13s, asus,vivobook-s15, asus,zenbook-a14-*, dell,xps13-9345, dell,latitude-7455, dell,inspiron-14-plus-7441, hp,omnibook-x14(-fe1), hp,elitebook-ultra-g1q, acer,*); .hwids enthält 'Microsoft Corporation Surface' und die microsoft,* compatibles (93 String-Einträge gesamt)",
+    "source": "strings auf .dtbauto/.hwids-Sektionen, WSL 2026-09-22",
+    "confidence": "high",
+    "source_date": "2026-04-22"
+   },
+   {
+    "claim": "/boot/dtb-6.19.10-300.fc44.aarch64/qcom/ enthält 340 DTBs, darunter x1e80100-microsoft-romulus13.dtb, x1e80100-microsoft-romulus13-el2.dtb, romulus15(-el2), x1e80100-crd, -qcp, x1e001de-devkit, alle X1E-Laptops",
+    "source": "dump.erofs --ls",
+    "confidence": "high",
+    "source_date": "2026-04-22"
+   },
+   {
+    "claim": "Live-grub.cfg (boot/grub2/grub.cfg, EFI/BOOT/grub.cfg ist 111-Byte-Stub): `linux ($root)/boot/aarch64/loader/linux quiet rhgb  root=live:CDLABEL=Fedora-KDE-Live-44 rd.live.image` / `initrd ($root)/boot/aarch64/loader/initrd` (224 MB); keine devicetree-Zeile, kein cutmem, kein clk_ignore_unused/pd_ignore_unused; set default=\"1\", timeout=10",
+    "source": "extrahierte ISO-Dateien in /work/sl7/fedora/analyse/isofs",
+    "confidence": "high",
+    "source_date": "2026-04-22"
+   },
+   {
+    "claim": "Fedora-44-Live-Paketstände: grub2-efi-aa64/grub2-common 2.12-56.fc44, shim-aa64 16.1-5, systemd 259.5-1.fc44, dracut 108-6.fc44 (+dracut-live, dracut-network, dracut-config-rescue), qcom-firmware-20260309-1.fc44, qcom-wwan-firmware-20260309-1.fc44, linux-firmware-whence-20260309-1.fc44, mesa-dri/vulkan 26.0.3-4.fc44, pipewire 1.6.2-1.fc44, plasma-desktop 6.6.4-1.fc44, alsa-ucm 1.2.15.3-3.fc44, libcamera 0.7.0-1.fc44, fwupd 2.1.1-1, efibootmgr 18-11, anaconda-live/anaconda-core 44.30-2.fc44 (Installer = Anaconda)",
+    "source": "rpm -qa auf extrahierter rpmdb.sqlite",
+    "confidence": "high",
+    "source_date": "2026-04-22"
+   },
+   {
+    "claim": "Fedora kernel-install-Plugins in /usr/lib/kernel/install.d: 10-devicetree.install, 20-grub.install, 50-depmod.install, 50-dracut.install, 51-dracut-rescue.install, 90-loaderentry.install, 90-uki-copy.install, 92-tuned.install, 95-kernel-hooks.install, 95-set-boot-entry.install, 99-grub-mkconfig.install; /etc/kernel/install.d leer; /usr/lib/kernel/install.conf komplett auskommentiert (#layout=bls|other, #initrd_generator=dracut, #uki_generator=ukify); /usr/lib/systemd/boot ist leer (kein sd-stub, keine hwids installiert)",
+    "source": "dump.erofs/fsck.erofs auf Live-Rootfs",
+    "confidence": "high",
+    "source_date": "2026-04-22"
+   },
+   {
+    "claim": "20-grub.install (add): exit 0 wenn `-d ${BOOT_DIR_ABS}` (anderer Loader aktiv) oder KERNEL_INSTALL_LAYOUT=uki; wenn KERNEL_DIR != /boot: `cp -T KERNEL_IMAGE /boot/vmlinuz-$ver` und System.map, config, zImage.stub, dtb -> /boot/<name>-$ver (dtb rekursiv), .hmac, symvers; BLS-Datei /boot/loader/entries/${MACHINE_ID}-${KERNEL_VERSION}.conf mit `title ${NAME} (${kernelver}) ${VERSION}`, `version`, `linux /vmlinuz-${kernelver}`, `initrd /initramfs-${kernelver}.img`, `options ${kernelopts}`, `grub_users $grub_users`, `grub_arg --unrestricted`, `grub_class ${ID}` und `devicetree /dtb-${kernelver}/$GRUB_DEVICETREE` NUR wenn GRUB_DEVICETREE in /etc/default/grub gesetzt; kernelopts aus /etc/kernel/cmdline, sonst /usr/lib/kernel/cmdline, sonst /proc/cmdline ohne initrd=/BOOT_IMAGE=; Versionen mit '64k|auto|rt|uki' werden nicht Default; setzt grub2-editenv tmp_saved_entry, 95-set-boot-entry macht daraus saved_entry; Fallback new-kernel-pkg nur wenn /sbin/new-kernel-pkg existiert und BLSCFG nicht true",
+    "source": "20-grub.install aus grub2-common-2.12-56.fc44 (Live-Rootfs)",
+    "confidence": "high",
+    "source_date": "2026-04-22"
+   },
+   {
+    "claim": "50-dracut.install: ohne Layout-Info wird BOOT_DIR_ABS=/boot und IMAGE=initramfs-${KERNEL_VERSION}.img erzeugt; existiert ${KERNEL_IMAGE%/*}/initrd (Datei 'initrd' neben dem Kernel), wird sie kopiert statt neu generiert; bei KERNEL_INSTALL_IMAGE_TYPE=uki keine initrd; Fedora-dracut-Default 01-dist.conf: hostonly=\"yes\", hostonly_cmdline=\"no\", early_microcode=\"yes\", reproducible=\"yes\"",
+    "source": "Live-Rootfs /usr/lib/kernel/install.d/50-dracut.install, /usr/lib/dracut/dracut.conf.d/01-dist.conf",
+    "confidence": "high",
+    "source_date": "2026-04-22"
+   },
+   {
+    "claim": "10-devicetree.install: auf arm*/aarch64/riscv64 legt es nur den Symlink /boot/dtb -> dtb-$KERNEL_VERSION für u-boot an (entfällt bei FirmwareDT=True in /etc/u-boot.conf); kein Einfluss auf GRUB/EFI-Boot",
+    "source": "Live-Rootfs /usr/lib/kernel/install.d/10-devicetree.install",
+    "confidence": "high",
+    "source_date": "2026-04-22"
+   },
+   {
+    "claim": "Fedora Change 'Automatic DTB selection for aarch64 EFI systems': Ziel Fedora Linux 44, Status Accepted (ChangeAcceptedF44, SystemWideChange), zuletzt 2026-04-14, Owner Hans de Goede (johannes.goede@oss.qualcomm.com), Neal Gompa; Mechanismus: 'modified kernel image which embeds the systemd-stub boot stub, hardware-id to DTB mappings and relevant DTB files' = 'an incomplete UKI containing just the systemd-stub and the DTBs, but not an initrd nor a kernel commandline', 'host-generated initrd and host-specific commandline being supplied by GRUB as usual'; vmlinuz 'from ~16MB to ~19MB'; Scope: 'Package Stubble (completed)', 'Add a new kernel-dtb-loader sub-package', 'Fix Fedora's GRUB failing to boot kernel images with systemd-stub (fixed)', 'Switch aarch64 Live ISO images from kernel-core to kernel-dtb-loader'; Motivation 'allow the prolific Windows on ARM laptop models boot Fedora OOTB'",
+    "source": "https://fedoraproject.org/wiki/Changes/Automatic_DTB_selection_for_aarch64_EFI_systems",
+    "confidence": "high",
+    "source_date": "2026-04-14"
+   },
+   {
+    "claim": "Der tatsächliche Paketname ist kernel-uki-dtbloader (nicht kernel-dtb-loader); https://packages.fedoraproject.org/pkgs/kernel/kernel-dtb-loader/ liefert HTTP 404",
+    "source": "rpm -qa Live-Rootfs + WebFetch packages.fedoraproject.org",
+    "confidence": "high",
+    "source_date": "2026-09-22"
+   },
+   {
+    "claim": "Fedora-Wiki 'Snapdragon WoA Laptop Install': 'aarch64 Fedora Workstation 44 Live ISO' ('enable Beta downloads until F44 is released'), Fedora Media Writer oder dd; Cmdline für Snapdragon X Elite/Plus: 'clk_ignore_unused pd_ignore_unused systemd.tpm2_wait=0 modprobe.blacklist=qcom_q6v5_pas'; für 8cx Gen 3 zusätzlich 'efi=noruntime arm64.nopauth'; Tool qcom-firmware-extract, 'some firmwares on these laptops are laptop model specific' (aus Windows-Partition); gelistet: Lenovo ThinkPad X13s, T14s Gen6, Yoga Slim 7x - Surface Laptop 7 nicht gelistet; kein cutmem, kein kernel-dtb-loader erwähnt",
+    "source": "https://fedoraproject.org/wiki/Snapdragon_WoA_Laptop_Install (oldid=775997)",
+    "confidence": "medium",
+    "source_date": "2026"
+   },
+   {
+    "claim": "systemd-stub: '.dtbauto ... systemd-stub will always use the first matching one'; Auswahl: 'systemd-stub will use the SMBIOS data to calculate hardware IDs of the machine...and then it will try to find any of them in the .hwids section. The first matching entry will be used'; sonst Vergleich des ersten 'compatible' des Firmware-DT mit dem ersten compatible jeder .dtbauto; '.dtb ... replaces an existing DeviceTree in the corresponding EFI configuration table. systemd-stub will ask the firmware via the EFI_DT_FIXUP_PROTOCOL for hardware specific fixups'; bei SecureBoot + .cmdline werden Invocation-Parameter ignoriert; LoaderDevicePartUUID wird nur gesetzt, wenn kein Loader es setzte (Direct-Boot ohne Bootloader möglich)",
+    "source": "https://raw.githubusercontent.com/systemd/systemd/main/man/systemd-stub.xml",
+    "confidence": "high",
+    "source_date": "2026-09-22"
+   },
+   {
+    "claim": "ukify: --devicetree/DeviceTree= (.dtb, seit v253); --devicetree-auto/DeviceTreeAuto= 'Zero or more automatically selectable DeviceTree files ... Each DeviceTree will be in a separate .dtbauto section' (seit v257); --hwids/HWIDs= 'path to a directory with JSON HWID device description files' (.hwids, seit v257), automatisch aus /usr/lib/systemd/boot/hwids/[EFI_ARCH]/ wenn vorhanden; Optionen --stub, --linux, --initrd, --cmdline, --uname, --signtool sbsign, --secureboot-private-key",
+    "source": "https://raw.githubusercontent.com/systemd/systemd/main/man/ukify.xml",
+    "confidence": "high",
+    "source_date": "2026-09-22"
+   },
+   {
+    "claim": "kernel-install: 'add VERSION KERNEL-IMAGE [INITRD...]', Default-Image '/usr/lib/modules/KERNEL_VERSION/vmlinuz'; Plugins /usr/lib/kernel/install.d und /etc/kernel/install.d (gleicher Name überschreibt); layout= bls ($BOOT/loader/entries/ENTRY-TOKEN-VERSION.conf, Kernel unter $BOOT/ENTRY-TOKEN/VERSION/), uki ($BOOT/EFI/Linux/ENTRY-TOKEN-VERSION.efi via 90-uki-copy.install), other, auto (Default); initrd_generator=, uki_generator=; entry-token = machine-id oder /etc/kernel/entry-token; add-all iteriert über /usr/lib/modules/",
+    "source": "https://raw.githubusercontent.com/systemd/systemd/main/man/kernel-install.xml",
+    "confidence": "high",
+    "source_date": "2026-09-22"
+   },
+   {
+    "claim": "Fedora-Kernel: Patch '[OS-BUILD PATCHv3] aarch64: enable zboot' (Gerd Hoffmann, 2023-02-09): kernel.spec.template make_target Image.gz -> vmlinuz.efi, kernel_image arch/arm64/boot/Image.gz -> arch/arm64/boot/vmlinuz.efi, Configs CONFIG_EFI_ZBOOT=y (ark/generic, fedora/generic)",
+    "source": "https://www.mail-archive.com/kernel@lists.fedoraproject.org/msg14598.html",
+    "confidence": "high",
+    "source_date": "2023-02-09"
+   },
+   {
+    "claim": "Alte GRUB-Versionen booten zboot-Kernel nicht: 'invalid magic number' (grub-core/loader/arm64/linux.c:58); Fedora CoreOS 38.20230310.1.0 / Bericht 2023-03-15; Lösung: grub2-efi-aa64 2.06-2.fc34 -> 2.06-88.fc37 via bootupctl update",
+    "source": "https://github.com/coreos/fedora-coreos-tracker/issues/1441",
+    "confidence": "high",
+    "source_date": "2023-03-15"
+   },
+   {
+    "claim": "Fedora Change 'Unified Kernel Support Phase 2' (Fedora 40, 2024-02-28, Self-Contained): kernel-uki-virt, Pakete virt-firmware und uki-direct ('kernel-install plugin and systemd unit'), 'shim.efi -> UKI, without any boot loader (grub, sd-boot) involved', kernel-bootcfg --show; 'Enable UKIs on aarch64 ... Should be just flipping the switch, dependencies such as kernel zboot support are merged'",
+    "source": "https://fedoraproject.org/wiki/Changes/Unified_Kernel_Support_Phase_2",
+    "confidence": "high",
+    "source_date": "2024-02-28"
+   },
+   {
+    "claim": "Fedora Change Phase 1 (F38) beschreibt: 'GRUB2 designed for UKIs expects those UKIs to be on the EFI system partition, but it can load a regular kernel as well'",
+    "source": "WebSearch-Snippet zu https://fedoraproject.org/wiki/Changes/Unified_Kernel_Support_Phase_1",
+    "confidence": "medium",
+    "source_date": "2023"
+   },
+   {
+    "claim": "src.fedoraproject.org (kernel.spec, grub2/20-grub.install) und docs.fedoraproject.org/quick-docs/kernel-build-custom sind per WebFetch durch Anubis (1.25/1.26.0-1.fc44) blockiert ('Access Denied'); freedesktop.org-Manpages liefern 403 - Fedora-'--with cross'-Support und die Bauweise von kernel-uki-dtbloader konnten NICHT verifiziert werden",
+    "source": "WebFetch-Ergebnisse 2026-09-22",
+    "confidence": "high",
+    "source_date": "2026-09-22"
+   },
+   {
+    "claim": "Fedora-44-Live BLS-Einträge in /boot/loader/entries/87ac3cdda99a4d1997528103faa0785d-6.19.10-300.fc44.aarch64.conf enthalten kiwi-Buildpfade (/root/var/lib/mock/f44-kiwi-build-.../boot/vmlinuz-...) und options 'root=UUID=... ro rootflags=subvol=root net.ifnames=0 $tuned_params' - für den Live-Boot irrelevant, zeigt aber das Fedora-BLS-Format ohne devicetree-Zeile",
+    "source": "Live-Rootfs /boot/loader/entries",
+    "confidence": "high",
+    "source_date": "2026-04-22"
+   }
+  ],
+  "recommendations": [
+   "Erst testen, dann bauen: Die unveränderte Fedora-KDE-Live-44-1.7.aarch64.iso hat Kernel 6.19.10 mit eingebettetem Romulus13-DTB (.dtbauto + HWID 'Microsoft Corporation Surface') und braucht keine devicetree-Zeile. Nur boot/grub2/grub.cfg um die WoA-Wiki-Cmdline 'clk_ignore_unused pd_ignore_unused systemd.tpm2_wait=0 modprobe.blacklist=qcom_q6v5_pas' (und ggf. cutmem für 64-GB-Modell) ergänzen, auf dem SL7 booten und diesmal Logs sichern (journalctl -b auf USB, rd.debug/console). Das trennt 'Fedora-Boot-Mechanik kaputt' von 'unser Kernel kaputt'.",
+   "Eigener Kernel als RPM: `make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j.. binrpm-pkg` im ELLX-Tree (rpmbuild in WSL vorhanden). Ergebnis: kernel-<ver>.aarch64.rpm + kernel-headers; KEIN kernel-devel beim Cross-Build (--without=devel) - für iptsd/DKMS-Module ggf. später nativ nachbauen. LOCALVERSION so wählen, dass die Versionsnummer nicht '64k|auto|rt|uki' enthält (sonst wird sie in 20-grub.install nicht Default).",
+   "Installation auf Fedora: `rpm -ivh kernel-<ver>.rpm` (ggf. --nodeps wegen Provides/Requires-Unterschieden). %post ruft kernel-install add -> Fedoras 20-grub.install kopiert /lib/modules/<ver>/vmlinuz nach /boot/vmlinuz-<ver>, dtb nach /boot/dtb-<ver>, 50-dracut erzeugt /boot/initramfs-<ver>.img, BLS-Eintrag mit Optionen aus /etc/kernel/cmdline. Vorher /etc/kernel/cmdline mit root=..., rhgb quiet, clk_ignore_unused pd_ignore_unused, systemd.tpm2_wait=0 anlegen.",
+   "DTB-Auswahl, Variante A (einfach, GRUB): vor der Installation in /etc/default/grub `GRUB_DEVICETREE=qcom/x1e80100-microsoft-romulus13.dtb` setzen -> 20-grub.install schreibt `devicetree /dtb-<ver>/qcom/x1e80100-microsoft-romulus13.dtb` in den BLS-Eintrag (unser RPM liefert /lib/modules/<ver>/dtb via dtbs_install). Achtung: dann darf der Kernel KEIN Stub-Image mit .dtbauto sein, sonst ersetzt der Stub den GRUB-DTB (Verhalten ungetestet).",
+   "DTB-Auswahl, Variante B (wie Fedora selbst): das vmlinuz im RPM durch ein Stub-Image ersetzen (ukify build --stub=<aarch64 systemd-stub oder stubble.efi> --linux=vmlinuz.efi --hwids=<hwids-Verzeichnis> --devicetree-auto=romulus13.dtb(+el2) --sbat=..., ohne --initrd/--cmdline) - exakt das Format, das Fedora 44 als kernel-uki-dtbloader ausliefert (LoaderInfo systemd-stub 259.5). Umsetzung: kernel.spec Zeile 102 patchen (nach cp ukify aufrufen) oder nach rpm -i `kernel-install add <ver> /pfad/vmlinuz-<ver>.stubble` erneut ausführen. Fedora-GRUB 2.12-56 bootet dieses Format nachweislich (Live-ISO). Fedoras hwids-Quelle ist im Live-Image nicht enthalten; Ubuntu-stubble-hwids (bereits in wsl-build-stubble.sh) oder systemd-hwids aus einem Fedora-systemd-boot-unsigned-Paket nutzen.",
+   "Secure Boot am Surface ausschalten: eigener Kernel ist nicht mit dem Fedora-Key signiert, shim 16.1 lehnt ihn sonst ab. Module-Signing (CONFIG_MODULE_SIG=y, Autokey) stört nicht.",
+   "initramfs: Fedora-dracut ist hostonly=yes; beim Bauen im Chroot/auf Fremdsystem `dracut --no-hostonly --kver <ver>` erzeugen oder Datei 'initrd' neben den Kernel legen (50-dracut nimmt sie ungeprüft). Sicherstellen, dass nvme, phy-qcom-qmp-*, ufs, i2c-qcom-geni, qcom_pd_mapper/pmic_glink-Module im Image sind (Fedora-Live-initrd hat 224 MB).",
+   "Lautsprecherschutz: Fedora-Kernel 6.19.10 enthält vermutlich NICHT den Ubuntu-SAUCE-Volume-Limit-Patch (nicht verifiziert). Beim Test der Fedora-ISO Lautstärke sehr niedrig halten, nie Pro-Audio-Profil, oder wsa884x-Volume vorher per amixer begrenzen; unser Kernel behält den Patch.",
+   "Fedora-SRPM-Rebuild mit Patches (nativ per qemu-user-Chroot/mock) nicht priorisieren: Fedora-kernel.spec/--with cross ist wegen Anubis-Sperre nicht verifizierbar, mock fehlt in WSL, und ein nativer qemu-Emulationsbuild dauert ein Vielfaches der 12 min Cross-Build. Falls doch gewünscht: `git clone https://src.fedoraproject.org/rpms/kernel.git` in WSL (git, nicht Browser) und dort with_cross/kernel-uki-dtbloader-Rezept nachlesen.",
+   "Für das Live-ISO-Remaster: Fedora-KDE-ISO ist kiwi-gebaut, Rootfs = LiveOS/squashfs.img als EROFS (lzma, BIG_PCLUSTER); zum Einbauen eines eigenen Kernels EROFS neu packen (mkfs.erofs) und boot/aarch64/loader/{linux,initrd} ersetzen; die Fedora-initrd (dracut-live) muss dann gegen den neuen Kernel neu erzeugt werden."
+  ],
+  "open_questions": [
+   "Fedora kernel.spec: existiert '--with cross' (cross_opts/CROSS_COMPILE) für aarch64 aus x86 und wie wird kernel-uki-dtbloader gebaut (ukify/stubble-Aufruf, hwids-Quelle, %posttrans mit kernel-install add vmlinuz-dtbloader.efi)? src.fedoraproject.org war per Anubis blockiert - per git clone in WSL nachlesen.",
+   "Enthält der Fedora-Kernel 6.19.10-300.fc44 (bzw. 45-nightly 20260921) unsere SL7-Fixes (dwc3-Resume, Touchpad-Reset, Speaker-Volume-Limit, hamoa-USB-PHY)? Changelog nicht abgerufen.",
+   "Welche exakten SMBIOS-Strings (Manufacturer/Family/Product) stehen im .hwids-JSON für 'Microsoft Corporation Surface' und matchen sie das SL7 13,8\" (Product 'Surface Laptop 7'? Family 'Surface')? .hwids ist binär, nicht dekodiert; HWID-Match ist Pflicht, da das SL7 keinen Firmware-DT liefert.",
+   "Verhalten, wenn GRUB eine devicetree-Zeile UND der Kernel ein Stub-Image mit .dtbauto ist - überschreibt der Stub den GRUB-DTB? (systemd-stub-Doku: .dtb ersetzt EFI-Config-Table-DT; für .dtbauto nicht explizit getestet).",
+   "Kann Fedoras 20-grub.install ein Stub-Image mit initrd korrekt an systemd-stub übergeben, wenn KERNEL_IMAGE kein plain vmlinuz ist (Fedora macht es mit vmlinuz-dtbloader.efi selbst - Details des kernel-uki-dtbloader-%posttrans unbekannt)?",
+   "Zeitbedarf eines nativen Fedora-SRPM-Builds unter qemu-user (mock --forcearch) - nicht ermittelt; Erwartung: Stunden.",
+   "Fedora-45-Nightly (20260921.n.0): Kernelversion, systemd-Version und ob kernel-uki-dtbloader dort ebenfalls Romulus13 enthält - nicht geprüft.",
+   "Ist im Fedora-Live-Installer (Anaconda 44.30) beim Installieren auf das SL7 der dtbloader-Kernel automatisch das Standard-Kernelpaket (kernel-uki-dtbloader statt kernel-core) und wird cutmem/0x8800000000 für 64-GB-Modelle benötigt (Fedora-grub.cfg hat kein cutmem)?"
+  ],
+  "sources": [
+   "https://raw.githubusercontent.com/torvalds/linux/master/scripts/package/kernel.spec",
+   "https://raw.githubusercontent.com/torvalds/linux/master/scripts/package/mkspec",
+   "https://raw.githubusercontent.com/systemd/systemd/main/man/ukify.xml",
+   "https://raw.githubusercontent.com/systemd/systemd/main/man/systemd-stub.xml",
+   "https://raw.githubusercontent.com/systemd/systemd/main/man/kernel-install.xml",
+   "https://fedoraproject.org/wiki/Changes/Automatic_DTB_selection_for_aarch64_EFI_systems",
+   "https://fedoraproject.org/wiki/Changes/Unified_Kernel_Support_Phase_2",
+   "https://fedoraproject.org/wiki/Changes/Unified_Kernel_Support_Phase_1",
+   "https://fedoraproject.org/wiki/Snapdragon_WoA_Laptop_Install",
+   "https://www.mail-archive.com/kernel@lists.fedoraproject.org/msg14598.html",
+   "https://github.com/coreos/fedora-coreos-tracker/issues/1441",
+   "https://packages.fedoraproject.org/pkgs/kernel/kernel-dtb-loader/ (404)",
+   "https://www.phoronix.com/news/Fedora-44-Approves-DTB-WOA",
+   "https://discussion.fedoraproject.org/t/f44-change-proposal-automatic-dtb-selection-for-aarch64-efi-systems-systemwide/177289",
+   "Lokal (WSL, 2026-09-22): /work/sl7/kernel/ellx-7.0-sl7/scripts/package/kernel.spec, scripts/Makefile.package, arch/arm64/Makefile, .config",
+   "Lokal (WSL, 2026-09-22): /work/sl7/fedora/analyse/isofs (Fedora-KDE-Desktop-Live-44-1.7.aarch64.iso: boot/aarch64/loader/linux, boot/grub2/grub.cfg, LiveOS/squashfs.img EROFS: /usr/lib/kernel/install.d/*, /usr/lib/modules/6.19.10-300.fc44.aarch64, /boot, rpmdb)",
+   "Lokal: C:\\Users\\Martin\\Desktop\\Projekt Linux ARM\\build\\wsl-build-stubble.sh, build\\fedora\\wsl-fedora-iso-analyse.sh"
+  ]
+ }
+]

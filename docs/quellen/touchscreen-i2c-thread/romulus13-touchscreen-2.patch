@@ -1,0 +1,7 @@
+Subject: unbekannt
+
+
+
+diff --git a/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts b/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts
+--- a/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts
++++ b/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts

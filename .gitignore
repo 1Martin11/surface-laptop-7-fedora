@@ -1,0 +1,17 @@
+# grosse Artefakte und Rohdaten (ISO/Kernel-Pakete kommen als GitHub-Release)
+iso/
+gits/
+build/out/
+build/fedora/out/
+build/fedora/__pycache__/
+**/__pycache__/
+*.iso
+*.rpm
+*.deb
+*.img
+*.qcow2
+# Geraete-Logs (MAC-Adressen, WLAN-Namen)
+hardware/live-*/
+# lokale Arbeitsdateien
+*.log
+Thumbs.db

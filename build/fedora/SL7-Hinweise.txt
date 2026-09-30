@@ -1,0 +1,56 @@
+SURFACE LAPTOP 7 (13,8", Snapdragon X Elite) - FEDORA KDE LIVE, SL7-PROJEKT
+=============================================================================
+
+STATUS: Dieses Image wurde am PC gebaut und nur im Emulator (QEMU) geprueft - NICHT auf echter
+Hardware. Kernel B stammt aus einem auf dem Romulus13 getesteten Patch-Stack (ItsLucas), das
+Gesamtpaket aber nicht. Erster Boot immer vom Live-Stick, nichts wird auf die SSD geschrieben.
+
+Diese Live-Umgebung und die Installation enthalten zwei eigene Kernel:
+
+  Kernel B  7.3.0-rc3-sl7b   Ubuntu 26.10 linux-source 7.3.0-5.5 + ItsLucas-Patches r15.1
+                             (auf echtem Romulus13 getestet: WLAN-rfkill, QSPI-Trackpad,
+                             SPI-Touchscreen "GTCH", spi-hid-Power, Panel-Power, QRTR-Revert)
+                             -> Standard im Boot-Menue und nach der Installation.
+  Kernel A  7.0.0-rc4-sl7    ELLX-Kernel 7.0.0-rc4-12 (Ubuntu-Concept-Tree + spi-hid/QSPI)
+                             mit konservativen Patches (USB-Resume, Lautsprecher-Limit).
+                             DTB-Varianten: standard / exp (SPI-Touchscreen, iris, Thermal) / i2cts.
+  Fedora    6.19.10          unveraenderter Fedora-Kernel (Rueckfall; kein Trackpad-Klick, kein spi-hid).
+
+Der Geraetebaum (DTB) wird wie bei Fedora automatisch ueber die Firmware-HWID gewaehlt
+(13,8" = romulus13, 15" = romulus15). Varianten mit anderem Touchscreen-Anschluss gibt es
+nur als eigene Menueeintraege (GRUB "devicetree").
+
+TRACKPAD (haptisch, ohne mechanischen Knopf)
+  iptsd (Fork alex-lentz) erkennt den Kraft-Klick und meldet ihn als linke Maustaste.
+  Konfiguration: /etc/iptsd.d/90-sl7-touchpad.conf (ButtonDebounceMs, DisableOnPalm)
+  Kalibrierung:  /etc/iptsd.d/91-calibration-045E-0C77.conf (Startwert; bei Bedarf
+                 "sudo iptsd-calibrate <device>" ausfuehren und Werte eintragen)
+  Status:        systemctl status 'iptsd@*'   |   journalctl -u 'iptsd@*'
+
+WLAN / BLUETOOTH
+  Firmware (Microsoft-Blobs, gepatchte ath12k board-2.bin) liegt in /usr/lib/firmware/updates.
+  sl7-mac setzt die Fabrik-MAC-Adressen aus UEFI (sonst zufaellige WLAN-MAC, kein Bluetooth).
+  Pruefen: sl7-mac all   |   bluetoothctl show   |   ip link show wlan0
+
+LAUTSPRECHER - WICHTIG
+  Der X1E hat keinen Lautsprecherschutz. Beide eigenen Kernel begrenzen die Verstaerker
+  (Ubuntu-Patch). Trotzdem: NIE das PipeWire-Profil "Pro Audio" waehlen, Lautstaerke <= 70 %.
+
+BOOT-MENUE (Live-Stick)
+  Standard-Eintrag: USB-C-sicher (ADSP per modprobe.blacklist aus -> im Live-System kein Ton,
+  aber der Stick fliegt beim ADSP-Neustart nicht raus). Vom USB-A-Port aus kann der
+  Eintrag "mit Audio/ADSP" genutzt werden. Nach der Installation (interne SSD) entfernt
+  sl7-postinstall.service die Sperre automatisch beim ersten Start.
+  "Diagnose"-Eintraege booten ohne Splash mit ausfuehrlichen Meldungen. Bei einer
+  Boot-Schleife: naechsten Eintrag probieren (Kernel A, arm64.nopauth, 64-GB-cutmem).
+
+NACH DER INSTALLATION
+  - Erster Start dauert etwas laenger (sl7-postinstall baut die initramfs neu).
+  - /etc/dnf/dnf.conf schliesst Fedoras Kernel-Pakete von Updates aus, damit ein Update nicht den
+    Stock-Kernel (ohne Trackpad-Klick) zum Standard macht. Aufheben: Zeile "exclude=" dort entfernen.
+  - Nach einem Absturz: ls /sys/fs/pstore/ (Panic-Protokoll aus EFI-Variablen, falls die Firmware es erlaubt).
+  - Protokoll: /var/lib/sl7/postinstall.log ; Bootparameter: sudo grubby --info=ALL
+  - Secure Boot muss im UEFI aus bleiben (Kernel sind unsigniert).
+  - Versionen: cat /etc/sl7-release
+
+Projekt: C:\Users\Martin\Desktop\Projekt Linux ARM (Docs unter docs/, Skripte unter build/fedora/)

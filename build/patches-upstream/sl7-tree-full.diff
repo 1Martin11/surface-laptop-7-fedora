@@ -1,0 +1,571 @@
+diff --git a/Documentation/devicetree/bindings/usb/snps,dwc3-common.yaml b/Documentation/devicetree/bindings/usb/snps,dwc3-common.yaml
+index 6c0b8b653..d12f6ae81 100644
+--- a/Documentation/devicetree/bindings/usb/snps,dwc3-common.yaml
++++ b/Documentation/devicetree/bindings/usb/snps,dwc3-common.yaml
+@@ -212,6 +212,16 @@ properties:
+       When set, run the SOF/ITP counter based on ref_clk.
+     type: boolean
+ 
++  snps,reinit-phy-on-resume:
++    description:
++      When set, the DWC3 will re-initialize the USB2 PHYs during the
++      host-mode fast resume path (device_may_wakeup). Some platforms
++      cut PHY power during deep sleep even when USB wake is enabled,
++      and the standard PHY runtime PM resume is insufficient to restore
++      the PHY register state. This quirk forces a full phy_exit() +
++      phy_init() cycle on each USB2 PHY.
++    type: boolean
++
+   snps,resume-hs-terminations:
+     description:
+       Fix the issue of HS terminations CRC error on resume by enabling this
+diff --git a/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus.dtsi b/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus.dtsi
+index ae9da9e36..15a9d502a 100644
+--- a/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus.dtsi
++++ b/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus.dtsi
+@@ -512,6 +512,7 @@ vreg_ts_5p0: ts-5p0-regulator {
+ 		regulator-max-microvolt = <5000000>;
+ 		gpio = <&tlmm 65 0>;
+ 		enable-active-high;
++		regulator-boot-on;
+ 		startup-delay-us = <100000>;
+ 	};
+ };
+@@ -1607,7 +1608,7 @@ qup_qspi19_data23: qup-qspi19-data23-state {
+ 	};
+ 
+ 	spi19_hid0_reset_deassert: spi19-hid0-reset-deassert-state {
+-		pins = "gpio65", "gpio120";
++		pins = "gpio120";
+ 		function = "gpio";
+ 		drive-strength = <16>;
+ 		bias-disable;
+@@ -1615,7 +1616,7 @@ spi19_hid0_reset_deassert: spi19-hid0-reset-deassert-state {
+ 	};
+ 
+ 	spi19_hid0_reset_assert: spi19-hid0-reset-assert-state {
+-		pins = "gpio65", "gpio120";
++		pins = "gpio120";
+ 		function = "gpio";
+ 		drive-strength = <16>;
+ 		bias-disable;
+@@ -1673,8 +1674,8 @@ &usb_1_ss0_hsphy {
+ };
+ 
+ &usb_1_ss0_qmpphy {
+-	vdda-phy-supply = <&vreg_l2j>;
+-	vdda-pll-supply = <&vreg_l1j>;
++	vdda-phy-supply = <&vreg_l1j>;
++	vdda-pll-supply = <&vreg_l2j>;
+ 
+ 	status = "okay";
+ };
+@@ -1705,8 +1706,8 @@ &usb_1_ss1_hsphy {
+ };
+ 
+ &usb_1_ss1_qmpphy {
+-	vdda-phy-supply = <&vreg_l2j>;
+-	vdda-pll-supply = <&vreg_l2d>;
++	vdda-phy-supply = <&vreg_l2d>;
++	vdda-pll-supply = <&vreg_l2j>;
+ 
+ 	status = "okay";
+ };
+@@ -1732,6 +1733,10 @@ &usb_mp {
+ 	status = "okay";
+ };
+ 
++&usb_mp_dwc3 {
++	snps,reinit-phy-on-resume;
++};
++
+ &usb_mp_hsphy0 {
+ 	vdd-supply = <&vreg_l2e>;
+ 	vdda12-supply = <&vreg_l2j>;
+@@ -1751,15 +1756,15 @@ &usb_mp_hsphy1 {
+ };
+ 
+ &usb_mp_qmpphy0 {
+-	vdda-phy-supply = <&vreg_l3e>;
+-	vdda-pll-supply = <&vreg_l3c>;
++	vdda-phy-supply = <&vreg_l3c>;
++	vdda-pll-supply = <&vreg_l3e>;
+ 
+ 	status = "okay";
+ };
+ 
+ &usb_mp_qmpphy1 {
+-	vdda-phy-supply = <&vreg_l3e>;
+-	vdda-pll-supply = <&vreg_l3c>;
++	vdda-phy-supply = <&vreg_l3c>;
++	vdda-pll-supply = <&vreg_l3e>;
+ 
+ 	status = "okay";
+ };
+diff --git a/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts b/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts
+index eb7580dd9..cce720567 100644
+--- a/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts
++++ b/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts
+@@ -5,9 +5,373 @@
+ 
+ /dts-v1/;
+ 
++#include <dt-bindings/dma/qcom-gpi.h>
++#include <dt-bindings/interrupt-controller/irq.h>
++#include <dt-bindings/thermal/thermal.h>
+ #include "x1e80100-microsoft-romulus.dtsi"
+ 
+ / {
+ 	model = "Microsoft Surface Laptop 7 (13.8 inch)";
+ 	compatible = "microsoft,romulus13", "qcom,x1e80100";
+ };
++
++&i2c8 {
++	clock-frequency = <400000>;
++
++	status = "okay";
++
++	touchscreen@34 {
++		compatible = "hid-over-i2c";
++		reg = <0x34>;
++		hid-descr-addr = <0x0000>;
++
++		interrupts-extended = <&tlmm 38 IRQ_TYPE_LEVEL_LOW>;
++		reset-gpios = <&tlmm 31 GPIO_ACTIVE_LOW>;
++
++		pinctrl-0 = <&ts_default>;
++		pinctrl-names = "default";
++	};
++};
++
++&tlmm {
++	ts_default: ts-default-state {
++		int-n-pins {
++			pins = "gpio38";
++			function = "gpio";
++			drive-strength = <2>;
++			bias-pull-up;
++		};
++
++		reset-n-pins {
++			pins = "gpio31";
++			function = "gpio";
++			drive-strength = <2>;
++			bias-disable;
++		};
++	};
++};
++
++/* Touchscreen (HID over SPI, ACPI GTCH / PNP0C51 an QUP_1_SE2 = spi10); Quellen: linux-surface#1590 (horizontblau 2026-08-25), orvitpng/nix1e touchscreen.dtsi */
++/ {
++	vreg_ts2_5p0: ts2-5p0-regulator {
++		compatible = "regulator-fixed";
++		regulator-name = "vreg_ts2_5p0";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		gpio = <&tlmm 64 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++		regulator-boot-on;
++		startup-delay-us = <100000>;
++	};
++};
++
++&gpi_dma1 {
++	status = "okay";
++};
++
++&tlmm {
++	qup_qspi10_data23: qup-qspi10-data23-state {
++		pins = "gpio49", "gpio50";
++		function = "qup1_se2";
++		drive-strength = <6>;
++		bias-disable;
++	};
++
++	spi10_hid0_reset_deassert: spi10-hid0-reset-deassert-state {
++		pins = "gpio48";
++		function = "gpio";
++		drive-strength = <16>;
++		bias-disable;
++		output-high;
++	};
++
++	spi10_hid0_reset_assert: spi10-hid0-reset-assert-state {
++		pins = "gpio48";
++		function = "gpio";
++		drive-strength = <16>;
++		bias-disable;
++		output-low;
++	};
++
++	spi10_hid0_int_bias: spi10-hid0-int-bias-state {
++		pins = "gpio51";
++		function = "gpio";
++		input-enable;
++		bias-pull-up;
++	};
++};
++
++&spi10 {
++	status = "okay";
++	compatible = "qcom,geni-spi-qspi";
++	spi-max-frequency = <40000000>;
++	qcom,qspi-read-opcode = <0xEB>;
++	qcom,qspi-read-dummy-clocks = <8>;
++	qcom,qspi-read-cmd-bytes = <4>;
++
++	pinctrl-0 = <&qup_spi10_data_clk>, <&qup_spi10_cs>,
++		    <&qup_qspi10_data23>,
++		    <&spi10_hid0_int_bias>;
++	pinctrl-names = "default";
++
++	dmas = <&gpi_dma1 0 2 QCOM_GPI_QSPI>,
++	       <&gpi_dma1 1 2 QCOM_GPI_QSPI>;
++	dma-names = "tx", "rx";
++
++	touchscreen: touchscreen@0 {
++		compatible = "hid-over-spi";
++		reg = <0>;
++		spi-max-frequency = <40000000>;
++
++		interrupt-parent = <&tlmm>;
++		interrupts = <51 IRQ_TYPE_LEVEL_LOW>;
++
++		vdd-supply = <&vreg_ts2_5p0>;
++
++		pinctrl-0 = <&spi10_hid0_reset_deassert>;
++		pinctrl-1 = <&spi10_hid0_reset_assert>;
++		pinctrl-names = "active", "reset";
++
++		input-report-header-address = <0x1000>;
++		input-report-body-address = <0x1004>;
++		output-report-address = <0x2000>;
++		read-opcode = <0xEB>;
++		write-opcode = <0xE2>;
++	};
++};
++
++/* Hardware-Videodecoder/-encoder (iris) mit Microsoft-Firmware qcvss8380.mbn (wie x1e80100-dell-*.dts; orvitpng/nix1e video.dtsi) */
++&iris {
++	firmware-name = "qcom/x1e80100/microsoft/Romulus/qcvss8380.mbn";
++	status = "okay";
++};
++
++/* CPU-Thermal-Drosselung: cpufreq-Cooling + passive Trips bei 85 C (5 C Hysterese); Vorbild scuggo/x1e-nixos surface-laptop-7-thermal.dts */
++&cpu0  { #cooling-cells = <2>; };
++&cpu1  { #cooling-cells = <2>; };
++&cpu2  { #cooling-cells = <2>; };
++&cpu3  { #cooling-cells = <2>; };
++&cpu4  { #cooling-cells = <2>; };
++&cpu5  { #cooling-cells = <2>; };
++&cpu6  { #cooling-cells = <2>; };
++&cpu7  { #cooling-cells = <2>; };
++&cpu8  { #cooling-cells = <2>; };
++&cpu9  { #cooling-cells = <2>; };
++&cpu10 { #cooling-cells = <2>; };
++&cpu11 { #cooling-cells = <2>; };
++
++&{/thermal-zones/cpu0-0-top-thermal} {
++	polling-delay-passive = <250>;
++	polling-delay = <1000>;
++	trips {
++		cpu0_0_passive: trip-passive {
++			temperature = <85000>;
++			hysteresis = <5000>;
++			type = "passive";
++		};
++	};
++	cooling-maps {
++		map0 {
++			trip = <&cpu0_0_passive>;
++			cooling-device = <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++		};
++	};
++};
++
++&{/thermal-zones/cpu0-1-top-thermal} {
++	polling-delay-passive = <250>;
++	polling-delay = <1000>;
++	trips {
++		cpu0_1_passive: trip-passive {
++			temperature = <85000>;
++			hysteresis = <5000>;
++			type = "passive";
++		};
++	};
++	cooling-maps {
++		map0 {
++			trip = <&cpu0_1_passive>;
++			cooling-device = <&cpu1 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++		};
++	};
++};
++
++&{/thermal-zones/cpu0-2-top-thermal} {
++	polling-delay-passive = <250>;
++	polling-delay = <1000>;
++	trips {
++		cpu0_2_passive: trip-passive {
++			temperature = <85000>;
++			hysteresis = <5000>;
++			type = "passive";
++		};
++	};
++	cooling-maps {
++		map0 {
++			trip = <&cpu0_2_passive>;
++			cooling-device = <&cpu2 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++		};
++	};
++};
++
++&{/thermal-zones/cpu0-3-top-thermal} {
++	polling-delay-passive = <250>;
++	polling-delay = <1000>;
++	trips {
++		cpu0_3_passive: trip-passive {
++			temperature = <85000>;
++			hysteresis = <5000>;
++			type = "passive";
++		};
++	};
++	cooling-maps {
++		map0 {
++			trip = <&cpu0_3_passive>;
++			cooling-device = <&cpu3 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++		};
++	};
++};
++
++&{/thermal-zones/cpu1-0-top-thermal} {
++	polling-delay-passive = <250>;
++	polling-delay = <1000>;
++	trips {
++		cpu1_0_passive: trip-passive {
++			temperature = <85000>;
++			hysteresis = <5000>;
++			type = "passive";
++		};
++	};
++	cooling-maps {
++		map0 {
++			trip = <&cpu1_0_passive>;
++			cooling-device = <&cpu4 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++		};
++	};
++};
++
++&{/thermal-zones/cpu1-1-top-thermal} {
++	polling-delay-passive = <250>;
++	polling-delay = <1000>;
++	trips {
++		cpu1_1_passive: trip-passive {
++			temperature = <85000>;
++			hysteresis = <5000>;
++			type = "passive";
++		};
++	};
++	cooling-maps {
++		map0 {
++			trip = <&cpu1_1_passive>;
++			cooling-device = <&cpu5 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++		};
++	};
++};
++
++&{/thermal-zones/cpu1-2-top-thermal} {
++	polling-delay-passive = <250>;
++	polling-delay = <1000>;
++	trips {
++		cpu1_2_passive: trip-passive {
++			temperature = <85000>;
++			hysteresis = <5000>;
++			type = "passive";
++		};
++	};
++	cooling-maps {
++		map0 {
++			trip = <&cpu1_2_passive>;
++			cooling-device = <&cpu6 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++		};
++	};
++};
++
++&{/thermal-zones/cpu1-3-top-thermal} {
++	polling-delay-passive = <250>;
++	polling-delay = <1000>;
++	trips {
++		cpu1_3_passive: trip-passive {
++			temperature = <85000>;
++			hysteresis = <5000>;
++			type = "passive";
++		};
++	};
++	cooling-maps {
++		map0 {
++			trip = <&cpu1_3_passive>;
++			cooling-device = <&cpu7 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++		};
++	};
++};
++
++&{/thermal-zones/cpu2-0-top-thermal} {
++	polling-delay-passive = <250>;
++	polling-delay = <1000>;
++	trips {
++		cpu2_0_passive: trip-passive {
++			temperature = <85000>;
++			hysteresis = <5000>;
++			type = "passive";
++		};
++	};
++	cooling-maps {
++		map0 {
++			trip = <&cpu2_0_passive>;
++			cooling-device = <&cpu8 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++		};
++	};
++};
++
++&{/thermal-zones/cpu2-1-top-thermal} {
++	polling-delay-passive = <250>;
++	polling-delay = <1000>;
++	trips {
++		cpu2_1_passive: trip-passive {
++			temperature = <85000>;
++			hysteresis = <5000>;
++			type = "passive";
++		};
++	};
++	cooling-maps {
++		map0 {
++			trip = <&cpu2_1_passive>;
++			cooling-device = <&cpu9 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++		};
++	};
++};
++
++&{/thermal-zones/cpu2-2-top-thermal} {
++	polling-delay-passive = <250>;
++	polling-delay = <1000>;
++	trips {
++		cpu2_2_passive: trip-passive {
++			temperature = <85000>;
++			hysteresis = <5000>;
++			type = "passive";
++		};
++	};
++	cooling-maps {
++		map0 {
++			trip = <&cpu2_2_passive>;
++			cooling-device = <&cpu10 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++		};
++	};
++};
++
++&{/thermal-zones/cpu2-3-top-thermal} {
++	polling-delay-passive = <250>;
++	polling-delay = <1000>;
++	trips {
++		cpu2_3_passive: trip-passive {
++			temperature = <85000>;
++			hysteresis = <5000>;
++			type = "passive";
++		};
++	};
++	cooling-maps {
++		map0 {
++			trip = <&cpu2_3_passive>;
++			cooling-device = <&cpu11 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++		};
++	};
++};
+diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
+index 161a4d58b..82baaab0d 100644
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -1854,6 +1854,8 @@ static void dwc3_get_properties(struct dwc3 *dwc)
+ 
+ 	dwc->dis_split_quirk = device_property_read_bool(dev,
+ 				"snps,dis-split-quirk");
++	dwc->reinit_phy_on_resume = device_property_read_bool(dev,
++				"snps,reinit-phy-on-resume");
+ 
+ 	dwc->lpm_nyet_threshold = lpm_nyet_threshold;
+ 	dwc->tx_de_emphasis = tx_de_emphasis;
+@@ -2561,6 +2563,29 @@ static int dwc3_resume_common(struct dwc3 *dwc, pm_message_t msg)
+ 			dwc3_writel(dwc, DWC3_GUSB2PHYCFG(i), reg);
+ 		}
+ 
++		/*
++		 * Some platforms gate USB2 PHY power during deep sleep even
++		 * when device_may_wakeup is true, causing register state to be
++		 * lost.  Re-initialize the PHY to ensure clean signalling.
++		 */
++		if (dwc->reinit_phy_on_resume && !PMSG_IS_AUTO(msg)) {
++			for (i = 0; i < dwc->num_usb2_ports; i++) {
++				int ret;
++
++				ret = phy_exit(dwc->usb2_generic_phy[i]);
++				if (ret)
++					dev_warn_ratelimited(dwc->dev,
++						"failed to exit usb2 phy %d: %d\n",
++						i, ret);
++
++				ret = phy_init(dwc->usb2_generic_phy[i]);
++				if (ret)
++					dev_warn_ratelimited(dwc->dev,
++						"failed to init usb2 phy %d: %d\n",
++						i, ret);
++			}
++		}
++
+ 		for (i = 0; i < dwc->num_usb2_ports; i++)
+ 			phy_pm_runtime_get_sync(dwc->usb2_generic_phy[i]);
+ 		for (i = 0; i < dwc->num_usb3_ports; i++)
+diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
+index a35b3db1f..f64cf709e 100644
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -1403,6 +1403,7 @@ struct dwc3 {
+ 	unsigned		dis_metastability_quirk:1;
+ 
+ 	unsigned		dis_split_quirk:1;
++	unsigned		reinit_phy_on_resume:1;
+ 	unsigned		async_callbacks:1;
+ 	unsigned		sys_wakeup:1;
+ 	unsigned		wakeup_configured:1;
+diff --git a/sound/soc/qcom/x1e80100.c b/sound/soc/qcom/x1e80100.c
+index a3f4785c4..c81df41ac 100644
+--- a/sound/soc/qcom/x1e80100.c
++++ b/sound/soc/qcom/x1e80100.c
+@@ -27,10 +27,29 @@ static int x1e80100_snd_init(struct snd_soc_pcm_runtime *rtd)
+ {
+ 	struct x1e80100_snd_data *data = snd_soc_card_get_drvdata(rtd->card);
+ 	struct snd_soc_dai *cpu_dai = snd_soc_rtd_to_cpu(rtd, 0);
++	struct snd_soc_card *card = rtd->card;
+ 	struct snd_soc_jack *dp_jack = NULL;
+ 	int dp_pcm_id = 0;
+ 
+ 	switch (cpu_dai->id) {
++	case WSA_CODEC_DMA_RX_0:
++	case WSA_CODEC_DMA_RX_1:
++		/*
++		 * Set limit of -3 dB on Digital Volume and 0 dB on PA Volume
++		 * to reduce the risk of speaker damage until we have active
++		 * speaker protection in place.
++		 */
++		snd_soc_limit_volume(card, "WSA WSA_RX0 Digital Volume", 81);
++		snd_soc_limit_volume(card, "WSA WSA_RX1 Digital Volume", 81);
++		snd_soc_limit_volume(card, "WSA2 WSA_RX0 Digital Volume", 81);
++		snd_soc_limit_volume(card, "WSA2 WSA_RX1 Digital Volume", 81);
++		snd_soc_limit_volume(card, "SpkrLeft PA Volume", 6);
++		snd_soc_limit_volume(card, "SpkrRight PA Volume", 6);
++		snd_soc_limit_volume(card, "WooferLeft PA Volume", 6);
++		snd_soc_limit_volume(card, "TweeterLeft PA Volume", 6);
++		snd_soc_limit_volume(card, "WooferRight PA Volume", 6);
++		snd_soc_limit_volume(card, "TweeterRight PA Volume", 6);
++		break;
+ 	case DISPLAY_PORT_RX_0:
+ 		dp_pcm_id = 0;
+ 		dp_jack = &data->dp_jack[dp_pcm_id];

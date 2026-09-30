@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en" data-nav-up="/linux-input/">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="mimir 3.8.0">
+  <meta name="theme-color" content="#ffc107">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="canonical" href="https://ratatoskr.run/linux-input/2026/09/17522701/t">
+  <link rel="alternate" type="application/atom+xml"
+        title="linux-input feed"
+        href="/linux-input/feed.atom">
+  <script src="/static/js/thread-fold.js"></script>
+  <script src="/static/js/keyboard-nav.js" defer></script>
+
+
+  <title>[PATCH 2/2] arm64: dts: qcom:... | Ratatoskr</title>
+  <meta name="description" content="All 3 messages in linux-input: [PATCH 2/2] arm64: dts: qcom: microsoft-romulus13: enable touchscreen">
+
+  <meta property="og:title" content="[PATCH 2/2] arm64: dts: qcom:... | Ratatoskr">
+  <meta property="og:description" content="All 3 messages in linux-input: [PATCH 2/2] arm64: dts: qcom: microsoft-romulus13: enable touchscreen">
+  <meta property="og:url" content="https://ratatoskr.run/linux-input/2026/09/17522701/t">
+  <meta property="og:site_name" content="Ratatoskr">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://ratatoskr.run/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Ratatoskr from a 17th-century Icelandic Edda manuscript (AM 738 4to era, Árni Magnússon Institute, public domain), next to the ratatoskr.run wordmark.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="[PATCH 2/2] arm64: dts: qcom:... | Ratatoskr">
+  <meta name="twitter:description" content="All 3 messages in linux-input: [PATCH 2/2] arm64: dts: qcom: microsoft-romulus13: enable touchscreen">
+  <meta name="twitter:image" content="https://ratatoskr.run/og-image.png">
+  <meta name="twitter:image:alt" content="Ratatoskr from a 17th-century Icelandic Edda manuscript (AM 738 4to era, Árni Magnússon Institute, public domain), next to the ratatoskr.run wordmark.">
+
+  <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@id": "https://ratatoskr.run/linux-input/2026/09/17522701/t", "@type": "DiscussionForumPosting", "about": [{"@type": "Thing", "name": "ARM/QUALCOMM MAILING LIST"}, {"@type": "Thing", "name": "ARM/QUALCOMM SUPPORT"}, {"@type": "Thing", "name": "THE REST"}], "author": {"@type": "Person", "name": "fQwQf", "url": "https://ratatoskr.run/linux-input/author/fQwQf"}, "comment": [{"@id": "https://ratatoskr.run/linux-input/2026/09/17522721", "@type": "Comment", "author": {"@type": "Person", "email": "sashiko-bot@kernel.org", "name": "unknown sender"}, "datePublished": "2026-09-07T05:52:10+0000", "text": "Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider: - [Medium] Missing Pinctrl Configuration for Touchscreen GPIOs -- commit bbc74de3ce23fd59e3587b624f0acdca53aaf32a Author: fQwQf \u003cfqwqf@fqwqf.xyz\u003e arm64: dts: qcom: microsoft-romulus13: enable touchscreen This commit adds the device tree node for the ITCH MSHW0468 touchscreen on the Microsoft Surface Laptop 7. It describes the I2C controller, interrupt, reset GPIO, and HID descriptor address to allow enumeration by i2c-hid. \u003e diff --git a/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts b/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts \u003e --- a/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts \u003e +++ b/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts [ ... ] \u003e +\u0026i2c8 { \u003e + clock-frequency = \u003c400000\u003e; \u003e + \u003e + status = \"okay\"; \u003e + \u003e + touchscreen@34 { \u003e + compatible = \"hid-over-i2c\"; \u003e + reg = \u003c0x34\u003e; \u003e + hid-descr-addr = \u003c0x0000\u003e; \u003e + \u003e + interrupts-extended = \u003c\u0026tlmm 38 IRQ_TYPE_LEVEL_LOW\u003e; \u003e + reset-gpios = \u003c\u0026tlmm 31 GPIO_ACTIVE_LOW\u003e; [Severity: Medium] Does this node need explicit pinctrl configuration for the touchscreen GPIOs? Currently, the interrupts-extended and reset-gpios properties are claimed without a corresponding pinctrl-0 array. On Qualcomm platforms, relying on the bootloader\u0027s initial pinmux and pinconf state can be unreliable if power domains cycle during system suspend, potentially losing the configuration. For an active-low interrupt line, a missing pull-up bias could cause the pin to float and generate spurious interrupts, while a missing pinmux might prevent the device from resuming correctly. \u003e + }; \u003e +}; -- Sashiko AI review \u00b7 https://sashiko.dev/#/patchset/20260907054339.12409-1-fqwqf@fqwqf.xyz?part=2", "url": "https://ratatoskr.run/linux-input/2026/09/17522721"}, {"@id": "https://ratatoskr.run/linux-input/2026/09/17522760", "@type": "Comment", "author": {"@type": "Person", "email": "krzk@kernel.org", "name": "Krzysztof Kozlowski"}, "datePublished": "2026-09-07T06:04:54+0000", "text": "On 07/09/2026 07:44, fQwQf wrote: \u003e The 13.8-inch Surface Laptop 7 has an ITCH MSHW0468 touchscreen \u003e connected to QUP1 SE0 at I2C address 0x34. Describe the controller, \u003e interrupt, reset GPIO, and HID descriptor register so i2c-hid can \u003e enumerate the touchscreen. \u003e \u003e The HID descriptor is located at register 0x0000 rather than the default \u003e 0x0020. \u003e \u003e Tested-by: fQwQf \u003cfqwqf@fqwqf.xyz\u003e Drop. Why would you send untested code otherwise? Best regards, Krzysztof", "url": "https://ratatoskr.run/linux-input/2026/09/17522760"}], "dateModified": "2026-09-07T06:04:54+0000", "datePublished": "2026-09-07T05:44:05+0000", "headline": "[PATCH 2/2] arm64: dts: qcom: microsoft-romulus13: enable touchscreen", "interactionStatistic": {"@type": "InteractionCounter", "interactionType": "https://schema.org/ReplyAction", "userInteractionCount": 2}, "isPartOf": {"@type": "WebSite", "name": "linux-input", "url": "https://ratatoskr.run/linux-input/"}, "keywords": ["ARM/QUALCOMM MAILING LIST", "ARM/QUALCOMM SUPPORT", "THE REST"], "mainEntityOfPage": "https://ratatoskr.run/linux-input/2026/09/17522701/t", "text": "The 13.8-inch Surface Laptop 7 has an ITCH MSHW0468 touchscreen connected to QUP1 SE0 at I2C address 0x34. Describe the controller, interrupt, reset GPIO, and HID descriptor register so i2c-hid can enumerate the touchscreen. The HID descriptor is located at register 0x0000 rather than the default 0x0020. Tested-by: fQwQf \u003credacted\u003e Signed-off-by: fQwQf \u003credacted\u003e --- .../dts/qcom/x1e80100-microsoft-romulus13.dts | 15 +++++++++++++++ 1 file changed, 15 insertions(+) diff --git a/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts b/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts index eb7580dd9..76d143943 100644 --- a/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts +++ b/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts @@ -11,3 +11,18 @@ / { model = \"Microsoft Surface Laptop 7 (13.8 inch)\"; compatible = \"microsoft,romulus13\", \"qcom,x1e80100\"; }; + +\u0026i2c8 { + clock-frequency = \u003c400000\u003e; + + status = \"okay\"; + + touchscreen@34 { + compatible = \"hid-over-i2c\"; + reg = \u003c0x34\u003e; + hid-descr-addr = \u003c0x0000\u003e; + + interrupts-extended = \u003c\u0026tlmm 38 IRQ_TYPE_LEVEL_LOW\u003e; + reset-gpios = \u003c\u0026tlmm 31 GPIO_ACTIVE_LOW\u003e; + }; +}; -- 2.53.0", "url": "https://ratatoskr.run/linux-input/2026/09/17522701/t"}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "item": "https://ratatoskr.run/", "name": "Ratatoskr", "position": 1}, {"@type": "ListItem", "item": "https://ratatoskr.run/linux-input/", "name": "linux-input", "position": 2}, {"@type": "ListItem", "item": "https://ratatoskr.run/linux-input/2026/09/17522701/t", "name": "[PATCH 2/2] arm64: dts: qcom: microsoft-romulus13: enable touchscreen", "position": 3}]}]}</script>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.1.1/css/pico.amber.min.css"
+        integrity="sha384-BiacLKDCyG54e35iUPYB3xZg4mZ2my6tLgF44LKpomzgxexC+sAL7aL7f2mxTh7J"
+        crossorigin="anonymous">
+  <link rel="stylesheet"
+        href="/static/css/mimir.css?v=3.8.0">
+  <script src="https://unpkg.com/htmx.org@1.9.12/dist/htmx.min.js"
+          integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2"
+          crossorigin="anonymous" defer></script>
+</head>
+<body>
+  <main class="container">
+    <nav>
+      <ul>
+        <li><a href="/"><strong>Ratatoskr</strong></a></li>
+        <li><a href="/linux-input/">linux-input</a></li>
+        <li><a href="/linux-input/today">today</a></li>
+        <li><a href="/linux-input/yesterday">yesterday</a></li>
+      </ul>
+      <ul>
+        <li><small>archive</small></li>
+      </ul>
+    </nav>
+<h1>[PATCH 2/2] arm64: dts: qcom: microsoft-romulus13: enable touchscreen</h1>
+<p><small><strong>Subsystems:</strong>
+<a href="/linux-input/subsystem/arm/qualcomm%20mailing%20list/">arm/qualcomm mailing list</a>, <a href="/linux-input/subsystem/arm/qualcomm%20support/">arm/qualcomm support</a>, <a href="/linux-input/subsystem/the%20rest/">the rest</a></small></p>
+<div class="msg-badges"><span class="badge badge-activity-cooling">
+  <span class="badge-dot" aria-hidden="true"></span>COOLING<span class="badge-detail">5d</span>
+</span><span class="badge badge-lifecycle-reviewed" data-tooltip="fQwQf" tabindex="0">
+  REVIEWED<span class="badge-count">: 1 (0M)</span></span></div>
+<p><small>1 review trailer.</small></p>
+<p>
+  <small>
+    3 messages,
+    3 authors,
+    5d ago    &middot; <a href="/linux-input/2026/09/17522701">open the first message on its own page</a>
+  </small>
+</p>
+
+<article class="thread-message" id="m17522701">
+  <header>
+    <h2><a href="/linux-input/2026/09/17522701">[PATCH 2/2] arm64: dts: qcom: microsoft-romulus13: enable touchscreen</a></h2>
+    <p>
+      <strong>From:</strong> fQwQf &lt;hidden&gt;<br>
+      <strong>Date:</strong> 2026-09-07 05:44:05 
+    </p>
+  </header>
+  <pre class="body-text-block">The 13.8-inch Surface Laptop 7 has an ITCH MSHW0468 touchscreen
+connected to QUP1 SE0 at I2C address 0x34. Describe the controller,
+interrupt, reset GPIO, and HID descriptor register so i2c-hid can
+enumerate the touchscreen.
+
+The HID descriptor is located at register 0x0000 rather than the default
+0x0020.
+
+Tested-by: fQwQf &lt;redacted&gt;
+Signed-off-by: fQwQf &lt;redacted&gt;
+---
+ .../dts/qcom/x1e80100-microsoft-romulus13.dts     | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+</pre><div class="highlight"><pre class="diff-meta"><span class="gh">diff --git a/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts b/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts</span>
+<span class="gh">index eb7580dd9..76d143943 100644</span>
+<span class="gd">--- a/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts</span>
+<span class="gi">+++ b/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts</span></pre><div id="h-1" class="hunk"><pre><span id="h-1-L1" class="gu">@@ -11,3 +11,18 @@ / {</span>
+<span id="h-1-L2"> <span class="w">	</span><span class="kr">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Microsoft Surface Laptop 7 (13.8 inch)&quot;</span><span class="p">;</span></span>
+<span id="h-1-L3"> <span class="w">	</span><span class="kr">compatible</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;microsoft,romulus13&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;qcom,x1e80100&quot;</span><span class="p">;</span></span>
+<span id="h-1-L4"> <span class="p">};</span></span>
+<span id="h-1-L5"><span class="gi">+</span></span>
+<span id="h-1-L6"><span class="gi">+</span><span class="o">&amp;</span><span class="nf">i2c8</span><span class="cm"> </span><span class="p">{</span></span>
+<span id="h-1-L7"><span class="gi">+</span><span class="w">	</span><span class="n">clock-frequency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&lt;</span><span class="mi">400000</span><span class="o">&gt;</span><span class="p">;</span></span>
+<span id="h-1-L8"><span class="gi">+</span></span>
+<span id="h-1-L9"><span class="gi">+</span><span class="w">	</span><span class="kr">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;okay&quot;</span><span class="p">;</span></span>
+<span id="h-1-L10"><span class="gi">+</span></span>
+<span id="h-1-L11"><span class="gi">+</span><span class="w">	</span><span class="nf">touchscreen</span><span class="o">@</span><span class="mi">34</span><span class="cm"> </span><span class="p">{</span></span>
+<span id="h-1-L12"><span class="gi">+</span><span class="w">		</span><span class="kr">compatible</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;hid-over-i2c&quot;</span><span class="p">;</span></span>
+<span id="h-1-L13"><span class="gi">+</span><span class="w">		</span><span class="kr">reg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&lt;</span><span class="mh">0x34</span><span class="o">&gt;</span><span class="p">;</span></span>
+<span id="h-1-L14"><span class="gi">+</span><span class="w">		</span><span class="n">hid-descr-addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&lt;</span><span class="mh">0x0000</span><span class="o">&gt;</span><span class="p">;</span></span>
+<span id="h-1-L15"><span class="gi">+</span></span>
+<span id="h-1-L16"><span class="gi">+</span><span class="w">		</span><span class="n">interrupts-extended</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&lt;&amp;</span><span class="na">tlmm</span><span class="w"> </span><span class="mi">38</span><span class="w"> </span><span class="na">IRQ_TYPE_LEVEL_LOW</span><span class="o">&gt;</span><span class="p">;</span></span>
+<span id="h-1-L17"><span class="gi">+</span><span class="w">		</span><span class="n">reset-gpios</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&lt;&amp;</span><span class="na">tlmm</span><span class="w"> </span><span class="mi">31</span><span class="w"> </span><span class="na">GPIO_ACTIVE_LOW</span><span class="o">&gt;</span><span class="p">;</span></span>
+<span id="h-1-L18"><span class="gi">+</span><span class="w">	</span><span class="p">};</span></span>
+<span id="h-1-L19"><span class="gi">+</span><span class="p">};</span></span></pre></div><pre class="diff-meta">-- 
+2.53.0
+</pre></div>
+</article>
+<article class="thread-message" id="m17522721">
+  <header>
+    <h2><a href="/linux-input/2026/09/17522721">Re: [PATCH 2/2] arm64: dts: qcom: microsoft-romulus13: enable touchscreen</a></h2>
+    <p>
+      <strong>From:</strong> sashiko-bot@kernel.org<br>
+      <strong>Date:</strong> 2026-09-07 05:52:10 
+    </p>
+  </header>
+  <pre class="body-text-block">Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+- [Medium] Missing Pinctrl Configuration for Touchscreen GPIOs
+--
+
+commit bbc74de3ce23fd59e3587b624f0acdca53aaf32a
+Author: fQwQf [off-list ref]
+
+arm64: dts: qcom: microsoft-romulus13: enable touchscreen
+
+This commit adds the device tree node for the ITCH MSHW0468 touchscreen on
+the Microsoft Surface Laptop 7. It describes the I2C controller, interrupt,
+reset GPIO, and HID descriptor address to allow enumeration by i2c-hid.
+</pre><details class="hunk-quote"><summary><small><em>quoted hunk</em></small></summary><blockquote><div class="highlight"><pre class="diff-meta"><span class="gh">diff --git a/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts b/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts</span>
+<span class="gd">--- a/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts</span>
+<span class="gi">+++ b/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dts</span></pre></div></blockquote></details><pre class="body-text-block">[ ... ]</pre><blockquote><pre class="body-text-block">+&amp;i2c8 {
++	clock-frequency = &lt;400000&gt;;
++
++	status = &quot;okay&quot;;
++
++	touchscreen@34 {
++		compatible = &quot;hid-over-i2c&quot;;
++		reg = &lt;0x34&gt;;
++		hid-descr-addr = &lt;0x0000&gt;;
++
++		interrupts-extended = &lt;&amp;tlmm 38 IRQ_TYPE_LEVEL_LOW&gt;;
++		reset-gpios = &lt;&amp;tlmm 31 GPIO_ACTIVE_LOW&gt;;</pre></blockquote><pre class="body-text-block">
+[Severity: Medium]
+Does this node need explicit pinctrl configuration for the touchscreen GPIOs?
+
+Currently, the interrupts-extended and reset-gpios properties are claimed
+without a corresponding pinctrl-0 array. On Qualcomm platforms, relying on
+the bootloader&#x27;s initial pinmux and pinconf state can be unreliable if power
+domains cycle during system suspend, potentially losing the configuration.
+
+For an active-low interrupt line, a missing pull-up bias could cause the
+pin to float and generate spurious interrupts, while a missing pinmux might
+prevent the device from resuming correctly.
+</pre><blockquote><pre class="body-text-block">+	};
++};</pre></blockquote><pre class="body-text-block">
+-- 
+Sashiko AI review · <a href="https://sashiko.dev/#/patchset/20260907054339.12409-1-fqwqf@fqwqf.xyz?part=2" rel="nofollow noopener noreferrer">https://sashiko.dev/#/patchset/20260907054339.12409-1-fqwqf@fqwqf.xyz?part=2</a></pre>
+</article>
+<article class="thread-message" id="m17522760">
+  <header>
+    <h2><a href="/linux-input/2026/09/17522760">Re: [PATCH 2/2] arm64: dts: qcom: microsoft-romulus13: enable touchscreen</a></h2>
+    <p>
+      <strong>From:</strong> Krzysztof Kozlowski &lt;krzk@kernel.org&gt;<br>
+      <strong>Date:</strong> 2026-09-07 06:04:54 
+    </p>
+  </header>
+  <pre class="body-text-block">On 07/09/2026 07:44, fQwQf wrote:</pre><blockquote><pre class="body-text-block">The 13.8-inch Surface Laptop 7 has an ITCH MSHW0468 touchscreen
+connected to QUP1 SE0 at I2C address 0x34. Describe the controller,
+interrupt, reset GPIO, and HID descriptor register so i2c-hid can
+enumerate the touchscreen.
+
+The HID descriptor is located at register 0x0000 rather than the default
+0x0020.
+
+Tested-by: fQwQf &lt;redacted&gt;</pre></blockquote><pre class="body-text-block">
+Drop. Why would you send untested code otherwise?
+
+
+Best regards,
+Krzysztof</pre>
+</article>
+
+    <footer>
+      <hr>
+      <div class="footer-row">
+        <small><em>Generated by <a href="https://github.com/sgaduuw/mimir">mimir</a> 3.8.0.
+          Brought to you by <a href="https://www.eelcowesemann.nl/" rel="me">Eelco</a>.</em></small>
+        <small><em><a href="/privacy">Privacy</a>.</em></small>
+      </div>
+    </footer>
+  </main>
+  <dialog id="keyboard-help" aria-labelledby="kbd-help-title">
+    <article class="keyboard-help-article">
+      <header class="keyboard-help-header">
+        <strong id="kbd-help-title">Keyboard shortcuts</strong>
+      </header>
+      <table>
+        <tbody>
+          <tr><td><kbd>h</kbd></td><td>back out one level</td></tr>
+          <tr><td><kbd>j</kbd></td><td>next message in thread</td></tr>
+          <tr><td><kbd>k</kbd></td><td>previous message in thread</td></tr>
+          <tr><td><kbd>l</kbd></td><td>drill in</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>close help / fold thread tree</td></tr>
+          <tr><td><kbd>?</kbd></td><td>toggle this help</td></tr>
+        </tbody>
+      </table>
+      <footer class="keyboard-help-footer">
+        <small>Shortcuts bypass when typing in a search box or form
+          field. Modifier keys (Ctrl/Cmd/Alt) pass through to the
+          browser.</small>
+      </footer>
+    </article>
+  </dialog>
+</body>
+</html>

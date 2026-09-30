@@ -1,0 +1,79 @@
+From 4458dcd38295c8bd13957637ba98132ba3f089b0 Mon Sep 17 00:00:00 2001
+From: Manivannan Sadhasivam <manivannan.sadhasivam@oss.qualcomm.com>
+Date: Mon, 3 Aug 2026 08:34:16 +0200
+Subject: [PATCH] arm64: dts: qcom: hamoa: Fix swapped USB QMP PHY
+ vdda-phy/vdda-pll supplies
+
+The QMP PHY expects the vdda-phy supply to be around 0.88V and the
+vdda-pll supply to be 1.2V. But these two supplies are swapped for the
+USB QMP PHYs on these boards, feeding 1.2V to vdda-phy and 0.9V to
+vdda-pll.
+
+Fix it by swapping the two supplies back.
+
+Fixes: 5098ae93ce44 ("arm64: dts: qcom: Add HAMOA-IOT-SOM platform")
+Fixes: af241225893a ("arm64: dts: qcom: Add the Lenovo IdeaCentre Mini X")
+Fixes: ae5cee8e7349 ("arm64: dts: qcom: x1e80100-crd: Fix USB PHYs regulators")
+Fixes: 20676f7819d7 ("arm64: dts: qcom: x1e80100-qcp: Fix USB PHYs regulators")
+Fixes: d0e2f8f62dff ("arm64: dts: qcom: Add device tree for ASUS Vivobook S 15")
+Fixes: 6516961352a1 ("arm64: dts: qcom: Add support for X1-based Asus Zenbook A14")
+Fixes: 45247fe17db2 ("arm64: dts: qcom: x1e80100: add Lenovo Thinkpad Yoga slim 7x devicetree")
+Fixes: 6f18b8d4142c ("arm64: dts: qcom: x1e80100-hp-x14: dt for HP Omnibook X Laptop 14")
+Fixes: 0d72ccaa1e84 ("arm64: dts: qcom: Add support for X1-based Surface Pro 11")
+Fixes: 09d77be56093 ("arm64: dts: qcom: Add support for X1-based Surface Laptop 7 devices")
+Fixes: 8cf65490cdb0 ("arm64: dts: qcom: Add dts for Medion SPRCHRGD 14 S1")
+Fixes: f5b788d0e8cd ("arm64: dts: qcom: Add support for X1-based Dell XPS 13 9345")
+Fixes: 7b8a31e82b87 ("arm64: dts: qcom: Add X1E001DE Snapdragon Devkit for Windows")
+Fixes: 7d1cbe2f4985 ("arm64: dts: qcom: Add X1E78100 ThinkPad T14s Gen 6")
+Fixes: e7733b42111c ("arm64: dts: qcom: Add support for Dell Inspiron 7441 / Latitude 7455")
+Reported-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@oss.qualcomm.com>
+Link: https://lore.kernel.org/r/20260803-phy-supply-fix-v1-18-5880630cde3e@oss.qualcomm.com
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+---
+diff --git a/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus.dtsi b/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus.dtsi
+index 28342cb84ded76..13d0f09e0c2a1b 100644
+--- a/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus.dtsi
++++ b/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus.dtsi
+@@ -1491,8 +1491,8 @@
+ };
+ 
+ &usb_1_ss0_qmpphy {
+-	vdda-phy-supply = <&vreg_l2j>;
+-	vdda-pll-supply = <&vreg_l1j>;
++	vdda-phy-supply = <&vreg_l1j>;
++	vdda-pll-supply = <&vreg_l2j>;
+ 
+ 	status = "okay";
+ };
+@@ -1521,8 +1521,8 @@
+ };
+ 
+ &usb_1_ss1_qmpphy {
+-	vdda-phy-supply = <&vreg_l2j>;
+-	vdda-pll-supply = <&vreg_l2d>;
++	vdda-phy-supply = <&vreg_l2d>;
++	vdda-pll-supply = <&vreg_l2j>;
+ 
+ 	status = "okay";
+ };
+@@ -1565,15 +1565,15 @@
+ };
+ 
+ &usb_mp_qmpphy0 {
+-	vdda-phy-supply = <&vreg_l3e>;
+-	vdda-pll-supply = <&vreg_l3c>;
++	vdda-phy-supply = <&vreg_l3c>;
++	vdda-pll-supply = <&vreg_l3e>;
+ 
+ 	status = "okay";
+ };
+ 
+ &usb_mp_qmpphy1 {
+-	vdda-phy-supply = <&vreg_l3e>;
+-	vdda-pll-supply = <&vreg_l3c>;
++	vdda-phy-supply = <&vreg_l3c>;
++	vdda-pll-supply = <&vreg_l3e>;
+ 
+ 	status = "okay";
+ };

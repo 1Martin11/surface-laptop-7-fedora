@@ -1,0 +1,59 @@
+#define TP_RESET_PIN "gpio120"
+#define TP_RESET 120
+
+#define TP_INT_PIN "gpio3"
+#define TP_INT 3
+
+#define TP_VDD 65
+
+&gpi_dma2 {
+    status = "okay";
+};
+
+&{/} {
+    tp_reg: tp-regulator {
+        compatible = "regulator-fixed";
+        regulator-name = "tp_reg";
+
+        gpio = <&tlmm TP_VDD 0>;
+        startup-delay-us = <1000000>;
+        enable-active-high;
+    };
+};
+
+&tlmm {
+    tp_reset: tp-reset-state {
+        pins = TP_RESET_PIN;
+        function = "gpio";
+        drive-strength = <16>;
+        bias-disable;
+    };
+
+    tp_int: tp-int-state {
+        pins = TP_INT_PIN;
+        function = "gpio";
+        input-enable;
+        bias-pull-up;
+    };
+};
+
+&spi19 {
+    status = "okay";
+
+    touchpad: touchpad@0 {
+        spi-max-frequency = <20000000>;
+        interrupts-extended = <&tlmm TP_INT IRQ_TYPE_LEVEL_LOW>;
+        pinctrl-0 = <&tp_reset>,
+                    <&tp_int>;
+
+        compatible = "hid-over-spi";
+        reg = <0>;
+        reset-gpios = <&tlmm TP_RESET GPIO_ACTIVE_LOW>;
+        vdd-supply = <&tp_reg>;
+        input-report-header-address = <0x1000>;
+        input-report-body-address = <0x1004>;
+        output-report-address = <0x2000>;
+        read-opcode = <0xEB>;
+        write-opcode = <0xE2>;
+    };
+};

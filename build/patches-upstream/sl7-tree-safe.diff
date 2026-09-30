@@ -1,0 +1,167 @@
+diff --git a/Documentation/devicetree/bindings/usb/snps,dwc3-common.yaml b/Documentation/devicetree/bindings/usb/snps,dwc3-common.yaml
+index 6c0b8b653..d12f6ae81 100644
+--- a/Documentation/devicetree/bindings/usb/snps,dwc3-common.yaml
++++ b/Documentation/devicetree/bindings/usb/snps,dwc3-common.yaml
+@@ -212,6 +212,16 @@ properties:
+       When set, run the SOF/ITP counter based on ref_clk.
+     type: boolean
+ 
++  snps,reinit-phy-on-resume:
++    description:
++      When set, the DWC3 will re-initialize the USB2 PHYs during the
++      host-mode fast resume path (device_may_wakeup). Some platforms
++      cut PHY power during deep sleep even when USB wake is enabled,
++      and the standard PHY runtime PM resume is insufficient to restore
++      the PHY register state. This quirk forces a full phy_exit() +
++      phy_init() cycle on each USB2 PHY.
++    type: boolean
++
+   snps,resume-hs-terminations:
+     description:
+       Fix the issue of HS terminations CRC error on resume by enabling this
+diff --git a/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus.dtsi b/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus.dtsi
+index ae9da9e36..920565dc7 100644
+--- a/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus.dtsi
++++ b/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus.dtsi
+@@ -1673,8 +1673,8 @@ &usb_1_ss0_hsphy {
+ };
+ 
+ &usb_1_ss0_qmpphy {
+-	vdda-phy-supply = <&vreg_l2j>;
+-	vdda-pll-supply = <&vreg_l1j>;
++	vdda-phy-supply = <&vreg_l1j>;
++	vdda-pll-supply = <&vreg_l2j>;
+ 
+ 	status = "okay";
+ };
+@@ -1705,8 +1705,8 @@ &usb_1_ss1_hsphy {
+ };
+ 
+ &usb_1_ss1_qmpphy {
+-	vdda-phy-supply = <&vreg_l2j>;
+-	vdda-pll-supply = <&vreg_l2d>;
++	vdda-phy-supply = <&vreg_l2d>;
++	vdda-pll-supply = <&vreg_l2j>;
+ 
+ 	status = "okay";
+ };
+@@ -1732,6 +1732,10 @@ &usb_mp {
+ 	status = "okay";
+ };
+ 
++&usb_mp_dwc3 {
++	snps,reinit-phy-on-resume;
++};
++
+ &usb_mp_hsphy0 {
+ 	vdd-supply = <&vreg_l2e>;
+ 	vdda12-supply = <&vreg_l2j>;
+@@ -1751,15 +1755,15 @@ &usb_mp_hsphy1 {
+ };
+ 
+ &usb_mp_qmpphy0 {
+-	vdda-phy-supply = <&vreg_l3e>;
+-	vdda-pll-supply = <&vreg_l3c>;
++	vdda-phy-supply = <&vreg_l3c>;
++	vdda-pll-supply = <&vreg_l3e>;
+ 
+ 	status = "okay";
+ };
+ 
+ &usb_mp_qmpphy1 {
+-	vdda-phy-supply = <&vreg_l3e>;
+-	vdda-pll-supply = <&vreg_l3c>;
++	vdda-phy-supply = <&vreg_l3c>;
++	vdda-pll-supply = <&vreg_l3e>;
+ 
+ 	status = "okay";
+ };
+diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
+index 161a4d58b..82baaab0d 100644
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -1854,6 +1854,8 @@ static void dwc3_get_properties(struct dwc3 *dwc)
+ 
+ 	dwc->dis_split_quirk = device_property_read_bool(dev,
+ 				"snps,dis-split-quirk");
++	dwc->reinit_phy_on_resume = device_property_read_bool(dev,
++				"snps,reinit-phy-on-resume");
+ 
+ 	dwc->lpm_nyet_threshold = lpm_nyet_threshold;
+ 	dwc->tx_de_emphasis = tx_de_emphasis;
+@@ -2561,6 +2563,29 @@ static int dwc3_resume_common(struct dwc3 *dwc, pm_message_t msg)
+ 			dwc3_writel(dwc, DWC3_GUSB2PHYCFG(i), reg);
+ 		}
+ 
++		/*
++		 * Some platforms gate USB2 PHY power during deep sleep even
++		 * when device_may_wakeup is true, causing register state to be
++		 * lost.  Re-initialize the PHY to ensure clean signalling.
++		 */
++		if (dwc->reinit_phy_on_resume && !PMSG_IS_AUTO(msg)) {
++			for (i = 0; i < dwc->num_usb2_ports; i++) {
++				int ret;
++
++				ret = phy_exit(dwc->usb2_generic_phy[i]);
++				if (ret)
++					dev_warn_ratelimited(dwc->dev,
++						"failed to exit usb2 phy %d: %d\n",
++						i, ret);
++
++				ret = phy_init(dwc->usb2_generic_phy[i]);
++				if (ret)
++					dev_warn_ratelimited(dwc->dev,
++						"failed to init usb2 phy %d: %d\n",
++						i, ret);
++			}
++		}
++
+ 		for (i = 0; i < dwc->num_usb2_ports; i++)
+ 			phy_pm_runtime_get_sync(dwc->usb2_generic_phy[i]);
+ 		for (i = 0; i < dwc->num_usb3_ports; i++)
+diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
+index a35b3db1f..f64cf709e 100644
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -1403,6 +1403,7 @@ struct dwc3 {
+ 	unsigned		dis_metastability_quirk:1;
+ 
+ 	unsigned		dis_split_quirk:1;
++	unsigned		reinit_phy_on_resume:1;
+ 	unsigned		async_callbacks:1;
+ 	unsigned		sys_wakeup:1;
+ 	unsigned		wakeup_configured:1;
+diff --git a/sound/soc/qcom/x1e80100.c b/sound/soc/qcom/x1e80100.c
+index a3f4785c4..c81df41ac 100644
+--- a/sound/soc/qcom/x1e80100.c
++++ b/sound/soc/qcom/x1e80100.c
+@@ -27,10 +27,29 @@ static int x1e80100_snd_init(struct snd_soc_pcm_runtime *rtd)
+ {
+ 	struct x1e80100_snd_data *data = snd_soc_card_get_drvdata(rtd->card);
+ 	struct snd_soc_dai *cpu_dai = snd_soc_rtd_to_cpu(rtd, 0);
++	struct snd_soc_card *card = rtd->card;
+ 	struct snd_soc_jack *dp_jack = NULL;
+ 	int dp_pcm_id = 0;
+ 
+ 	switch (cpu_dai->id) {
++	case WSA_CODEC_DMA_RX_0:
++	case WSA_CODEC_DMA_RX_1:
++		/*
++		 * Set limit of -3 dB on Digital Volume and 0 dB on PA Volume
++		 * to reduce the risk of speaker damage until we have active
++		 * speaker protection in place.
++		 */
++		snd_soc_limit_volume(card, "WSA WSA_RX0 Digital Volume", 81);
++		snd_soc_limit_volume(card, "WSA WSA_RX1 Digital Volume", 81);
++		snd_soc_limit_volume(card, "WSA2 WSA_RX0 Digital Volume", 81);
++		snd_soc_limit_volume(card, "WSA2 WSA_RX1 Digital Volume", 81);
++		snd_soc_limit_volume(card, "SpkrLeft PA Volume", 6);
++		snd_soc_limit_volume(card, "SpkrRight PA Volume", 6);
++		snd_soc_limit_volume(card, "WooferLeft PA Volume", 6);
++		snd_soc_limit_volume(card, "TweeterLeft PA Volume", 6);
++		snd_soc_limit_volume(card, "WooferRight PA Volume", 6);
++		snd_soc_limit_volume(card, "TweeterRight PA Volume", 6);
++		break;
+ 	case DISPLAY_PORT_RX_0:
+ 		dp_pcm_id = 0;
+ 		dp_jack = &data->dp_jack[dp_pcm_id];

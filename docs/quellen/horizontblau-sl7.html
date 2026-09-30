@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="de" data-lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Surface Laptop 7 unter Linux — Protokoll</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E9EAE5;
+  --paper-2:#E1E3DC;
+  --ink:#191B18;
+  --ink-2:#4A4E48;
+  --ink-3:#7A7F77;
+  --rule:#C6C9BF;
+  --ok:#2E6F58;
+  --wip:#A96A14;
+  --open:#96413C;
+  --link:#33518F;
+  --code-bg:#E2E4DD;
+  --card:#EFF0EC;
+}
+html[data-theme="dark"]{
+  --paper:#13161A;
+  --paper-2:#191D22;
+  --ink:#E6E7E2;
+  --ink-2:#AFB4AE;
+  --ink-3:#7E847E;
+  --rule:#2C3238;
+  --ok:#5CC49E;
+  --wip:#E0A040;
+  --open:#E2837A;
+  --link:#8CADEC;
+  --code-bg:#1B1F25;
+  --card:#181C21;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"IBM Plex Serif",Georgia,serif;
+  font-size:17px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- top bar ---------- */
+.bar{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;gap:.75rem;
+  padding:.55rem clamp(1rem,4vw,3rem);
+  background:color-mix(in srgb,var(--paper) 88%,transparent);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--rule);
+}
+.bar .mark{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);margin-right:auto;
+}
+.tbtn{
+  font:inherit;font-family:"IBM Plex Mono",monospace;font-size:.8rem;
+  background:none;border:1px solid var(--rule);border-radius:2px;
+  color:var(--ink-2);padding:.28rem .5rem;cursor:pointer;line-height:1;
+}
+.tbtn[aria-pressed="true"]{border-color:var(--ink);color:var(--ink);background:var(--card)}
+.tbtn:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+.flag{font-size:1rem;line-height:1}
+
+/* ---------- layout ---------- */
+main{max-width:56rem;margin:0 auto;padding:0 clamp(1rem,4vw,3rem) 6rem}
+section{padding-top:3.4rem}
+hr.sep{border:0;border-top:1px solid var(--rule);margin:3.4rem 0 0}
+
+/* ---------- masthead ---------- */
+.masthead{padding-top:clamp(2.5rem,7vw,4.5rem)}
+h1{
+  font-family:"IBM Plex Mono",monospace;
+  font-weight:600;
+  font-size:clamp(1.85rem,5.2vw,3.1rem);
+  line-height:1.06;letter-spacing:-.035em;
+  margin:0 0 1.1rem;
+  text-wrap:balance;
+}
+.dek{font-size:1.09rem;color:var(--ink-2);max-width:40rem;margin:0 0 1.8rem}
+.idcard{
+  font-family:"IBM Plex Mono",monospace;font-size:.79rem;line-height:1.85;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  padding:.85rem 0;color:var(--ink-2);
+  display:grid;grid-template-columns:auto 1fr;gap:0 1.4rem;
+}
+.idcard dt{color:var(--ink-3);text-transform:uppercase;letter-spacing:.1em;font-size:.7rem;padding-top:.28em}
+.idcard dd{margin:0;overflow-wrap:anywhere}
+
+/* ---------- status board (signature) ---------- */
+.board{margin-top:2.6rem;border:1px solid var(--rule);background:var(--card);border-radius:3px;overflow:hidden}
+.board-head{
+  font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);padding:.6rem .95rem;border-bottom:1px solid var(--rule);
+}
+.row{
+  display:grid;grid-template-columns:1.15rem 1fr auto;align-items:baseline;gap:.7rem;
+  padding:.52rem .95rem;border-top:1px solid color-mix(in srgb,var(--rule) 55%,transparent);
+  font-family:"IBM Plex Mono",monospace;font-size:.855rem;
+  opacity:0;animation:boot .34s ease-out forwards;
+}
+.row:first-of-type{border-top:0}
+@keyframes boot{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.row{animation:none;opacity:1}}
+.dot{width:.55rem;height:.55rem;border-radius:50%;align-self:center;justify-self:center}
+.s-ok .dot{background:var(--ok)}
+.s-wip .dot{background:var(--wip)}
+.s-open .dot{background:var(--open)}
+.row a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
+.row a:hover{border-bottom-color:var(--ink-3)}
+.state{font-size:.72rem;letter-spacing:.09em;text-transform:uppercase}
+.s-ok .state{color:var(--ok)}
+.s-wip .state{color:var(--wip)}
+.s-open .state{color:var(--open)}
+
+/* ---------- headings ---------- */
+h2{
+  font-family:"IBM Plex Mono",monospace;font-weight:600;
+  font-size:clamp(1.3rem,3.2vw,1.72rem);letter-spacing:-.025em;line-height:1.15;
+  margin:0 0 .3rem;
+}
+h3{
+  font-family:"IBM Plex Sans",system-ui,sans-serif;font-weight:600;
+  font-size:1.02rem;letter-spacing:.005em;margin:2.3rem 0 .55rem;
+}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3);margin:0 0 .5rem;
+  display:flex;align-items:center;gap:.6rem;
+}
+.eyebrow .pip{width:.5rem;height:.5rem;border-radius:50%}
+.h-ok .pip{background:var(--ok)} .h-wip .pip{background:var(--wip)} .h-open .pip{background:var(--open)}
+.sub{color:var(--ink-2);margin:.15rem 0 1.4rem;font-style:italic}
+
+p{margin:0 0 1.05rem;max-width:44rem}
+ul,ol{max-width:44rem;padding-left:1.15rem;margin:0 0 1.05rem}
+li{margin-bottom:.4rem}
+strong{font-weight:500;color:var(--ink)}
+a{color:var(--link)}
+
+/* ---------- code ---------- */
+pre{
+  font-family:"IBM Plex Mono",monospace;font-size:.79rem;line-height:1.68;
+  background:var(--code-bg);border:1px solid var(--rule);border-radius:3px;
+  padding:.8rem .95rem;overflow-x:auto;margin:0 0 1.15rem;
+  color:var(--ink);
+}
+code{font-family:"IBM Plex Mono",monospace;font-size:.855em;background:var(--code-bg);padding:.08em .32em;border-radius:2px}
+pre code{background:none;padding:0;font-size:1em}
+.log{color:var(--ink-2)}
+.log b{font-weight:500;color:var(--ink)}
+
+/* ---------- notes ---------- */
+.note{
+  border-left:2px solid var(--rule);padding:.15rem 0 .15rem 1rem;
+  margin:0 0 1.2rem;color:var(--ink-2);max-width:44rem;
+}
+.note.key{border-left-color:var(--wip)}
+.note.warn{border-left-color:var(--open)}
+.note p:last-child{margin-bottom:0}
+.note .lab{
+  font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:.25rem;
+}
+
+/* ---------- tree (device tree motif) ---------- */
+.tree{
+  font-family:"IBM Plex Mono",monospace;font-size:.79rem;line-height:1.8;
+  background:var(--card);border:1px solid var(--rule);border-radius:3px;
+  padding:.85rem .95rem;margin:0 0 1.15rem;color:var(--ink-2);overflow-x:auto;
+}
+.tree b{color:var(--ink);font-weight:500}
+.tree .hl{color:var(--wip)}
+
+footer{
+  border-top:1px solid var(--rule);margin-top:4rem;padding-top:1.5rem;
+  font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:.86rem;color:var(--ink-3);
+}
+footer a{color:var(--ink-2)}
+
+/* ---------- language switching ---------- */
+html[data-lang="de"] .en{display:none}
+html[data-lang="en"] .de{display:none}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <span class="mark">romulus13 · x1e80100</span>
+  <button class="tbtn" id="de" aria-pressed="true" title="Deutsch"><span class="flag">🇩🇪</span></button>
+  <button class="tbtn" id="en" aria-pressed="false" title="English"><span class="flag">🇬🇧</span></button>
+  <button class="tbtn" id="theme" aria-pressed="false" title="Dark Mode">☾</button>
+</div>
+
+<main>
+
+<!-- ============ MASTHEAD ============ -->
+<header class="masthead">
+  <h1>
+    <span class="de">Surface Laptop 7 unter Linux</span>
+    <span class="en">Linux on the Surface Laptop 7</span>
+  </h1>
+
+  <p class="dek de">Ein Arbeitsprotokoll. Was das Gerät von sich aus preisgibt, was in der Windows-Partition versteckt liegt, und wie man dem Kernel beibringt, beides zu benutzen.</p>
+  <p class="dek en">A working log. What the machine tells you by itself, what stays hidden in the Windows partition, and how to make the kernel use both.</p>
+
+  <dl class="idcard">
+    <dt class="de">Gerät</dt><dt class="en">Machine</dt>
+    <dd>Microsoft Surface Laptop 7, 13.8" — <code>microsoft,romulus13</code> / <code>qcom,x1e80100</code></dd>
+    <dt class="de">System</dt><dt class="en">System</dt>
+    <dd>Ubuntu 26.04 · Kernel 7.0.0-29-generic · linux-firmware 20260319 · KDE Plasma (Wayland)</dd>
+    <dt class="de">Aufbau</dt><dt class="en">Setup</dt>
+    <dd class="de">Dualboot neben Windows, Secure Boot aus</dd>
+    <dd class="en">Dual boot alongside Windows, Secure Boot disabled</dd>
+    <dt class="de">Stand</dt><dt class="en">Updated</dt>
+    <dd>2026-08-29</dd>
+  </dl>
+
+  <div class="board">
+    <div class="board-head de">Hardware — Stand heute</div>
+    <div class="board-head en">Hardware — current state</div>
+
+    <div class="row s-ok"  style="animation-delay:.05s"><span class="dot"></span><span><a href="#tastatur"><span class="de">Tastatur</span><span class="en">Keyboard</span></a></span><span class="state de">läuft</span><span class="state en">works</span></div>
+    <div class="row s-ok"  style="animation-delay:.10s"><span class="dot"></span><span><a href="#wlan">WLAN / Wi-Fi</a></span><span class="state de">gelöst</span><span class="state en">solved</span></div>
+    <div class="row s-ok"  style="animation-delay:.15s"><span class="dot"></span><span><a href="#gpu"><span class="de">Grafikbeschleunigung</span><span class="en">GPU acceleration</span></a></span><span class="state de">gelöst</span><span class="state en">solved</span></div>
+    <div class="row s-ok"  style="animation-delay:.20s"><span class="dot"></span><span><a href="#dsp"><span class="de">Akkuanzeige</span><span class="en">Battery reporting</span></a></span><span class="state de">gelöst</span><span class="state en">solved</span></div>
+    <div class="row s-ok"  style="animation-delay:.25s"><span class="dot"></span><span><a href="#audio">Audio</a></span><span class="state de">gelöst</span><span class="state en">solved</span></div>
+    <div class="row s-ok"  style="animation-delay:.30s"><span class="dot"></span><span><a href="#bluetooth"><span class="de">Bluetooth (intern)</span><span class="en">Bluetooth (internal)</span></a></span><span class="state de">gelöst</span><span class="state en">solved</span></div>
+    <div class="row s-ok"  style="animation-delay:.35s"><span class="dot"></span><span><a href="#suspend"><span class="de">Suspend / Resume</span><span class="en">Suspend / resume</span></a></span><span class="state de">läuft</span><span class="state en">works</span></div>
+    <div class="row s-ok"  style="animation-delay:.40s"><span class="dot"></span><span><a href="#touchpad">Touchpad</a></span><span class="state de">läuft (mit Aussetzer, siehe unten)</span><span class="state en">works (with a wedge, see below)</span></div>
+    <div class="row s-ok"  style="animation-delay:.45s"><span class="dot"></span><span><a href="#touchscreen">Touchscreen</a></span><span class="state de">läuft</span><span class="state en">works</span></div>
+    <div class="row s-ok"  style="animation-delay:.50s"><span class="dot"></span><span><a href="#kamera"><span class="de">Kamera</span><span class="en">Camera</span></a></span><span class="state de">läuft</span><span class="state en">works</span></div>
+  </div>
+</header>
+
+<hr class="sep">
+
+<!-- ============ EINSTIEG ============ -->
+<section id="einstieg">
+  <p class="eyebrow"><span class="de">Ausgangslage</span><span class="en">Starting point</span></p>
+  <h2 class="de">Die Maschine beschreibt sich selbst nicht</h2>
+  <h2 class="en">The machine does not describe itself</h2>
+
+  <p class="de">Auf x86-Geräten meldet ACPI dem Kernel, welche Hardware verbaut ist und wie sie angeschlossen wird. Auf den Snapdragon-Laptops übernimmt das der Device Tree — und der beschreibt für dieses Modell bislang nur einen Teil des Geräts. Alles, was dort fehlt, existiert für Linux schlicht nicht: kein Modul hilft, keine Konfigurationsdatei.</p>
+  <p class="en">On x86 machines, ACPI tells the kernel what hardware exists and how it is wired. On the Snapdragon laptops that job belongs to the device tree — and for this model it currently describes only part of the machine. Anything missing there simply does not exist as far as Linux is concerned: no module helps, no config file.</p>
+
+  <p class="de">Der zweite wiederkehrende Punkt: mehrere Bausteine brauchen Firmware, die Microsoft und Qualcomm nicht frei verteilen. Sie liegt aber auf der eigenen Platte — im Windows-Treiberspeicher. Fast jeder Fix hier folgt demselben Muster.</p>
+  <p class="en">The second recurring theme: several components need firmware that Microsoft and Qualcomm do not ship freely. It is sitting on your own disk though — in the Windows driver store. Nearly every fix here follows the same pattern.</p>
+
+  <div class="note warn">
+    <span class="lab de">Zur Weitergabe</span><span class="lab en">On redistribution</span>
+    <p class="de">Die Firmware- und Kalibrierungsdateien gehören Microsoft und Qualcomm. Sie werden hier nicht verteilt. Beschrieben ist nur der Weg — jeder holt sie aus seiner eigenen Windows-Installation.</p>
+    <p class="en">The firmware and calibration files belong to Microsoft and Qualcomm. They are not distributed here. Only the method is described — everyone extracts them from their own Windows installation.</p>
+  </div>
+
+  <h3 class="de">Windows-Partition einhängen</h3>
+  <h3 class="en">Mount the Windows partition</h3>
+  <p class="de">Fast alles Folgende beginnt damit. Die Partition mit <code>lsblk -f</code> heraussuchen — es ist das große NTFS-Volume.</p>
+  <p class="en">Nearly everything below starts here. Find the partition with <code>lsblk -f</code> — it is the large NTFS volume.</p>
+<pre><code>sudo mkdir -p /mnt/win
+sudo mount -o ro /dev/nvme0n1p3 /mnt/win
+DS=/mnt/win/Windows/System32/DriverStore/FileRepository</code></pre>
+  <p class="de">Scheitert das Einhängen, ist in Windows noch der Schnellstart aktiv. Dann dort abschalten und einmal vollständig herunterfahren.</p>
+  <p class="en">If mounting fails, Windows Fast Startup is still enabled. Disable it there and shut down fully once.</p>
+</section>
+
+<hr class="sep">
+
+<!-- ============ WLAN ============ -->
+<section id="wlan">
+  <p class="eyebrow h-ok"><span class="pip"></span><span class="de">Gelöst · 11.08.2026</span><span class="en">Solved · 2026-08-11</span></p>
+  <h2>WLAN</h2>
+  <p class="sub de">Zwei unabhängige Probleme übereinander. Nur eins zu lösen bringt nichts.</p>
+  <p class="sub en">Two independent problems stacked. Fixing only one gets you nowhere.</p>
+
+  <h3 class="de">Problem 1 — keine Kalibrierungsdaten</h3>
+  <h3 class="en">Problem 1 — no board data</h3>
+  <p class="de"><code>ath12k</code> braucht eine gerätespezifische Kalibrierungsdatei. <code>linux-firmware</code> liefert Einträge für jeden anderen X1E-Laptop, aber für kein Surface:</p>
+  <p class="en"><code>ath12k</code> needs a per-machine calibration file. <code>linux-firmware</code> ships entries for every other X1E laptop, but for no Surface:</p>
+<pre class="log"><code>ath12k_wifi7_pci 0004:01:00.0: failed to fetch board data for
+  bus=pci,vendor=17cb,device=1107,subsystem-vendor=17cb,
+  subsystem-device=1107,qmi-chip-id=2,<b>qmi-board-id=255</b>
+  from ath12k/WCN7850/hw2.0/board-2.bin</code></pre>
+  <p class="de"><code>board-id=255</code> heißt: der Treiber konnte gar keine ID aus dem Chip lesen. Normalerweise liefert sie die Device-Tree-Eigenschaft <code>qcom,ath12k-calibration-variant</code> — die für romulus fehlt.</p>
+  <p class="en"><code>board-id=255</code> means the driver could not read an ID from the chip at all. That normally comes from the device-tree property <code>qcom,ath12k-calibration-variant</code>, which romulus does not have.</p>
+
+  <h3 class="de">Problem 2 — rfkill meldet Hardware-Sperre</h3>
+  <h3 class="en">Problem 2 — rfkill hard block</h3>
+  <p class="de">Selbst mit geladener Firmware bleibt das Funkmodul gesperrt. <code>ath12k</code> überspringt die rfkill-Einrichtung nur, wenn ACPI ein entsprechendes Merkmal meldet. Auf Device-Tree-Geräten gibt es dafür kein Gegenstück, also nimmt der Treiber an, das Funkmodul sei abgeschaltet.</p>
+  <p class="en">Even with firmware loaded the radio stays blocked. <code>ath12k</code> only skips rfkill setup when ACPI advertises a matching flag. On device-tree machines there is no equivalent, so the driver assumes the radio is killed.</p>
+  <p class="de">Ein Dreizeiler dafür war Teil der Surface-Pro-11-Serie. Die Serie wurde im Januar 2026 aufgenommen — die rfkill-Patches flogen in v6 auf Wunsch der Reviewer raus: eine Eigenschaft <code>disable-rfkill</code> beschreibe keine Hardware, richtig wäre eine Quirk-Liste im Treiber. Die hat bis heute niemand eingereicht.</p>
+  <p class="en">A three-line fix was part of the Surface Pro 11 series. That series was merged in January 2026 — the rfkill patches were dropped in v6 at the reviewers' request: a <code>disable-rfkill</code> property describes no hardware, the correct fix would be a quirk list inside the driver. Nobody has submitted one since.</p>
+
+  <h3 class="de">Teil 1 — Firmware und Kalibrierung</h3>
+  <h3 class="en">Part 1 — firmware and board data</h3>
+  <p class="de">Der Qualcomm-Treiberordner enthält beides:</p>
+  <p class="en">The Qualcomm driver folder holds both:</p>
+<pre><code>QF=$(sudo find $DS -maxdepth 1 -name 'qcwlanhmt8380.inf_arm64_*' | head -1)
+ls $QF | grep -iE 'bdwlan|wlanfw|regdb'</code></pre>
+  <p class="de">Die Variantennamen in den BDF-Dateien (<code>AS_S55_SA</code>, <code>HO_MoorO</code>, <code>LE_Altai</code>) entsprechen exakt den Einträgen in der <code>board-2.bin</code> von linux-firmware — ein gutes Zeichen, dass das Format direkt passt.</p>
+  <p class="en">The variant names in the BDF files (<code>AS_S55_SA</code>, <code>HO_MoorO</code>, <code>LE_Altai</code>) match the entries inside linux-firmware's <code>board-2.bin</code> exactly — a good sign the format is directly usable.</p>
+  <p class="de">Die <code>.elf</code>-Dateien verpacken die Rohdaten in einem ELF-Container. Offset und Länge des LOAD-Segments auslesen und herausschneiden:</p>
+  <p class="en">The <code>.elf</code> files wrap the raw data in an ELF container. Read the LOAD segment's offset and size, then cut it out:</p>
+<pre><code>readelf -l $QF/bdwlan_wcn785x_2p0_ncm825.elf
+# LOAD  0x000400 ... FileSiz 0x15400   →  1024 / 87040
+
+dd if=$QF/bdwlan_wcn785x_2p0_ncm825.elf of=/tmp/board.bin \
+   bs=1 skip=1024 count=87040 status=none
+xxd /tmp/board.bin | head -1     # darf nicht mit 7f45 4c46 beginnen</code></pre>
+
+  <div class="note key">
+    <span class="lab de">Der entscheidende Punkt</span><span class="lab en">The key point</span>
+    <p class="de">Firmware und Kalibrierung müssen <strong>gemeinsam</strong> getauscht werden. Die Windows-BDF mit der Firmware aus linux-firmware ergibt einen QMI-Timeout (<code>board data file:-110</code>), egal welche BDF man nimmt. Vier Kandidaten scheiterten identisch — bis auf die Hundertstelsekunde zur selben Zeit. Das war der Hinweis, dass es nicht an der Datei lag.</p>
+    <p class="en">Firmware and board data must be replaced <strong>together</strong>. The Windows BDF combined with linux-firmware's own firmware yields a QMI timeout (<code>board data file:-110</code>) whatever BDF you pick. Four candidates failed identically — to the hundredth of a second at the same moment. That was the clue that the file was not the problem.</p>
+  </div>
+
+<pre><code>sudo mkdir -p /lib/firmware/updates/ath12k/WCN7850/hw2.0
+sudo cp $QF/wlanfw20.mbn /lib/firmware/updates/ath12k/WCN7850/hw2.0/amss.bin
+sudo cp $QF/regdb.bin    /lib/firmware/updates/ath12k/WCN7850/hw2.0/regdb.bin
+sudo cp /tmp/board.bin   /lib/firmware/updates/ath12k/WCN7850/hw2.0/board.bin
+sudo update-initramfs -u</code></pre>
+  <p class="de">Nach dem Neustart ändert sich die Firmware-Kennung und die Schnittstelle erscheint:</p>
+  <p class="en">After a reboot the firmware build ID changes and the interface appears:</p>
+<pre class="log"><code>fw_build_id ...<b>WLAN.HMT.1.1.c5-00310</b>-QCAHMTSWPL_V1.0_V2.0_SILICONZ-1
+ath12k_wifi7_pci 0004:01:00.0 <b>wlP4p1s0</b>: renamed from wlan0</code></pre>
+  <p class="de"><code>rfkill list</code> zeigt jetzt noch <code>Hard blocked: yes</code>. Das ist erwartet — weiter mit Teil 2.</p>
+  <p class="en"><code>rfkill list</code> will still show <code>Hard blocked: yes</code>. That is expected — continue with part 2.</p>
+
+  <div class="note">
+    <p class="de">Ein Neuanbinden des PCI-Geräts (<code>unbind</code>/<code>bind</code>) ersetzt den Neustart <strong>nicht</strong>. Der Chip bleibt halb initialisiert zurück, der zweite Anlauf scheitert dann mit <code>-5</code> unabhängig von der Datei. Jeder Test braucht einen echten Neustart.</p>
+    <p class="en">Rebinding the PCI device (<code>unbind</code>/<code>bind</code>) does <strong>not</strong> replace a reboot. The chip ends up half initialised and the next probe fails with <code>-5</code> regardless of the file. Every test needs a real reboot.</p>
+  </div>
+
+  <h3 class="de">Teil 2 — gepatchtes ath12k-Modul</h3>
+  <h3 class="en">Part 2 — patched ath12k module</h3>
+  <p class="de">In <code>ath12k_core_rfkill_config()</code> direkt hinter der ACPI-Abfrage:</p>
+  <p class="en">In <code>ath12k_core_rfkill_config()</code>, right after the ACPI check:</p>
+<pre><code> 	if (ath12k_acpi_get_disable_rfkill(ab))
+ 		return 0;
+ 
+<b>+	return 0;
++</b>
+ 	for (i = 0; i &lt; ab-&gt;num_radios; i++) {</code></pre>
+  <p class="de">Das ist die grobe Fassung — rfkill wird pauschal übersprungen. Auf einem Laptop ohne Funkschalter ist das folgenlos. Die upstream gedachte Variante läse stattdessen eine Device-Tree-Eigenschaft, was ein zusätzliches DTB nötig macht.</p>
+  <p class="en">This is the blunt version — rfkill is skipped unconditionally. On a laptop with no radio switch that is harmless. The upstream-style variant would read a device-tree property instead, which needs a patched DTB on top.</p>
+
+  <div class="note key">
+    <span class="lab de">Stolperstein</span><span class="lab en">Gotcha</span>
+    <p class="de">Ein Bau <em>im Quellbaum</em> erzeugt <code>vermagic: 7.0.12</code>, und der laufende Kernel lehnt das Modul ab. Die Ubuntu-Kennung kommt aus der Paketierung, die <code>apt-get source</code> nicht setzt. Gegen den Header-Baum gebaut stimmt sie automatisch.</p>
+    <p class="en">Building <em>inside the source tree</em> produces <code>vermagic: 7.0.12</code> and the running kernel refuses the module. The Ubuntu suffix comes from packaging that <code>apt-get source</code> does not apply. Built against the header tree it is correct automatically.</p>
+  </div>
+
+<pre><code>sudo apt install -y build-essential dkms flex bison bc \
+    libssl-dev libelf-dev libdw-dev device-tree-compiler zstd
+
+mkdir -p ~/src && cd ~/src
+apt-get source linux-image-unsigned-$(uname -r)
+# core.c patchen, dann:
+
+mkdir -p ~/build-ath12k
+cp -r ~/src/linux-*/drivers/net/wireless/ath/ath12k/* ~/build-ath12k/
+cp /usr/src/linux-headers-$(uname -r)/Module.symvers ~/build-ath12k/
+cd ~/build-ath12k
+make -C /lib/modules/$(uname -r)/build M=$PWD modules
+
+modinfo ~/build-ath12k/ath12k.ko | grep vermagic   # muss passen!</code></pre>
+
+  <h3 class="de">Teil 3 — gegen Kernel-Updates absichern</h3>
+  <h3 class="en">Part 3 — surviving kernel updates</h3>
+  <p class="de">Ohne DKMS nimmt das nächste Kernel-Update das WLAN wieder mit.</p>
+  <p class="en">Without DKMS the next kernel update quietly takes the Wi-Fi away again.</p>
+<pre><code>sudo mkdir -p /usr/src/ath12k-rfkill-1.0
+sudo cp -r ~/build-ath12k/* /usr/src/ath12k-rfkill-1.0/
+sudo rm -f /usr/src/ath12k-rfkill-1.0/{*.ko,wifi7/*.ko,Module.symvers,modules.order}
+
+sudo tee /usr/src/ath12k-rfkill-1.0/dkms.conf &gt; /dev/null &lt;&lt;'EOF'
+PACKAGE_NAME="ath12k-rfkill"
+PACKAGE_VERSION="1.0"
+AUTOINSTALL="yes"
+
+MAKE[0]="make -C ${kernel_source_dir} M=${dkms_tree}/${PACKAGE_NAME}/${PACKAGE_VERSION}/build modules"
+CLEAN="make -C ${kernel_source_dir} M=${dkms_tree}/${PACKAGE_NAME}/${PACKAGE_VERSION}/build clean"
+
+BUILT_MODULE_NAME[0]="ath12k"
+DEST_MODULE_LOCATION[0]="/kernel/drivers/net/wireless/ath/ath12k"
+
+BUILT_MODULE_NAME[1]="ath12k_wifi7"
+BUILT_MODULE_LOCATION[1]="wifi7"
+DEST_MODULE_LOCATION[1]="/kernel/drivers/net/wireless/ath/ath12k/wifi7"
+EOF
+
+sudo dkms add -m ath12k-rfkill -v 1.0
+sudo dkms build -m ath12k-rfkill -v 1.0
+sudo dkms install -m ath12k-rfkill -v 1.0</code></pre>
+  <p class="de">Danach steht in <code>modinfo ath12k | grep filename</code> ein Pfad unter <code>updates/dkms/</code>, und <code>rfkill list</code> meldet <code>Hard blocked: no</code>.</p>
+  <p class="en">Afterwards <code>modinfo ath12k | grep filename</code> shows a path under <code>updates/dkms/</code>, and <code>rfkill list</code> reports <code>Hard blocked: no</code>.</p>
+  <p class="de">Weil die Kalibrierung von einem fremden Gerät stammt, lohnt ein Blick auf den Regulierungsbereich: <code>iw reg get</code>, notfalls <code>sudo iw reg set DE</code>.</p>
+  <p class="en">Since the calibration comes from a different machine, check the regulatory domain: <code>iw reg get</code>, and if needed <code>sudo iw reg set DE</code>.</p>
+</section>
+
+<hr class="sep">
+
+<!-- ============ GPU ============ -->
+<section id="gpu">
+  <p class="eyebrow h-ok"><span class="pip"></span><span class="de">Gelöst · 12.08.2026</span><span class="en">Solved · 2026-08-12</span></p>
+  <h2 class="de">Grafikbeschleunigung</h2>
+  <h2 class="en">GPU acceleration</h2>
+  <p class="sub de">Eine einzige fehlende Datei — und alles lief in Software.</p>
+  <p class="sub en">One missing file — and everything ran in software.</p>
+
+  <p class="de">Symptom: Renderer <code>llvmpipe</code>, im Log <code>gpu hw init failed: -2</code> gefolgt von GMU-Timeouts in Schleife. Es fehlt der Zap-Shader, ein signiertes Firmware-Stück, ohne das die Adreno nicht aus dem sicheren Zustand kommt.</p>
+  <p class="en">Symptom: renderer <code>llvmpipe</code>, log shows <code>gpu hw init failed: -2</code> followed by GMU timeouts in a loop. The missing piece is the zap shader, a signed firmware blob without which the Adreno never leaves its secure state.</p>
+
+<pre><code>sudo find $DS -maxdepth 1 -name 'qcdx8380.inf_arm64_*'
+sudo mkdir -p /lib/firmware/qcom/x1e80100/microsoft
+sudo cp $DS/qcdx8380.inf_arm64_*/qcdxkmsuc8380.mbn \
+        /lib/firmware/qcom/x1e80100/microsoft/</code></pre>
+
+  <p class="de">Nach dem Neustart: Renderer <strong>Adreno X1-85</strong>, Mesa 26.0.3, GMU-Firmware v4.3.17.</p>
+  <p class="en">After a reboot: renderer <strong>Adreno X1-85</strong>, Mesa 26.0.3, GMU firmware v4.3.17.</p>
+</section>
+
+<hr class="sep">
+
+<!-- ============ DSP / AKKU ============ -->
+<section id="dsp">
+  <p class="eyebrow h-ok"><span class="pip"></span><span class="de">Gelöst · 12.08.2026</span><span class="en">Solved · 2026-08-12</span></p>
+  <h2 class="de">Akkuanzeige und die Coprozessoren</h2>
+  <h2 class="en">Battery reporting and the coprocessors</h2>
+  <p class="sub de">Ohne ADSP kein Akkustand — und ohne Akkustand keine Warnung, bevor das Gerät ausgeht.</p>
+  <p class="sub en">No ADSP, no battery level — and no warning before the machine dies.</p>
+
+  <p class="de">Der Akku hängt am Audio-DSP: <code>qcom-battmgr</code> spricht über den ADSP mit der Ladeelektronik. Läuft der nicht, existiert <code>/sys/class/power_supply/qcom-battmgr-bat/</code> zwar, liefert aber bei jedem Wert <code>EAGAIN</code>.</p>
+  <p class="en">The battery hangs off the audio DSP: <code>qcom-battmgr</code> talks to the charger through the ADSP. If that is not running, <code>/sys/class/power_supply/qcom-battmgr-bat/</code> exists but returns <code>EAGAIN</code> for every value.</p>
+
+  <h3 class="de">Firmware und PD-Maps</h3>
+  <h3 class="en">Firmware and PD maps</h3>
+  <p class="de">Nötig sind die Coprozessor-Abbilder, ihre Prozessdomänen-Beschreibungen und — leicht zu übersehen — die zugehörigen DTB-Dateien. Ohne Letztere meldet der Kernel <code>Failed to load program segments</code> / <code>Boot failed: -2</code>.</p>
+  <p class="en">You need the coprocessor images, their process-domain descriptions and — easily missed — the matching DTB files. Without those the kernel reports <code>Failed to load program segments</code> / <code>Boot failed: -2</code>.</p>
+<pre><code>sudo mkdir -p /lib/firmware/qcom/x1e80100/microsoft/Romulus
+
+# ADSP:  surfacepro_ext_adsp8380.inf_arm64_*
+#   qcadsp8380.mbn, adsp_dtbs.elf
+#   adspr.jsn, adsps.jsn, adspua.jsn, battmgr.jsn
+# CDSP:  qcsubsys_ext_cdsp8380.inf_arm64_*
+#   qccdsp8380.mbn, cdsp_dtbs.elf, cdspr.jsn</code></pre>
+  <p class="de">Der Kernel fragt die Dateien unter <code>qcom/x1e80100/microsoft/Romulus/</code> an — mit Unterordner, anders als beim Zap-Shader. Nachzusehen in <code>/sys/class/remoteproc/remoteproc*/firmware</code>.</p>
+  <p class="en">The kernel requests these under <code>qcom/x1e80100/microsoft/Romulus/</code> — with the subfolder, unlike the zap shader. Check <code>/sys/class/remoteproc/remoteproc*/firmware</code>.</p>
+
+  <div class="note key">
+    <span class="lab de">Zeitproblem</span><span class="lab en">Timing problem</span>
+    <p class="de">Von Hand gestartet läuft alles. Nach einem Neustart stehen beide Coprozessoren wieder auf <code>offline</code>: <code>qcom_q6v5_pas</code> probt schon bei 0,96 s, da ist <code>/lib/firmware</code> noch nicht verfügbar — und der Treiber versucht es kein zweites Mal.</p>
+    <p class="en">Started by hand, everything works. After a reboot both coprocessors are <code>offline</code> again: <code>qcom_q6v5_pas</code> probes at 0.96 s, before <code>/lib/firmware</code> is available — and the driver never retries.</p>
+  </div>
+
+  <p class="de">Ein systemd-Dienst, der die remoteprocs nachträglich startet, repariert die Akkuanzeige. Für Audio reicht das aber nicht (siehe unten) — die Firmware muss ins initramfs:</p>
+  <p class="en">A systemd unit that starts the remoteprocs afterwards fixes the battery. For audio that is not enough (see below) — the firmware has to go into the initramfs:</p>
+<pre><code># /etc/initramfs-tools/hooks/qcom-romulus
+# kopiert den Romulus-Ordner plus den Zap-Shader ins initramfs
+sudo chmod +x /etc/initramfs-tools/hooks/qcom-romulus
+sudo update-initramfs -u</code></pre>
+  <p class="de">Die initrd wächst dadurch auf rund 118 MB. Danach bootet der CDSP bei 1,09 s, der ADSP bei 1,46 s, beide melden <code>running</code>, und der Akku liefert Werte.</p>
+  <p class="en">The initrd grows to roughly 118 MB. After that the CDSP boots at 1.09 s, the ADSP at 1.46 s, both report <code>running</code>, and the battery reports values.</p>
+</section>
+
+<hr class="sep">
+
+<!-- ============ AUDIO ============ -->
+<section id="audio">
+  <p class="eyebrow h-ok"><span class="pip"></span><span class="de">Gelöst · 12.08.2026</span><span class="en">Solved · 2026-08-12</span></p>
+  <h2>Audio</h2>
+  <p class="sub de">Der Stack war vollständig geladen. Er scheiterte an der Reihenfolge — und dann an einem doppelten Dienst.</p>
+  <p class="sub en">The stack was fully loaded. It failed on ordering — and then on a duplicated service.</p>
+
+  <p class="de">PipeWire zeigte nur eine „Schein-Ausgabe", <code>aplay -l</code> fand gar keine Karte. Dabei waren alle Treiber da: <code>snd_soc_x1e80100</code>, <code>snd_q6apm</code>, <code>wcd938x</code> an SoundWire, <code>wsa884x</code>. Im Log stand der Grund:</p>
+  <p class="en">PipeWire showed only a dummy output, <code>aplay -l</code> found no card at all. Yet every driver was loaded: <code>snd_soc_x1e80100</code>, <code>snd_q6apm</code>, <code>wcd938x</code> on SoundWire, <code>wsa884x</code>. The log gave the reason:</p>
+<pre class="log"><code>qcom-apm gprsvc:service:2:1: <b>CMD timeout</b>
+snd-x1e80100 sound: ASoC: <b>Parent card not yet available</b>,
+  widget card binding deferred</code></pre>
+  <p class="de">Die Audiotreiber proben, bevor der ADSP läuft. Ein systemd-Dienst auf <code>multi-user</code>-Ebene kommt dafür zu spät — daher der initramfs-Hook aus dem vorigen Abschnitt.</p>
+  <p class="en">The audio drivers probe before the ADSP is up. A systemd unit at <code>multi-user</code> level is far too late — hence the initramfs hook from the previous section.</p>
+
+  <div class="note key">
+    <span class="lab de">Der eigentliche Blocker</span><span class="lab en">The actual blocker</span>
+    <p class="de">Auch mit früh gebootetem ADSP blieb es bei der Schein-Ausgabe. Auffällig war, dass das Kernelmodul <code>qcom_pd_mapper</code> geladen war, <em>während</em> zusätzlich der Userspace-Dienst <code>pd-mapper</code> lief. Zwei Instanzen für dieselbe Aufgabe.</p>
+    <p class="en">Even with the ADSP booting early, the dummy output remained. The tell was that the kernel module <code>qcom_pd_mapper</code> was loaded <em>while</em> the userspace <code>pd-mapper</code> service was also running. Two instances doing the same job.</p>
+<pre><code>sudo systemctl disable --now pd-mapper</code></pre>
+    <p class="de">Danach zeigt <code>aplay -l</code> endlich PCMs, und PipeWire meldet „Internes Audio" mit Lautsprechern, HDMI und den internen Mikrofonen.</p>
+    <p class="en">After that <code>aplay -l</code> finally lists PCMs, and PipeWire shows internal audio with speakers, HDMI and the internal microphones.</p>
+  </div>
+
+  <p class="de">Drei Dinge waren also nötig: ADSP/CDSP-Firmware samt DTBs aus dem Windows-Treiber, diese Firmware im initramfs, und das Abschalten des doppelten pd-mapper.</p>
+  <p class="en">Three things were required: ADSP/CDSP firmware plus DTBs from the Windows driver, that firmware inside the initramfs, and disabling the duplicate pd-mapper.</p>
+</section>
+
+<hr class="sep">
+
+<!-- ============ BLUETOOTH ============ -->
+<section id="bluetooth">
+  <p class="eyebrow h-ok"><span class="pip"></span><span class="de">Gelöst · 13.08.2026</span><span class="en">Solved · 2026-08-13</span></p>
+  <h2 class="de">Bluetooth (intern)</h2>
+  <h2 class="en">Bluetooth (internal)</h2>
+  <p class="sub de">Der Chip funktioniert. Ihm fehlt nur eine Adresse.</p>
+  <p class="sub en">The chip works. It is just missing an address.</p>
+
+  <p class="de">Das interne Bluetooth hängt am UART, die Firmware wird sauber geladen (<code>qca/hmtbtfw20.tlv</code>, <code>qca/hmtnv20.bin</code>, „QCA setup on UART is completed"). Trotzdem steht <code>hci0</code> auf <code>DOWN RAW</code> mit der ungültigen Adresse <code>00:00:00:00:5A:AD</code> — im Device Tree fehlt <code>local-bd-address</code>.</p>
+  <p class="en">Internal Bluetooth sits on the UART and its firmware loads cleanly (<code>qca/hmtbtfw20.tlv</code>, <code>qca/hmtnv20.bin</code>, "QCA setup on UART is completed"). Still, <code>hci0</code> shows <code>DOWN RAW</code> with the invalid address <code>00:00:00:00:5A:AD</code> — the device tree has no <code>local-bd-address</code>.</p>
+
+  <p class="de">Eine lokal verwaltete Adresse zu setzen genügt:</p>
+  <p class="en">Setting a locally administered address is enough:</p>
+<pre><code>sudo btmgmt --index 0 public-addr 02:00:5A:AD:12:34
+sudo systemctl restart bluetooth</code></pre>
+
+  <div class="note warn">
+    <span class="lab de">Drei Fallen beim Automatisieren</span><span class="lab en">Three traps when automating this</span>
+    <p class="de"><strong>1.</strong> <code>btmgmt</code> kehrt ohne Terminal nicht zurück und setzt die Adresse dann auch nicht — ein systemd-Dienst hängt in <code>activating</code>. Abhilfe: über ein Pseudo-Terminal aufrufen.</p>
+    <p class="en"><strong>1.</strong> <code>btmgmt</code> never returns without a terminal, and fails to set the address at all — a systemd unit hangs in <code>activating</code>. Fix: run it through a pseudo terminal.</p>
+    <p class="de"><strong>2.</strong> Direkt nach <code>public-addr</code> wird der Controller neu angemeldet; Folgebefehle scheitern mit <code>Invalid Index</code>. Es braucht ein paar Sekunden Pause.</p>
+    <p class="en"><strong>2.</strong> Right after <code>public-addr</code> the controller re-registers; follow-up commands fail with <code>Invalid Index</code>. A few seconds of delay are needed.</p>
+    <p class="de"><strong>3.</strong> Ein Dienst, der selbst <code>systemctl restart bluetooth</code> aufruft oder mit <code>After=bluetooth.service</code> geordnet ist, verklemmt sich. Stattdessen <code>Before=bluetooth.service</code>.</p>
+    <p class="en"><strong>3.</strong> A unit that calls <code>systemctl restart bluetooth</code> itself, or is ordered <code>After=bluetooth.service</code>, deadlocks. Use <code>Before=bluetooth.service</code> instead.</p>
+  </div>
+
+<pre><code># /etc/systemd/system/hci0-bdaddr.service   (gekürzt)
+[Unit]
+Before=bluetooth.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+TimeoutStartSec=60
+# Warteschleife auf /sys/class/bluetooth/hci0
+ExecStart=-/usr/bin/timeout 10 /usr/bin/script -qec \
+  "btmgmt --index 0 public-addr 02:00:5A:AD:12:34" /dev/null
+ExecStart=-/usr/bin/timeout 10 /usr/bin/script -qec \
+  "btmgmt --index 0 le on" /dev/null
+
+[Install]
+WantedBy=bluetooth.service</code></pre>
+  <p class="de">In <code>/etc/bluetooth/main.conf</code> zusätzlich <code>AutoEnable=true</code> setzen. <strong>LE muss an sein</strong>, sonst werden LE-Geräte wie eine Bluetooth-Maus gar nicht erst gefunden.</p>
+  <p class="en">Also set <code>AutoEnable=true</code> in <code>/etc/bluetooth/main.conf</code>. <strong>LE must be on</strong>, otherwise LE devices such as a Bluetooth mouse are never discovered.</p>
+  <p class="de">Dauerhaft sauberer wäre <code>local-bd-address</code> in einem eigenen DTB — dazu müsste die echte Adresse aus der Windows-Registry gelesen werden.</p>
+  <p class="en">The cleaner permanent route would be <code>local-bd-address</code> in a patched DTB — which means reading the real address out of the Windows registry.</p>
+</section>
+
+<hr class="sep">
+
+<!-- ============ TOUCHPAD ============ -->
+<section id="touchpad">
+  <p class="eyebrow h-ok"><span class="pip"></span><span class="de">Gelöst · 23.08.2026</span><span class="en">Solved · 2026-08-23</span></p>
+  <h2 class="de">Touchpad — die lange Grabung</h2>
+  <h2 class="en">Touchpad — the long dig</h2>
+  <p class="sub de">Sieben Stationen: vom „gibt es nicht" bis zum funktionierenden Gerät. Der Reihe nach.</p>
+  <p class="sub en">Seven stages, from "it does not exist" to a working device. In order.</p>
+
+  <h3 class="de">1 · Es existiert nicht</h3>
+  <h3 class="en">1 · It does not exist</h3>
+  <p class="de">Ausgangsbefund: kein Touchpad, nirgends. Die Tastatur hängt am Surface Aggregator Module und ist dort das einzige Eingabegerät; ein Touchpad ist weder als HID-Gerät aufgezählt noch im Log erwähnt. Auch der SPI-Bus, an dem es hängen müsste, existiert im laufenden System nicht: Der Device Tree beschreibt zwar zwei Dutzend solcher Anschlüsse, aber alle sind abgeschaltet.</p>
+  <p class="en">Starting point: no touchpad anywhere. The keyboard hangs off the Surface Aggregator Module and is the only input device there; no touchpad is enumerated as a HID device, none is mentioned in the log. The SPI bus it would sit on does not exist in the running system either: the device tree describes two dozen such controllers, all disabled.</p>
+
+  <h3 class="de">2 · Windows verrät die Anschlusswerte</h3>
+  <h3 class="en">2 · Windows gives up the wiring</h3>
+  <p class="de">Was fehlt, ist die Beschreibung — und die steht unter Windows in den ACPI-Tabellen. Der Auszug der SSDT liefert alles auf einmal: Das Touchpad heißt dort <code>MSHW0238</code>, meldet sich als „HID over SPI", hängt am Controller <code>QUP_2_SE_3</code> mit Basisadresse <code>0x88C000</code>, läuft mit 20 MHz, hat seinen Interrupt auf GPIO 3 und wird über GPIO 65 und 120 mit Strom versorgt und zurückgesetzt.</p>
+  <p class="en">What is missing is the description — and under Windows it sits in the ACPI tables. The SSDT dump hands over everything at once: the touchpad is called <code>MSHW0238</code>, identifies as "HID over SPI", hangs off controller <code>QUP_2_SE_3</code> at base address <code>0x88C000</code>, runs at 20 MHz, has its interrupt on GPIO 3, and is powered and reset through GPIO 65 and 120.</p>
+  <p class="de">Ein Abgleich bestätigt die Zuordnung: Der Knoten <code>spi@88c000</code> im Device Tree trägt exakt die Interruptnummer, die auch die ACPI-Tabelle nennt. Damit sind alle Angaben beisammen, um das Gerät zu beschreiben.</p>
+  <p class="en">A cross-check confirms the mapping: the node <code>spi@88c000</code> in the device tree carries exactly the interrupt number the ACPI table names. So everything needed to describe the device is in hand.</p>
+
+  <h3 class="de">3 · Der Bootloader hilft nicht</h3>
+  <h3 class="en">3 · The bootloader is no help</h3>
+  <p class="de">Naheliegend wäre, den Device Tree zu ändern und den Bootloader den geänderten laden zu lassen. Genau das schlug fehl — mit GRUB wie mit systemd-boot, mit binär geflickter wie mit sauber neu übersetzter Datei. Der Beweis war ein Sabotage-Test: Die Datei wurde absichtlich zerstört, das System startete trotzdem normal durch. Der Baum kam also nie beim Kernel an.</p>
+  <p class="en">The obvious route would be to modify the device tree and have the bootloader load the modified one. That failed — with GRUB and with systemd-boot, with a binary-patched file and a cleanly recompiled one. The proof was a sabotage test: the file was deliberately corrupted and the system still booted normally. The tree never reached the kernel.</p>
+
+  <div class="note key">
+    <span class="lab de">Aufgeklärt · 23.08.2026</span><span class="lab en">Explained · 23 Aug 2026</span>
+    <p class="de">Die Erklärung kam später aus dem linux-surface-Thread, von <b>valpackett</b>: Ubuntus arm64-Kernel sind mit <b>stubble</b> gebaut, Canonicals Device-Tree-Stub. Der wählt anhand von Firmware-Kennungen einen von Dutzenden eingebetteten Bäumen und <b>ersetzt damit den, den der Bootloader mitgibt</b>. Nachgeprüft: Ubuntus Kernel enthält 33 solcher Bäume, der Kernel der Gemeinschaft keinen einzigen — dessen Autor lässt stubble bewusst weg, weil er selbst am Device Tree arbeitet.</p>
+    <p class="en">The explanation came later from the linux-surface thread, courtesy of <b>valpackett</b>: Ubuntu's arm64 kernels are built with <b>stubble</b>, Canonical's device-tree stub. It picks one of dozens of embedded trees based on firmware identifiers and <b>replaces the one the bootloader hands over</b>. Verified: Ubuntu's kernel carries 33 such trees; the community kernel carries none — its author deliberately leaves stubble out because he works on the device tree himself.</p>
+    <p class="de">Auf dem Kernel der Gemeinschaft funktioniert der Weg über den Bootloader also sehr wohl — nachgewiesen mit einer Markereigenschaft, die im laufenden Baum ankommt. Der hier beschriebene Umweg war für Ubuntus Kernel trotzdem nötig.</p>
+    <p class="en">So on the community kernel the bootloader route does work — demonstrated with a marker property that arrives in the running tree. The detour described here was still necessary on Ubuntu's kernel.</p>
+  </div>
+
+  <h3 class="de">4 · Der Umweg: Device Tree zur Laufzeit ändern</h3>
+  <h3 class="en">4 · The detour: patching the device tree at runtime</h3>
+  <p class="de">Wenn der Bootloader ausfällt, bleibt der laufende Kernel. Linux kann Device-Tree-Auflagen zur Laufzeit einhängen — über eine Schnittstelle, die in diesem Kernel nicht eingebaut ist. Also ein winziges eigenes Kernelmodul, das die Auflage einbettet und beim Laden anwendet. Es funktioniert auf Anhieb, und der Controller meldet sich prompt mit einer Fehlermeldung:</p>
+  <p class="en">If the bootloader is out, the running kernel remains. Linux can apply device-tree overlays at runtime — through an interface this kernel does not have compiled in. So: a tiny kernel module of our own that embeds the overlay and applies it on load. It works immediately, and the controller promptly answers with an error:</p>
+<pre><code>geni_spi 88c000.spi: Invalid proto 9</code></pre>
+  <p class="de">Der Treiber kennt nur die Protokolle 0 bis 5. Die 9 steht für QSPI — dieselbe Bezeichnung, die auch in der ACPI-Tabelle steht. Und im Quelltext zeigt sich: Der Treiber lädt die passende Firmware für den Anschluss nur dann, wenn das Protokoll auf einem ganz bestimmten Ungültigkeitswert steht; bei jedem anderen bricht er ab. Ein Dreizeiler, die Firmware liegt ohnehin im System — und der Bus erscheint.</p>
+  <p class="en">The driver knows protocols 0 to 5 only. The 9 stands for QSPI — the same label that appears in the ACPI table. And the source reveals: the driver loads the controller's firmware only when the protocol reads a very specific invalid value; for anything else it bails out. A three-line change, the firmware is on the system anyway — and the bus appears.</p>
+
+  <h3 class="de">5 · Das Gerät hängt am Bus und schweigt trotzdem</h3>
+  <h3 class="en">5 · The device is on the bus and stays silent anyway</h3>
+  <p class="de">Mit dem Kindknoten für das Touchpad erscheint auch das Gerät. Der Treiber dafür existiert nur außerhalb des Kernels, ist aber schnell angepasst und bindet. Nur kommen keine Daten. Die Messungen darauf ergeben ein merkwürdiges Bild: Beim Senden ist alles vollständig, beim Lesen kommt <b>exakt die Hälfte</b> an — bei jeder Länge, jedem Takt, jeder Wortbreite, auf beiden Anschlüssen und auch mit ganz gewöhnlichem Testwerkzeug.</p>
+  <p class="en">Add the child node for the touchpad and the device shows up too. Its driver exists only outside the kernel, but adapts quickly and binds. Except no data arrives. The measurements produce an odd picture: sending is complete, reading returns <b>exactly half</b> — at every length, every clock rate, every word size, on both controllers, and with plain test tooling too.</p>
+
+  <h3 class="de">6 · Die Ursache: das Gerät spricht vierspurig</h3>
+  <h3 class="en">6 · The root cause: the device speaks four-lane</h3>
+  <p class="de">Die Auflösung steht in derselben ACPI-Tabelle, ein paar Zeilen weiter. Eine Abfragefunktion liefert die Betriebswerte des Geräts — und darunter zwei Befehlscodes und ein Merkmalsfeld:</p>
+  <p class="en">The resolution sits in the same ACPI table, a few lines further down. A query function returns the device's operating parameters — among them two opcodes and a flags field:</p>
+<pre><code>Funktion 4 → 0xEB   (Lesebefehl)
+Funktion 5 → 0xE2   (Schreibbefehl)
+Funktion 6 → 0xA000 (Merkmale)</code></pre>
+  <p class="de"><code>0xEB</code> ist der Vierleitungs-Lesebefehl, <code>0xE2</code> sein Gegenstück zum Schreiben, und im Merkmalsfeld sind genau die Bits gesetzt, die den Vierleitungsbetrieb anfordern. Das Gerät redet also über vier Datenleitungen gleichzeitig — der Treiber liest über eine. Daher die Halbierung, und daher kein einziges brauchbares Byte.</p>
+  <p class="en"><code>0xEB</code> is the quad read opcode, <code>0xE2</code> its write counterpart, and the flags field has exactly the bits set that request quad mode. So the device talks over four data lines at once — the driver reads over one. Hence the halving, hence not a single usable byte.</p>
+  <p class="de">Im Mainline gibt es dafür nichts: Der SPI-Treiber meldet keine Mehrleitungsfähigkeit, und im Gerätetreiber steht an der entscheidenden Stelle ein Merkmalsfeld, das fest auf null gesetzt ist, mit einem Vermerk „Mehrleitungsbetrieb nicht unterstützt".</p>
+  <p class="en">Mainline has nothing for this: the SPI driver advertises no multi-lane capability, and in the device driver the decisive field is hard-coded to zero, with a note reading "multi-SPI not supported".</p>
+
+  <h3 class="de">7 · Es gibt sie doch — außerhalb des Mainlines</h3>
+  <h3 class="en">7 · It does exist — outside mainline</h3>
+  <p class="de">Im Kernel des ELLX-Projekts hat <b>scuggo</b> genau das implementiert: einen eigenen Gerätetyp für den Vierleitungsbetrieb, ausschließlich über DMA, mit dem Protokoll 9 als gültigem Wert und <code>0xEB</code> als Vorgabe. Ein Satz aus diesem Patch erklärt rückblickend die ganze Grabung: <i>Der Übertragungsweg über die Warteschlange kann einen vierspurigen Bus gar nicht bedienen.</i> Alle Messungen an der Halbierung liefen über genau diesen Weg.</p>
+  <p class="en">In the ELLX project's kernel, <b>scuggo</b> implemented exactly this: a separate device type for quad mode, DMA only, with protocol 9 as a valid value and <code>0xEB</code> as the default. One line from that patch explains the entire dig in hindsight: <i>FIFO mode cannot drive a four-lane QSPI bus.</i> Every halving measurement ran over precisely that path.</p>
+  <p class="de">Mit diesem Kernel bewegt sich der Zeiger. Aber auch nur das.</p>
+  <p class="en">With that kernel the pointer moves. But that is all it does.</p>
+
+  <h3 class="de">8 · Der letzte Zentimeter: der Daemon</h3>
+  <h3 class="en">8 · The last inch: the daemon</h3>
+  <p class="de">Kein Zwei-Finger-Scrollen, keine Gesten, kein Ziehen. Das Pad läuft dann in seiner einfachen Betriebsart — jener, die Microsoft für die Firmware-Oberfläche vorgesehen hat: ein Kontakt, sonst nichts. Für den Rest muss <code>iptsd</code> die rohen Wärmebilder des Sensors auswerten und daraus Fingerpositionen rechnen.</p>
+  <p class="en">No two-finger scrolling, no gestures, no dragging. The pad runs in its simple mode — the one Microsoft provided for the firmware interface: one contact, nothing more. For the rest, <code>iptsd</code> has to process the sensor's raw heatmaps and derive finger positions from them.</p>
+  <p class="de">Nur startete der Daemon nie. Tagelang schien es an Regeln und Diensten zu liegen — bis sich zeigte, dass das ausgelieferte Programm bei <b>jedem</b> Aufruf sofort abstürzt, selbst beim Anzeigen der Hilfe, ohne je ein Gerät zu berühren:</p>
+  <p class="en">Except the daemon never started. For days it looked like a matter of rules and services — until it turned out the shipped binary crashes immediately on <b>every</b> invocation, even printing its help text, without ever touching a device:</p>
+<pre><code>$ /usr/bin/iptsd --help
+Illegal instruction (core dumped)</code></pre>
+  <p class="de">Ursache sind uneinheitliche Sicherungsmaßnahmen für Sprungziele zwischen den Bauteilen des Pakets: Die Hardware verweigert einen indirekten Sprung, der auf keiner gültigen Landemarke aufsetzt. Aus dem Quelltext neu übersetzt — mit durchgängig gleichen Übersetzerschaltern — läuft dasselbe Programm fehlerfrei. Das dürfte jeden treffen, der dieses Paket auf entsprechender Hardware benutzt, unabhängig vom Gerät.</p>
+  <p class="en">The cause is inconsistent branch-protection settings between the package's components: the hardware refuses an indirect jump that lands on no valid marker. Rebuilt from source with consistent compiler flags, the very same program runs flawlessly. This likely affects anyone using this package on comparable hardware, whatever the device.</p>
+
+  <h3 class="de">9 · Ein Sensor, zwei Betriebsarten</h3>
+  <h3 class="en">9 · One sensor, two modes</h3>
+  <p class="de">Läuft der Daemon, entsteht ein zweites, virtuelles Eingabegerät neben denen des Kernels. Naheliegend ist die Annahme, dass dann beide gleichzeitig mit dem Desktop reden. Sie ist falsch. Gemessen über zehn Sekunden gleichmäßigen Wischens: mit laufendem Daemon senden <b>alle fünf</b> Kernel-Knoten exakt null Ereignisse, allein das virtuelle Gerät liefert — 3365 davon. Mit gestopptem Daemon liefert der Maus-Knoten des Kernels 2380 Ereignisse, darunter Bewegung auf beiden Achsen und acht saubere Tastendrücke. Der Sensor spricht entweder gewöhnliches HID oder das Vendor-Protokoll, nie beides. Es ist kein Wettstreit, sondern ein Betriebsartwechsel.</p>
+  <p class="en">Once the daemon runs, a second, virtual input device appears alongside the kernel's. The obvious assumption is that both then talk to the desktop at once. It is wrong. Measured over ten seconds of steady swiping: with the daemon running, <b>all five</b> kernel nodes emit exactly zero events, and only the virtual device reports — 3365 of them. With the daemon stopped, the kernel's mouse node delivers 2380 events, including motion on both axes and eight clean button presses. The sensor speaks either ordinary HID or the vendor protocol, never both. This is not a contest, it is a mode switch.</p>
+  <p class="de">Die Regel, die das rohe Gerät ausblendet, bleibt trotzdem sinnvoll — aber aus einem anderen Grund als gedacht. Der Multitouch-Knoten des Kernels wird nie beliefert; er ist in beiden Messungen stumm. Ausgeblendet wird also kein Konkurrent, sondern ein Gespenst: ein Touchpad, das der Desktop anbietet und das nie etwas meldet. Ausgeblendet wird ausschließlich dieser eine Knoten. Der Maus-Knoten bleibt sichtbar, und er ist der Zeiger, der übrig bleibt, wenn der Daemon einmal nicht läuft.</p>
+  <p class="en">The rule that hides the raw device still makes sense, but for a different reason than assumed. The kernel's multitouch node is never fed; it is silent in both runs. What gets hidden is not a competitor but a phantom: a touchpad the desktop offers and that never reports anything. Only that one node is hidden. The mouse node stays visible, and it is the pointer left over whenever the daemon is not running.</p>
+  <p class="de">Und selbst dann fehlte der Klick — aus demselben Grund. Sobald der Sensor in die Wärmebild-Betriebsart geschaltet wird, sendet er keine gewöhnlichen Tastenberichte mehr, und die ausgelieferte Fassung des Daemons reicht den Zustand nicht weiter. Gelöst hat es die Fassung von <b>alex-lentz</b>, deren Änderung genau diesen Pfad betrifft.</p>
+  <p class="en">And even then the click was missing — for the same reason. Once the sensor switches to heatmap mode it stops sending ordinary button reports, and the shipped release of the daemon does not forward the state. The fork by <b>alex-lentz</b> solved it; its change addresses exactly this path.</p>
+  <p class="de">Damit ist alles zusammen: Bewegung, Tippen, Ziehen, Zwei-Finger-Scrollen, Gesten und der physische Klick. Fenster lassen sich ziehen.</p>
+  <p class="en">With that, everything is in place: motion, tapping, dragging, two-finger scrolling, gestures and the physical click. Windows can be dragged.</p>
+
+  <div class="note key">
+    <span class="lab de">Korrektur · 27.08.2026</span><span class="lab en">Correction · 27 Aug 2026</span>
+    <p class="de">Frühere Fassungen dieses Berichts behaupteten an dieser Stelle, das virtuelle Gerät des Daemons und das des Kernels kämen sich in die Quere. Das war nie gemessen, nur plausibel. Nachgefragt hat <b>valpackett</b> im linux-surface-Projekt; die Messung vom 27. August widerlegt die Behauptung. Der Abschnitt trug bis dahin die Überschrift „Zwei Geräte, die sich in die Quere kommen".</p>
+    <p class="en">Earlier versions of this report claimed here that the daemon's virtual device and the kernel's got in each other's way. That was never measured, only plausible. <b>valpackett</b> asked about it in the linux-surface project; the measurement of 27 August refutes the claim. Until then this section was headed “Two devices getting in each other's way”.</p>
+  </div>
+
+</section>
+
+<hr class="sep">
+
+<!-- ============ AUSSETZER ============ -->
+<section id="aussetzer">
+  <p class="eyebrow h-wip"><span class="pip"></span><span class="de">Ungelöst · 29.08.2026</span><span class="en">Unresolved · 29 Aug 2026</span></p>
+  <h2 class="de">Der Aussetzer</h2>
+  <h2 class="en">The wedge</h2>
+  <p class="sub de">Ein zweites Problem, das mit der Inbetriebnahme nichts zu tun hat.</p>
+  <p class="sub en">A second problem, unrelated to getting the thing running.</p>
+
+  <p class="de">Manchmal verstummen Touchpad und Touchscreen gleichzeitig. Beide werden dabei sauber aufgezählt, der Treiber bindet, die Geräteknoten sind da — es kommt nur nichts mehr an. Das ist ein anderes Problem als die Inbetriebnahme auf den vorigen Seiten: Dort ging es darum, die Sensoren überhaupt sichtbar zu machen, hier sind sie sichtbar und antworten trotzdem nicht.</p>
+  <p class="en">Sometimes touchpad and touchscreen go quiet at the same time. Both still enumerate cleanly, the driver binds, the device nodes are there — nothing simply arrives any more. This is a different problem from the bring-up on the previous pages: there the job was to make the sensors visible at all; here they are visible and still do not answer.</p>
+
+  <div class="note warn">
+    <span class="lab de">Merkregel · korrigiert 27.08.2026</span><span class="lab en">Rule of thumb · corrected 27 Aug 2026</span>
+    <p class="de">Bleiben Touchpad und Touchscreen gleichzeitig stumm, obwohl beide sauber aufgezählt werden: <b>ein kurzer Ausflug nach Windows.</b> Das ist die einzige Maßnahme, die den Zustand nachweislich räumt. Frühere Fassungen empfahlen hier <i>vollständig ausschalten, nicht neu starten</i> — das trifft nicht zu: Am 27. August überstand der Zustand sechsunddreißig Stunden ohne Strom, dazu das Neubinden des Treibers, einen Energiesparbefehl an den Controller und eine von Hand nachgebildete ACPI-Einschaltfolge. Die Ursache liegt unterhalb des Treibers, in der Firmware des Controllers, und ist nicht bekannt.</p>
+    <p class="en">If touchpad and touchscreen go silent together while both still enumerate cleanly: <b>take a brief trip into Windows.</b> It is the only measure demonstrably clearing the state. Earlier versions recommended <i>power off completely, don't reboot</i> — that is not correct: on 27 August the state survived thirty-six hours without power, plus rebinding the driver, a power-down command to the controller, and a hand-reproduced ACPI power-on sequence. The cause lies below the driver, in the controller's firmware, and is not known.</p>
+  </div>
+
+  <p class="de">Zwei Fragen sind dabei auseinanderzuhalten. Wie man aus dem Zustand wieder <i>herauskommt</i>, ist ungeklärt — nachweislich hilft nur der Ausflug nach Windows, und der Kasten oben sagt genau das. Wie der Zustand <i>entsteht</i>, ist eine andere Frage, und dafür gibt es einen Verdacht: den Verlust der Versorgungsspannung mitten im Betrieb. Die beiden folgenden Abschnitte behandeln diese zweite Frage. Sie sind Vorbeugung, keine Heilung.</p>
+  <p class="en">Two questions need keeping apart here. How one <i>gets out</i> of the state is unresolved — demonstrably only the trip into Windows helps, and the box above says exactly that. How the state <i>comes about</i> is a different question, and for that there is a suspicion: the loss of the supply voltage mid-operation. The two sections below address that second question. They are prevention, not a cure.</p>
+
+  <div class="note key">
+    <span class="lab de">Die Verwechslung · 25.08.2026</span><span class="lab en">The look-alike · 25 Aug 2026</span>
+    <p class="de">Dazu gehört die Gegenprobe, und sie ist genauso wichtig: Ist <b>nur</b> das Touchpad tot, während der Touchscreen lebt, sieht das fast genauso aus — hat aber womöglich eine ganz andere Ursache. Die Gerätedateien der beiden Sensoren werden beim Start in wechselnder Reihenfolge vergeben. Über Wochen bekam das Touchpad immer dieselbe Nummer; bei einem Start im August fiel sie zum ersten Mal andersherum aus.</p>
+    <p class="en">There is a counterpart to this, and it matters just as much: if <b>only</b> the touchpad is dead while the touchscreen lives, it looks almost the same — but the cause may be entirely different. The two sensors' device files are handed out in varying order at boot. For weeks the touchpad always got the same number; on one boot in August it came out the other way round for the first time.</p>
+    <p class="de">Die beiden Ereignisse liegen rund fünfzig Millisekunden auseinander — ein Rennen, das wochenlang immer gleich ausging und deshalb wie eine Regel wirkte. Wer den Daemon auf eine feste Nummer verdrahtet, baut sich einen Fehler ein, der irgendwann zuschlägt, wie ein Hardwaredefekt aussieht und die Suche in die falsche Richtung schickt. Die Startdatei bindet ihn deshalb über den Anschlusspfad des Sensors, nicht über die Nummer.</p>
+    <p class="en">The two events are about fifty milliseconds apart — a race that came out the same way for weeks and therefore looked like a rule. Wiring the daemon to a fixed number builds in a fault that eventually strikes, looks like failing hardware, and sends the search in the wrong direction. So the unit resolves the device by the sensor's bus path instead of by its number.</p>
+  </div>
+
+  <h3 class="de">1 · Ordnungsgemäß abschalten</h3>
+  <h3 class="en">1 · Shutting down in order</h3>
+  <p class="de">Der Treiber meldet dem Kernel weder eine Abschalt- noch eine Energiespar-Rückrufadresse an. Beim Herunterfahren läuft für den Controller deshalb nichts: Er verliert die Versorgung mitten im Betrieb, statt vorher stillgelegt zu werden. Die Firmware macht es anders — ihre Abschaltmethode zieht erst den Reset, wartet zehn Millisekunden und nimmt dann die Spannung weg.</p>
+  <p class="en">The driver registers neither a shutdown nor a power-management callback. So when the machine powers off, nothing happens for the controller: it loses its supply mid-operation instead of being put to rest first. The firmware does it differently — its power-off method asserts reset, waits ten milliseconds, and only then removes the voltage.</p>
+  <p class="de">Eine kleine systemd-Unit bildet das nach. Sie zieht den Reset über die alte sysfs-GPIO-Schnittstelle, wartet, und entbindet dann den Treiber. Die Versorgung schaltet sie nicht selbst ab — das übernimmt der Kernel, denn das Entbinden führt über <code>spi_hid_power_down()</code> auf <code>regulator_disable()</code>. Aus dem Userspace lässt sich ein Regler ohnehin nicht abschalten; der Umweg über den Treiber ist nicht der bequemere, sondern der einzig saubere.</p>
+  <p class="en">A small systemd unit reproduces that. It asserts reset through the old sysfs GPIO interface, waits, then unbinds the driver. It does not switch the supply off itself — the kernel does, because unbinding runs through <code>spi_hid_power_down()</code> into <code>regulator_disable()</code>. Userspace cannot switch off a regulator anyway; going through the driver is not the more convenient route, it is the only clean one.</p>
+<pre><code># Reset ziehen, 10 ms warten, dann erst entbinden
+echo 632 &gt; /sys/class/gpio/export
+echo low &gt; /sys/class/gpio/gpio632/direction
+sleep 0.01
+echo spi0.0 &gt; /sys/bus/spi/drivers/spi_hid/unbind</code></pre>
+  <p class="de">Gemessen im Trockentest über <code>systemctl stop</code> und beim echten Herunterfahren: Der Abstand zwischen Reset und Wegfall der Versorgung liegt bei 14 bis 15 Millisekunden, und der Regler steht danach auf <code>state=disabled num_users=0</code>. Die Unit schreibt ihre eigenen Messwerte ins Journal, damit sich das nach jedem Start nachlesen lässt statt es zu glauben.</p>
+  <p class="en">Measured in a dry run via <code>systemctl stop</code> and during a real shutdown: the gap between reset and loss of supply comes out at 14 to 15 milliseconds, and the regulator afterwards reads <code>state=disabled num_users=0</code>. The unit writes its own measurements to the journal, so after every boot this can be read rather than assumed.</p>
+<pre><code>ts-powerdown: Reset gezogen: GPIO 120 = sysfs 632 auf low
+ts-powerdown: Abstand Reset-&gt;Versorgung: 14 ms (Soll 10)
+ts-powerdown: spi_hid von spi0.0 entbunden
+ts-powerdown: Regler nach Unbind: state=disabled num_users=0</code></pre>
+  <p class="de">Ein Detail, an dem man sich sonst das falsche Gerät abschaltet: Der Regler ist über seinen Namen aufzulösen, nie über die Instanznummer — die wechselt von Start zu Start. Und der Name muss genau verglichen werden, denn der des Touchscreens unterscheidet sich nur um ein Zeichen.</p>
+  <p class="en">One detail that otherwise powers down the wrong device: resolve the regulator by its name, never by its instance number — that changes from boot to boot. And compare the name exactly, because the touchscreen's differs by a single character.</p>
+
+  <div class="note warn">
+    <span class="lab de">Vorbeugung, keine Heilung</span><span class="lab en">Prevention, not a cure</span>
+    <p class="de">Ob das den Aussetzer verhindert, ist <b>nicht bewiesen</b>. Die Überlegung dahinter ist plausibel und mehr nicht: Ein Controller, dem die Spannung mitten im Betrieb wegbricht, könnte in einem Zustand landen, aus dem ihn kein Neustart mehr holt. Ob es sich so verhält, zeigen erst Wochen ohne neuen Ausfall — und selbst dann wäre es ein Indiz, kein Beweis.</p>
+    <p class="en">Whether this prevents the outage is <b>not proven</b>. The reasoning behind it is plausible and no more: a controller whose voltage collapses mid-operation might end up in a state no reboot can clear. Only weeks without another failure would show whether that is so — and even then it would be an indication, not proof.</p>
+    <p class="de">Deshalb gehört der Rückweg zur Maßnahme. Ein einziges <code>systemctl disable ts-powerdown.service</code> schaltet sie folgenlos ab: Ohne den Verweis im Startziel wird die Unit nie gestartet, also nie gestoppt, also läuft ihr Abschaltteil nie. Bei einer unbewiesenen Hypothese ist das kein Zusatz, sondern Teil des Entwurfs.</p>
+    <p class="en">So the way back is part of the measure. A single <code>systemctl disable ts-powerdown.service</code> switches it off without a trace: with no link from the boot target the unit is never started, therefore never stopped, therefore its shutdown half never runs. With an unproven hypothesis that is not an extra, it is part of the design.</p>
+  </div>
+
+  <h3 class="de">2 · Ein Eigentümer je Leitung</h3>
+  <h3 class="en">2 · One owner per line</h3>
+  <p class="de">GPIO 65 schaltet die 5-Volt-Schiene des Touchpads. Im Device Tree steht diese Leitung zweimal: einmal als Freigabeleitung des Reglers, einmal in den beiden pinctrl-Zuständen des Sensorknotens, wo sie gemeinsam mit der Reset-Leitung GPIO 120 geführt wird. Zwei Mechanismen besitzen dieselbe Leitung, und sie widersprechen sich.</p>
+  <p class="en">GPIO 65 switches the touchpad's 5-volt rail. The device tree describes that line twice: once as the regulator's enable line, and once inside the two pin control states of the sensor node, where it is driven together with the reset line GPIO 120. Two mechanisms own the same line, and they disagree.</p>
+  <p class="de">Beim Anlaufen hebt der Zustand <i>active</i> Versorgung und Reset im selben Augenblick. Die 100 Millisekunden Anlaufverzögerung des Reglers laufen dabei durchaus — sie sitzen nur hinter der Reset-Freigabe statt davor. Die Firmware macht es umgekehrt: erst Spannung, dann warten, dann Reset lösen. Solange beide Leitungen in demselben pinctrl-Zustand stehen, lässt sich diese Reihenfolge nicht einmal ausdrücken.</p>
+  <p class="en">During bring-up the <i>active</i> state raises supply and reset in the very same instant. The regulator's 100-millisecond startup delay does run — it merely sits behind the reset release instead of in front of it. The firmware does the opposite: voltage first, then wait, then release reset. As long as both lines live in the same pin state, that ordering cannot even be expressed.</p>
+  <p class="de">Die zweite Erscheinungsform desselben Fehlers: Dem Reglerknoten fehlt die Angabe, dass die Schiene beim Start bereits an ist. Deshalb fordert der Reglertreiber seine Freigabeleitung als <i>Ausgang, low</i> an und zieht GPIO 65 in dem Moment aktiv auf Masse, in dem er gebunden wird — er schneidet die Versorgung eines Geräts ab, das die Firmware längst hochgefahren hatte. Beides ist derselbe Fehler an zwei Orten: Die Schiene ist nicht als Eigentum des Reglers beschrieben.</p>
+  <p class="en">The same mistake shows up a second time: the regulator node does not declare that the rail is already up at boot. So the regulator driver requests its enable line as <i>output, low</i> and actively pulls GPIO 65 to ground the moment it binds — cutting the supply of a device the firmware had long since powered. Both are one mistake in two places: the rail is not described as belonging to the regulator.</p>
+<pre><code>  spi19-hid0-reset-deassert-state {
+-     pins = "gpio65", "gpio120";
++     pins = "gpio120";
+  spi19-hid0-reset-assert-state {
+-     pins = "gpio65", "gpio120";
++     pins = "gpio120";
+  ts-5p0-regulator {
++     regulator-boot-on;</code></pre>
+  <p class="de">Danach gehört die Schiene allein dem Regler, und der Start wird der, den die Firmware vorsieht: Spannung steht, Reset 300 Millisekunden gezogen, Reset gelöst. Zusätzliche pinctrl-Zustände braucht es dafür nicht — die beiden vorhandenen beschreiben jetzt nur noch die Reset-Leitung, und die Versorgung führt der Regler. Belegt im Testboot über die Tracepoints des Reglerkerns:</p>
+  <p class="en">After this the rail belongs to the regulator alone, and bring-up becomes what the firmware intends: voltage up, reset asserted for 300 milliseconds, reset released. No additional pin states are needed — the two existing ones now describe the reset line only, and the regulator leads the supply. Evidence from a test boot, via the regulator core's tracepoints:</p>
+<pre><code>1,609 s   regulator_enable            vreg_ts_5p0
+1,715 s   regulator_enable_complete   vreg_ts_5p0    (+106 ms, die Anlaufverzoegerung)
+5,297 s   input: spi 045E:0C77 ...    das erste Eingabegeraet erscheint
+5,597 s   regulator_enable            vreg_ts2_5p0   (Kontrolle: Touchscreen, ungepatcht)</code></pre>
+  <p class="de">Die Schiene steht also 3,7 Sekunden bevor das erste Eingabegerät erscheint, und dazwischen liegt kein Abschalten des Reglers. Die Kontrolle liegt in derselben Messung: Der unveränderte Touchscreen-Regler schaltet erst bei 5,597 Sekunden ein — angestoßen vom udev-Arbeiter beim Treiberstart, also genau so spät, wie es beim Touchpad vorher auch war. Der Abstand zwischen diesen beiden Zeitpunkten ist die ganze Wirkung des Patches.</p>
+  <p class="en">So the rail is up 3.7 seconds before the first input device appears, with no regulator disable in between. The control sits in the same measurement: the unmodified touchscreen regulator only switches on at 5.597 seconds — triggered by the udev worker at driver start, exactly as late as the touchpad used to be. The distance between those two timestamps is the entire effect of the patch.</p>
+
+  <div class="note warn">
+    <span class="lab de">Dieser Patch ist nicht additiv</span><span class="lab en">This patch is not additive</span>
+    <p class="de">Anders als die Touchscreen-Ergänzung fügt er nichts hinzu, sondern greift in ELLXs Basis-DTSI ein — in fremden, laufenden Code. Deshalb bekommt er einen eigenen GRUB-Testeintrag, und das festgezurrte DTB bleibt unangetastet: Der normale Eintrag bootet weiter die bewährte Fassung, solange sich die neue nicht bewährt hat. Beide Device-Tree-Patches liegen als Commits auf einem eigenen Zweig, nicht als Bastelei am Binärformat.</p>
+    <p class="en">Unlike the touchscreen addition it adds nothing; it edits ELLX's base DTSI — someone else's running code. So it gets a GRUB entry of its own, and the pinned device tree blob stays untouched: the normal entry keeps booting the proven build for as long as the new one has not proven itself. Both device tree patches live as commits on a branch of their own, not as edits to the binary.</p>
+    <p class="de">Der Touchscreen hat denselben Defekt auf GPIO 64 und bleibt bewusst unangetastet. Er ist die gesunde Referenz, gegen die das Touchpad gemessen wird — und die verliert man in dem Moment, in dem man beide Hälften gleichzeitig ändert.</p>
+    <p class="en">The touchscreen has the same defect on GPIO 64 and is deliberately left alone. It is the healthy reference the touchpad is measured against — and that reference is lost the moment both halves are changed at once.</p>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ============ TOUCHSCREEN ============ -->
+<section id="touchscreen">
+  <p class="eyebrow h-ok"><span class="pip"></span><span class="de">Gelöst · 17.08.2026</span><span class="en">Solved · 17 Aug 2026</span></p>
+  <h2>Touchscreen</h2>
+  <p class="sub de">Derselbe Weg, ein anderer Bus — und diesmal in einer Stunde erledigt.</p>
+  <p class="sub en">Same route, a different bus — and this time done in an hour.</p>
+
+  <p class="de">Der Touchscreen steht in derselben ACPI-Tabelle wie das Touchpad, nur an einem anderen Anschluss: <code>QUP_1_SE_2</code>, Basisadresse <code>0xA88000</code>, 40 MHz, Interrupt auf GPIO 51, Versorgung auf GPIO 64 — und Reset auf GPIO 48, das in der Ressourcenliste gar nicht auftaucht: Die Firmware schaltet diesen Anschluss direkt über Register statt als benannte Ressource, erkennbar nur an den Namen zweier Registerbereiche in den Ein- und Ausschaltroutinen. Und seine Abfragefunktion liefert dieselben Befehlscodes und dasselbe Merkmalsfeld wie beim Touchpad — er spricht also ebenfalls vierspurig.</p>
+  <p class="en">The touchscreen sits in the same ACPI table as the touchpad, just on a different controller: <code>QUP_1_SE_2</code>, base address <code>0xA88000</code>, 40 MHz, interrupt on GPIO 51, supply on GPIO 64 — and reset on GPIO 48, which does not appear in the resource list at all: the firmware drives that pin through registers rather than as a named resource, discernible only from the names of two register regions in the power-up and reset routines. And its query function returns the same opcodes and the same flags field as the touchpad — so it speaks four-lane too.</p>
+
+  <p class="de">Genau hier hört der Kernel der Gemeinschaft auf: Er stellt nur den Touchpad-Bus auf den Vierleitungsbetrieb um; für den Touchscreen gibt es dort kein Gegenstück, vermutlich weil dem Autor ein Gerät zum Testen fehlte. Eine eigene Auflage nach demselben Muster genügt — mit den Werten von oben und dem DMA-Knoten, der zum zweiten Anschlussblock gehört.</p>
+  <p class="en">This is exactly where the community kernel stops: it converts only the touchpad bus to quad mode; there is no counterpart for the touchscreen, presumably because the author had no device to test with. An overlay of our own following the same pattern is enough — with the values above and the DMA node belonging to the second controller block.</p>
+
+  <p class="de">Der Bildschirm reagiert auf Anhieb, und zwar über den gewöhnlichen Multitouch-Treiber des Kernels — ohne zusätzlichen Daemon, anders als beim Touchpad.</p>
+  <p class="en">The screen responds immediately, and does so through the kernel's ordinary multitouch driver — with no extra daemon, unlike the touchpad.</p>
+
+  <div class="note key">
+    <span class="lab de">Dauerhaft statt zur Laufzeit · 25.08.2026</span><span class="lab en">Permanent instead of runtime · 25 Aug 2026</span>
+    <p class="de">Weil der Kernel der Gemeinschaft ohne Device-Tree-Stub gebaut ist, erreicht ein vom Bootloader mitgegebener Baum den Kernel tatsächlich — erst mit einer Markereigenschaft nachgewiesen, dann mit dem Touchscreen-Knoten selbst. Der Knoten steht seit dem 25. August fest im Device Tree; das Modul, das die Auflage bei jedem Start nachlud, ist abgelöst und muss nach Kernel-Updates nicht mehr neu gebaut werden.</p>
+    <p class="en">Because the community kernel is built without the device-tree stub, a tree handed over by the bootloader really does reach the kernel — first demonstrated with a marker property, then with the touchscreen node itself. Since 25 August the node lives in the device tree proper; the module that applied the overlay on every boot is retired and no longer needs rebuilding after kernel updates.</p>
+    <p class="de">Im Bootprotokoll erscheint der Bildschirm als <code>045E:0C6E</code> am Bus <code>a88000.spi</code>, das Touchpad als <code>045E:0C77</code> an <code>88c000.spi</code> — und das Auflagemodul ist dabei nachweislich nicht geladen.</p>
+    <p class="en">In the boot log the screen shows up as <code>045E:0C6E</code> on bus <code>a88000.spi</code> and the touchpad as <code>045E:0C77</code> on <code>88c000.spi</code> — with the overlay module verifiably not loaded.</p>
+    <p class="de">Eine Falle auf dem Weg dorthin: Der Knoten braucht in seiner DMA-Zuordnung die Protokollkennung für den Vierleitungsbetrieb, nicht die für gewöhnliches SPI. Mit der falschen erscheint der Anschluss zwar, überträgt aber nichts — ein Zeichen Unterschied, das erst beim Neustart auffällt.</p>
+    <p class="en">One trap on the way there: the node's DMA entries need the four-lane protocol identifier, not the ordinary SPI one. With the wrong one the controller shows up but transfers nothing — a one-character difference that only surfaces on reboot.</p>
+    <p class="de">Nachtrag vom selben Tag: Der Knoten lebt inzwischen nicht mehr als Flicken in einer zurückübersetzten Beschreibung, sondern als Änderung am Quelltext des Kernels der Gemeinschaft — 88 Zeilen, rein ergänzend, keine einzige gelöschte. Die daraus gebaute Beschreibung wurde geprüft, gestartet und ist seither die, die ein ganz gewöhnlicher Systemstart lädt.</p>
+    <p class="en">Added the same day: the node no longer lives as a patch on a decompiled description but as a change to the community kernel's source — 88 lines, purely additive, not one line removed. The description built from it was verified, booted, and is now the one an entirely ordinary system start loads.</p>
+    <p class="de">Eine Absicherung war dabei entscheidend: Bevor irgendetwas geändert wurde, musste der unveränderte Quelltext die installierte Beschreibung <i>bitgenau</i> reproduzieren. Erst das beweist, dass Quellbaum, Übersetzungseinstellungen und Werkzeuge wirklich dieselben sind. Ohne diese Nullmessung hätte jeder spätere Vergleich nur die eigene Erwartung bestätigt.</p>
+    <p class="en">One safeguard was decisive: before anything was changed, the unmodified source had to reproduce the installed description <i>byte for byte</i>. Only that proves the source tree, build settings and tooling really are the same. Without that baseline, any later comparison would merely have confirmed its own expectations.</p>
+    <p class="de">Und die ehrliche Einschränkung: Auf diesem Gerät hängt der Touchscreen weiterhin an einer selbst gebauten Datei, auf die ein Verweis zeigt. Ein Kernel-Update kann diesen Verweis überschreiben oder ins Leere laufen lassen — dann ist der Touchscreen weg, ohne Fehlermeldung. Was die Quelltext-Fassung ändert, ist nicht Unverwundbarkeit, sondern dass das Wiederherstellen ein reproduzierbarer Vorgang von zwei Minuten wird statt Archäologie. Dauerhaft wird es erst, wenn der Knoten in den Kernel der Gemeinschaft übernommen wird.</p>
+    <p class="en">And the honest caveat: on this machine the touchscreen still depends on a locally built file with a link pointing at it. A kernel update can overwrite that link or leave it dangling — and the touchscreen is gone, without an error message. What the source version changes is not invulnerability but that restoring it becomes a reproducible two-minute operation instead of archaeology. It becomes permanent only once the node is taken into the community kernel.</p>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ============ KAMERA ============ -->
+<section id="kamera">
+  <p class="eyebrow h-ok"><span class="pip"></span><span class="de">Gelöst · 16.08.2026</span><span class="en">Solved · 2026-08-16</span></p>
+  <h2 class="de">Kamera</h2>
+  <h2 class="en">Camera</h2>
+  <p class="sub de">Treiber waren da, es fehlte die Beschreibung — und ein Aufruf, den niemand macht.</p>
+  <p class="sub en">The drivers were there; the description was missing — and one call nobody makes.</p>
+
+  <p class="de">Ausgangslage: keine <code>/dev/video*</code>-Geräte, keine Spur von <code>ov02c10</code> oder <code>camss</code> im Log. Beide Treiber liegen längst im Kernel, es fehlte allein die Beschreibung im Device Tree — Sensor am CSI-Port, Versorgungen, Takt. Anders als beim Touchpad ließ sich das aus der DSDT ableiten, und für romulus gibt es sogar einen fertigen Patch aus der Community.</p>
+  <p class="en">Starting point: no <code>/dev/video*</code> devices, no trace of <code>ov02c10</code> or <code>camss</code> in the log. Both drivers ship with the kernel; only the device-tree description was missing — sensor on the CSI port, supplies, clock. Unlike the touchpad this could be derived from the DSDT, and there is even a ready-made community patch for romulus.</p>
+
+  <h3 class="de">Der Stolperstein: simple-mfd und Laufzeit-Overlays</h3>
+  <h3 class="en">The catch: simple-mfd and runtime overlays</h3>
+  <p class="de">Mit korrektem Overlay band <code>camss</code> trotzdem nicht — es stellte sich stumm zurück, ohne jede Begründung. Der Grund liegt tief im Kernel: <code>isp@acb7000</code> ist als <code>simple-mfd</code> deklariert, und dessen Kindknoten (die CSIPHYs) bekommen nur dann eigene Geräte, wenn der Elternknoten beim Booten als Bus aufgezählt wurde. War er beim Start deaktiviert, holt das niemand nach — auch ein Statuswechsel per Overlay nicht.</p>
+  <p class="en">Even with a correct overlay, <code>camss</code> would not bind — it deferred silently, with no reason recorded. The cause sits deep in the kernel: <code>isp@acb7000</code> is declared <code>simple-mfd</code>, and its children (the CSIPHYs) only get devices of their own if the parent was populated as a bus at boot. If it was disabled then, nothing ever makes up for it — not even a status change via overlay.</p>
+  <p class="de">Die Lösung ist ein zusätzlicher Aufruf im eigenen Overlay-Modul, direkt nach dem Anwenden:</p>
+  <p class="en">The fix is one extra call in the overlay module, right after applying it:</p>
+<pre><code>np = of_find_node_by_path("/soc@0/isp@acb7000");
+of_platform_populate(np, NULL, NULL, NULL);</code></pre>
+  <p class="de">Danach entstehen die PHY-Geräte, <code>phy-qcom-mipi-csi2</code> lädt von selbst nach, der ISP bindet — und es gibt <code>/dev/video0</code> bis <code>15</code> samt Medienknoten.</p>
+  <p class="en">After that the PHY devices appear, <code>phy-qcom-mipi-csi2</code> loads by itself, the ISP binds — and <code>/dev/video0</code> through <code>15</code> show up along with the media node.</p>
+
+  <div class="note key">
+    <span class="lab de">Nebenertrag</span><span class="lab en">Side yield</span>
+    <p class="de">libcamera kannte den Sensor nicht: „Failed to create camera sensor helper for ov02c10". Der Kerneltreiber schreibt den Steuerwert unverändert nach Register 0x3508, wobei 0x10 der einfachen Verstärkung entspricht — also das übliche Festkommaformat mit Teiler 16. Zweiundzwanzig Zeilen in <code>camera_sensor_helper.cpp</code>, und die Verstärkung stimmt. Der Patch ist einreichfertig.</p>
+    <p class="en">libcamera did not know the sensor: "Failed to create camera sensor helper for ov02c10". The kernel driver writes the control value to register 0x3508 unchanged, with 0x10 meaning unity gain — the usual fixed-point encoding with a divisor of 16. Twenty-two lines in <code>camera_sensor_helper.cpp</code>, and the gain is right. The patch is ready to submit.</p>
+  </div>
+
+  <div class="note warn">
+    <span class="lab de">Falle bei der Auswertung</span><span class="lab en">Analysis pitfall</span>
+    <p class="de">Ein vermeintlich schwerer Rotstich kostete Stunden — bis sich zeigte, dass er in der eigenen Auswertung entstand: libcamera bildet <code>ABGR8888</code> intern auf <code>V4L2_PIX_FMT_RGBA32</code> ab, die Speicherreihenfolge ist also R, G, B, A. Ein Skript, das A, B, G, R annahm, las den stets konstanten Alpha-Kanal als Rot. Mit korrektem Layout war das Bild von Anfang an in Ordnung.</p>
+    <p class="en">An apparent heavy red cast cost hours — until it turned out to be an artefact of my own analysis: libcamera maps <code>ABGR8888</code> internally to <code>V4L2_PIX_FMT_RGBA32</code>, so memory order is R, G, B, A. A script assuming A, B, G, R was reading the always-constant alpha channel as red. With the right layout the image had been fine all along.</p>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ============ ELLX ============ -->
+<section id="ellx">
+  <p class="eyebrow h-ok"><span class="pip"></span><span class="de">Der pragmatische Weg · 17.08.2026</span><span class="en">The pragmatic route · 17 Aug 2026</span></p>
+  <h2 class="de">Ein anderer Kernel — und plötzlich läuft alles</h2>
+  <h2 class="en">A different kernel — and suddenly everything works</h2>
+  <p class="sub de">Was im Mainline fehlt, gibt es längst; man muss es nur finden.</p>
+  <p class="sub en">What mainline lacks already exists; you just have to find it.</p>
+
+  <p class="de">Für den Snapdragon-Surface gibt es eine kleine, aber sehr aktive Gemeinschaft, die fertige Kernelpakete baut. Der Umstieg dauert eine Viertelstunde und beantwortet mehrere Fragen auf einmal: Der rfkill-Fix fürs WLAN steckt dort direkt im Treiber, die Kamera-Beschreibung im Device Tree, und der Quad-SPI-Treiber für das Touchpad ebenfalls.</p>
+  <p class="en">There is a small but very active community building ready-made kernel packages for the Snapdragon Surfaces. Switching takes fifteen minutes and answers several questions at once: the Wi-Fi rfkill fix sits in the driver itself, the camera description is in the device tree, and so is the quad SPI driver for the touchpad.</p>
+
+  <p class="de">Damit werden drei unserer Eigenbauten überflüssig — das DKMS-Paket für ath12k, der gepatchte GENI-SPI-Treiber und der gepatchte Kamerasensor. Was bleibt, ist das Overlay für den Touchscreen, das dort niemand gebaut hat.</p>
+  <p class="en">That makes three of our own builds redundant — the ath12k DKMS package, the patched GENI SPI driver, and the patched camera sensor. What remains is the touchscreen overlay, which nobody there had built.</p>
+
+  <div class="note">
+    <span class="lab de">Stolpersteine</span><span class="lab en">Snags</span>
+    <p class="de">Zwei Dinge brachen beim Wechsel: Unser initramfs-Hook ließ die Installation scheitern, weil die Kopierfunktion eine 1 zurückgibt, wenn die Datei schon im Zwischenverzeichnis liegt — ein <code>exit 0</code> am Ende behebt es. Und der neue Kernel baut sein Initrd mit dracut statt mit initramfs-tools; der Hook greift dort gar nicht, dracut sammelt die Firmware aber von selbst ein.</p>
+    <p class="en">Two things broke during the switch: our initramfs hook made the installation fail, because the copy helper returns 1 when the file is already in the staging directory — an <code>exit 0</code> at the end fixes it. And the new kernel builds its initrd with dracut rather than initramfs-tools; the hook does not apply there at all, but dracut picks the firmware up by itself.</p>
+  </div>
+
+  <div class="note key">
+    <span class="lab de">Und ein Detail, das Zeit spart</span><span class="lab en">And a detail that saves time</span>
+    <p class="de">Die WLAN-Adresse wird bei jedem Start neu ausgewürfelt. Wer sich gewundert hat, warum das Gerät im Heimnetz ständig eine andere Adresse bekommt und feste Zuordnungen im Router nicht greifen: Das ist der Grund, und es gibt einen Patch dafür.</p>
+    <p class="en">The Wi-Fi MAC address is randomised on every boot. If you have been wondering why the machine keeps getting a different address on your network and static leases never stick: that is why, and there is a patch for it.</p>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ============ BACKUP ============ -->
+<section id="backup">
+  <p class="eyebrow h-ok"><span class="pip"></span><span class="de">Betrieb · 29.08.2026</span><span class="en">Operations · 29 Aug 2026</span></p>
+  <h2 class="de">Sicherung auf einen Heimserver</h2>
+  <h2 class="en">Backups to a home server</h2>
+  <p class="sub de">Nicht gerätespezifisch — aber wer so viel am laufenden System schraubt, braucht sie.</p>
+  <p class="sub en">Not device-specific — but anyone rebuilding a running system this hard needs them.</p>
+
+  <p class="de">Gesichert wird mit <b>borg 1.4</b> über SSH auf einen Rechner im eigenen Netz. Der Schlüssel, mit dem sich die Maschine dort anmeldet, ist auf genau eine Aufgabe eingeschränkt: Er darf den Sicherungsdienst starten, sonst nichts, und auch den nur für ein einziges Archivverzeichnis.</p>
+  <p class="en">Backups run with <b>borg 1.4</b> over SSH to a machine on the local network. The key the laptop logs in with is restricted to exactly one job: it may start the backup service, nothing else, and even that only for a single repository.</p>
+<pre><code># auf dem Server, in authorized_keys
+command="borg serve --restrict-to-repository /srv/borg/romulus13",restrict ssh-ed25519 AAAA...</code></pre>
+  <p class="de">Was gesichert wird, steht in einer Musterdatei statt in der Befehlszeile. Die wurde gegengeprüft, bevor sie in Betrieb ging: <code>borg create --dry-run --list</code> zeigt für einen vollständigen Durchlauf, welche Pfade aufgenommen und welche verworfen würden, ohne etwas zu schreiben.</p>
+  <p class="en">What gets backed up lives in a pattern file rather than on the command line. It was checked before going live: <code>borg create --dry-run --list</code> shows, for a complete pass, which paths would be taken and which dropped, without writing anything.</p>
+  <p class="de">Ausgelöst wird täglich, aber nicht zu einer festen Uhrzeit: Der Zeitgeber hat mehrere Termine über den Tag verteilt, damit auch ein Laptop drankommt, der morgens um sieben noch zugeklappt war. Damit daraus nicht mehrere Sicherungen am Tag werden, setzt ein gelungener Lauf eine Erfolgsmarke, und die folgenden Termine sehen zuerst dort nach.</p>
+  <p class="en">It fires daily, but not at a fixed hour: the timer has several slots spread across the day, so a laptop still shut at seven in the morning gets its turn too. To keep that from producing several backups a day, a successful run sets a marker, and the later slots check it first.</p>
+  <p class="de">Dazu ein Wächter, der nichts sichert, sondern nur nachsieht: Ist die jüngste Sicherung im Archiv älter als drei Tage, meldet er sich. Er ist der wichtigste Teil des Ganzen, denn ein Backup, das niemand prüft, ist eine Vermutung.</p>
+  <p class="en">Alongside it runs a watchdog that backs up nothing and only looks: if the newest archive in the repository is older than three days, it reports. It is the most important piece of the whole arrangement, because a backup nobody checks is a guess.</p>
+
+  <div class="note warn">
+    <span class="lab de">Fallstrick 1 — die Liste zeigt auch das Ausgeschlossene</span><span class="lab en">Trap 1 — the list shows what was excluded too</span>
+    <p class="de">Die Ausgabe von <code>--list</code> enthält <b>auch die verworfenen Pfade</b>, gekennzeichnet mit einem <code>x</code> am Zeilenanfang; aufgenommene tragen dort ein <code>-</code>. Wer die Ausgabe nach einem Dateinamen durchsucht und ihn findet, hat damit nichts bewiesen — er kann als <code>x</code> dringestanden haben. Die Suche muss das Kennzeichen mitlesen und am Zeilenanfang verankern.</p>
+    <p class="en">The output of <code>--list</code> contains <b>the discarded paths as well</b>, marked with an <code>x</code> at the start of the line; included ones carry a <code>-</code> there. Searching that output for a filename and finding it proves nothing — it may have been sitting there as an <code>x</code>. The search has to read the marker and anchor at the start of the line.</p>
+  </div>
+
+  <div class="note warn">
+    <span class="lab de">Fallstrick 2 — ein stiller Abbruch sieht aus wie Erfolg</span><span class="lab en">Trap 2 — a silent abort looks like success</span>
+    <p class="de">Bricht ein Lauf ab, ohne dass der Rückgabewert das meldet — Null trotz unvollständigem Archiv —, dann ist ein dauerhaft kaputtes Backup von einem gelungenen nicht zu unterscheiden. Der Rückgabewert allein taugt deshalb nicht als Erfolgsmerkmal. Die Erfolgsmarke wird erst gesetzt, wenn das Archiv danach auch tatsächlich auffindbar ist, und der Wächter prüft unabhängig davon das Alter der jüngsten Sicherung.</p>
+    <p class="en">If a run aborts without the exit status saying so — zero despite an incomplete archive — then a permanently broken backup is indistinguishable from a good one. The exit status alone is therefore not a success criterion. The marker is set only once the archive is actually found afterwards, and the watchdog checks the age of the newest backup independently of it.</p>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ============ KLEINKRAM ============ -->
+<section id="kleinkram">
+  <p class="eyebrow"><span class="de">Randnotizen</span><span class="en">Loose ends</span></p>
+  <h2 class="de">Kleinkram</h2>
+  <h2 class="en">Odds and ends</h2>
+
+  <h3 id="tastatur" class="de">Tastatur</h3>
+  <h3 id="tastatur-en" class="en">Keyboard</h3>
+  <p class="de">Läuft ohne Zutun, über den Surface Aggregator. Für die Installation genügt also die interne Tastatur plus eine Maus.</p>
+  <p class="en">Works untouched, via the Surface Aggregator. For the install the internal keyboard plus a mouse is enough.</p>
+
+  <h3 id="suspend" class="de">Suspend und Resume</h3>
+  <h3 class="en">Suspend and resume</h3>
+  <p class="de">Funktionieren im Kern: die gesamte Resume-Seite läuft innerhalb einer Sekunde durch, <code>ath12k</code> lädt seine Firmware neu und kommt sauber hoch. Was sich wie minutenlanger Stillstand anfühlt, ist die Frage, wann das Gerät überhaupt aufwacht — die Aufweckquelle ist noch nicht geklärt.</p>
+  <p class="en">Fundamentally fine: the entire resume path completes within a second, <code>ath12k</code> reloads its firmware and comes back cleanly. What feels like minutes of nothing is the question of when the machine wakes at all — the wake source is still unclear.</p>
+
+  <h3 class="de">GRUB-Menü auf dem HiDPI-Panel</h3>
+  <h3 class="en">GRUB menu on the HiDPI panel</h3>
+  <p class="de">Winzig, weil GRUB die Standardschrift nimmt. Abhilfe:</p>
+  <p class="en">Microscopic, because GRUB uses its default font. Fix:</p>
+<pre><code>sudo grub-mkfont -s 64 -o /boot/grub/fonts/dejavu64.pf2 \
+     /usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf
+# GRUB_FONT=/boot/grub/fonts/dejavu64.pf2  in /etc/default/grub
+sudo update-grub</code></pre>
+
+  <h3 class="de">Helligkeit unter Windows</h3>
+  <h3 class="en">Brightness under Windows</h3>
+  <p class="de">Nicht Linux, aber verwandt: bei aktiviertem HDR lässt sich die Helligkeit nicht regeln, weil das Panel eine definierte Leuchtdichte halten muss. Der wirksame Regler heißt dann „SDR-Inhaltshelligkeit". <code>Win+Alt+B</code> schaltet HDR um.</p>
+  <p class="en">Not Linux, but adjacent: with HDR on, brightness cannot be adjusted because the panel must hold a defined luminance. The control that actually works is "SDR content brightness". <code>Win+Alt+B</code> toggles HDR.</p>
+</section>
+
+<hr class="sep">
+
+<!-- ============ MITMACHEN ============ -->
+<section id="mitmachen">
+  <p class="eyebrow"><span class="de">Mitmachen</span><span class="en">Contributing</span></p>
+  <h2 class="de">Wo Hilfe am meisten bringt</h2>
+  <h2 class="en">Where help matters most</h2>
+
+  <p class="de">Der rfkill-Fix sind drei Zeilen, die seit Dezember 2025 in einer Review-Diskussion feststecken. Gewünscht war eine Quirk-Liste im Treiber, die betroffene Geräte an ihrem <code>compatible</code>-String erkennt — <code>microsoft,romulus13</code>, <code>microsoft,romulus15</code>, <code>microsoft,denali</code>. Wer eines dieser Geräte hat und Geduld mit dem Einreichungsprozess mitbringt, repariert damit das WLAN für alle.</p>
+  <p class="en">The rfkill fix is three lines that have been stuck in review since December 2025. What was asked for is a quirk list inside the driver, keyed on the machine's <code>compatible</code> string — <code>microsoft,romulus13</code>, <code>microsoft,romulus15</code>, <code>microsoft,denali</code>. Anyone with one of these machines and some patience for the submission process would fix Wi-Fi for everybody.</p>
+
+  <p class="de">Für die Kalibrierungsdaten gäbe es einen saubereren Weg als das Kopieren aus Windows: in der <code>board-2.json</code> von linux-firmware den Schlüssel für <code>subsystem-device=1107</code> mit <code>board-id=255</code> auf die bereits vorhandenen Daten der Variante <code>3378</code> abbilden und neu bauen. Ungetestet, aber die richtige Grundlage für eine Einreichung.</p>
+  <p class="en">For the board data there is a cleaner route than copying from Windows: in linux-firmware's <code>board-2.json</code>, map the key for <code>subsystem-device=1107</code> with <code>board-id=255</code> onto the calibration data already present for variant <code>3378</code>, and rebuild. Untested, but the right basis for a submission.</p>
+
+  <p class="de">Und das Touchpad braucht am Ende einen HID-over-SPI-Treiber im Mainline. Der Code existiert out-of-tree; Microsofts eigene Serie von 2022 wurde nie aufgenommen.</p>
+  <p class="en">And the touchpad ultimately needs a HID-over-SPI driver in mainline. The code exists out of tree; Microsoft's own series from 2022 was never merged.</p>
+
+  <h3 class="de">Quellen</h3>
+  <h3 class="en">Sources</h3>
+  <ul>
+    <li>linux-surface, Issue #1590 — <span class="de">Surface Laptop 7 Support</span><span class="en">Surface Laptop 7 support</span></li>
+    <li><code>lore.kernel.org</code> — <span class="de">Suche nach</span><span class="en">search for</span> <code>disable-rfkill</code></li>
+    <li><code>github.com/dwhinham/linux-surface-pro-11</code> — <span class="de">Statusübersicht zum Schwestergerät</span><span class="en">status overview for the sibling device</span></li>
+    <li><code>github.com/linux-surface/spi-hid</code></li>
+  </ul>
+</section>
+
+<hr class="sep">
+
+<!-- ============ DANK ============ -->
+<section id="dank">
+  <p class="eyebrow h-ok"><span class="pip"></span><span class="de">Dank</span><span class="en">Credits</span></p>
+  <h2 class="de">Ohne diese Leute wäre hier nichts fertig geworden</h2>
+  <h2 class="en">None of this would have been finished without these people</h2>
+  <p class="sub de">Fast jeder Schritt hier baut auf Vorarbeit auf, die andere geleistet und offen geteilt haben.</p>
+  <p class="sub en">Nearly every step here builds on work others did first and shared openly.</p>
+
+  <ul class="log">
+    <li><b>ProgrammerIn-wonderland</b> — <span class="de">baut und veröffentlicht die Kernelpakete für dieses Gerät. Ohne sie wäre der ganze Touch-Teil unerreichbar geblieben.</span><span class="en">builds and publishes the kernel packages for this machine. Without them the entire touch story would have stayed out of reach.</span></li>
+    <li><b>scuggo</b> — <span class="de">hat Quad-SPI für den Qualcomm-SPI-Treiber implementiert, samt der DMA-Ebene, die im Mainline fehlt. Das ist die Arbeit, an der die ganze Kette hing.</span><span class="en">implemented quad SPI for the Qualcomm SPI driver, including the DMA layer mainline lacks. That is the work the whole chain hung on.</span></li>
+    <li><b>bryce-hoehn</b> — <span class="de">Einrichtungsanleitung und die Kamera-Patches für dieses Gerät; die Werte darin haben mir Tage erspart.</span><span class="en">setup guide and the camera patches for this machine; the values in them saved me days.</span></li>
+    <li><b>orvitpng</b> — <span class="de">hat die drei Betriebsarten des Touchpads herausgearbeitet und den Weg über die Heatmap-Auswertung gezeigt. Ohne diese Beschreibung hätte ich weiter an der falschen Stelle gesucht.</span><span class="en">worked out the touchpad's three operating modes and pointed to heatmap processing as the way forward. Without that account I would have kept looking in the wrong place.</span></li>
+    <li><b>alex-lentz</b> — <span class="de">dessen Fassung des Daemons den physischen Klick zurückbringt; der letzte fehlende Zentimeter.</span><span class="en">whose fork of the daemon brings the physical click back; the last missing inch.</span></li>
+    <li><b>valpackett</b> — <span class="de">hat den Hinweis auf den Device-Tree-Stub gegeben und damit einen Befund korrigiert, der hier zwei Tage lang falsch gedeutet stand.</span><span class="en">supplied the pointer to the device-tree stub, correcting a finding that had stood misinterpreted here for two days.</span></li>
+    <li><b>Oliver White</b> — <span class="de">Kalibrierung und Metadaten-Patch für den Kamerasensor.</span><span class="en">calibration and the metadata patch for the camera sensor.</span></li>
+    <li><b>qzed</b> <span class="de">und alle, die den linux-surface-Faden über zwei Jahre am Leben gehalten haben.</span><span class="en">and everyone who kept the linux-surface thread alive over two years.</span></li>
+  </ul>
+
+  <p class="de">Was ich beigetragen habe, ist im Vergleich schmal: der Knoten für den zweiten SPI-Bus, der fehlende Aufruf, der die Kamera überhaupt erst erscheinen lässt, ein Sensor-Helfer für libcamera — und die Beobachtung, dass das ausgelieferte Daemon-Paket auf dieser Hardware gar nicht startet.</p>
+  <p class="en">My own contribution is slim by comparison: the node for the second SPI bus, the missing call that makes the camera appear at all, a sensor helper for libcamera — and the observation that the shipped daemon package does not start on this hardware.</p>
+</section>
+
+<hr class="sep">
+
+<footer>
+  <p class="de">Protokoll eines Umbaus, kein Handbuch. Alles hier bezieht sich auf genau ein Gerät und genau einen Kernelstand — prüfe Zeilennummern, Pfade und Partitionsnummern gegen dein eigenes System, bevor du etwas übernimmst.</p>
+  <p class="en">A log of one rebuild, not a manual. Everything here refers to exactly one machine and exactly one kernel version — check line numbers, paths and partition numbers against your own system before copying anything.</p>
+</footer>
+
+</main>
+
+<script>
+(function(){
+  var html = document.documentElement;
+  var de = document.getElementById('de');
+  var en = document.getElementById('en');
+  var th = document.getElementById('theme');
+
+  function setLang(l){
+    html.setAttribute('data-lang', l);
+    html.setAttribute('lang', l);
+    de.setAttribute('aria-pressed', l === 'de');
+    en.setAttribute('aria-pressed', l === 'en');
+    document.title = (l === 'de')
+      ? 'Surface Laptop 7 unter Linux — Protokoll'
+      : 'Linux on the Surface Laptop 7 — working log';
+  }
+  de.addEventListener('click', function(){ setLang('de'); });
+  en.addEventListener('click', function(){ setLang('en'); });
+
+  th.addEventListener('click', function(){
+    var dark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', dark ? 'light' : 'dark');
+    th.setAttribute('aria-pressed', String(!dark));
+    th.textContent = dark ? '☾' : '☀';
+  });
+
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
+    html.setAttribute('data-theme','dark');
+    th.setAttribute('aria-pressed','true');
+    th.textContent = '☀';
+  }
+})();
+</script>
+</body>
+</html>

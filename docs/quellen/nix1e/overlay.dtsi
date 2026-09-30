@@ -1,0 +1,7 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "microsoft,romulus13",
+                 "microsoft,romulus15";
+};

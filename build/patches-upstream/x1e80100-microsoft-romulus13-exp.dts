@@ -1,0 +1,358 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Surface Laptop 7 (13.8 inch) - EXPERIMENTELLE Variante fuer das Projekt Linux SL7.
+ * Identisch mit x1e80100-microsoft-romulus13.dts plus:
+ *  - Touchscreen als HID-over-SPI auf spi10 (QUP1 SE2, QSPI) nach linux-surface#1590 / orvitpng/nix1e
+ *  - Touchpad: Regulator vreg_ts_5p0 boot-on, Reset-States nur gpio120 (horizontblau 2026-08-29)
+ *  - iris Hardware-Videodecoder mit Microsoft-Firmware qcvss8380.mbn
+ *  - CPU-Thermal-Drosselung (passive Trips 85 C) nach scuggo/x1e-nixos
+ * Wird im Bootmenue als eigener Eintrag angeboten. Standard bleibt der unveraenderte romulus13-DTB.
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/dma/qcom-gpi.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/thermal/thermal.h>
+#include "x1e80100-microsoft-romulus.dtsi"
+
+/ {
+	model = "Microsoft Surface Laptop 7 (13.8 inch) [SL7-Projekt experimentell]";
+	compatible = "microsoft,romulus13", "qcom,x1e80100";
+
+	vreg_ts2_5p0: ts2-5p0-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "vreg_ts2_5p0";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&tlmm 64 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-boot-on;
+		startup-delay-us = <100000>;
+	};
+};
+
+/* Touchpad-Aufraeumen: ein Pin, ein Besitzer */
+&vreg_ts_5p0 {
+	regulator-boot-on;
+};
+
+&spi19_hid0_reset_deassert {
+	pins = "gpio120";
+};
+
+&spi19_hid0_reset_assert {
+	pins = "gpio120";
+};
+
+/* Touchscreen (HID over SPI, ACPI GTCH / PNP0C51 an QUP_1_SE2 = spi10) */
+&gpi_dma1 {
+	status = "okay";
+};
+
+&tlmm {
+	qup_qspi10_data23: qup-qspi10-data23-state {
+		pins = "gpio49", "gpio50";
+		function = "qup1_se2";
+		drive-strength = <6>;
+		bias-disable;
+	};
+
+	spi10_hid0_reset_deassert: spi10-hid0-reset-deassert-state {
+		pins = "gpio48";
+		function = "gpio";
+		drive-strength = <16>;
+		bias-disable;
+		output-high;
+	};
+
+	spi10_hid0_reset_assert: spi10-hid0-reset-assert-state {
+		pins = "gpio48";
+		function = "gpio";
+		drive-strength = <16>;
+		bias-disable;
+		output-low;
+	};
+
+	spi10_hid0_int_bias: spi10-hid0-int-bias-state {
+		pins = "gpio51";
+		function = "gpio";
+		input-enable;
+		bias-pull-up;
+	};
+};
+
+&spi10 {
+	status = "okay";
+	compatible = "qcom,geni-spi-qspi";
+	spi-max-frequency = <40000000>;
+	qcom,qspi-read-opcode = <0xEB>;
+	qcom,qspi-read-dummy-clocks = <8>;
+	qcom,qspi-read-cmd-bytes = <4>;
+
+	pinctrl-0 = <&qup_spi10_data_clk>, <&qup_spi10_cs>,
+		    <&qup_qspi10_data23>,
+		    <&spi10_hid0_int_bias>;
+	pinctrl-names = "default";
+
+	dmas = <&gpi_dma1 0 2 QCOM_GPI_QSPI>,
+	       <&gpi_dma1 1 2 QCOM_GPI_QSPI>;
+	dma-names = "tx", "rx";
+
+	touchscreen: touchscreen@0 {
+		compatible = "hid-over-spi";
+		reg = <0>;
+		spi-max-frequency = <40000000>;
+
+		interrupt-parent = <&tlmm>;
+		interrupts = <51 IRQ_TYPE_LEVEL_LOW>;
+
+		vdd-supply = <&vreg_ts2_5p0>;
+
+		pinctrl-0 = <&spi10_hid0_reset_deassert>;
+		pinctrl-1 = <&spi10_hid0_reset_assert>;
+		pinctrl-names = "active", "reset";
+
+		input-report-header-address = <0x1000>;
+		input-report-body-address = <0x1004>;
+		output-report-address = <0x2000>;
+		read-opcode = <0xEB>;
+		write-opcode = <0xE2>;
+	};
+};
+
+/* Hardware-Videodecoder/-encoder (iris) */
+&iris {
+	firmware-name = "qcom/x1e80100/microsoft/Romulus/qcvss8380.mbn";
+	status = "okay";
+};
+
+/* CPU-Thermal-Drosselung: cpufreq-Cooling + passive Trips bei 85 C */
+&cpu0  { #cooling-cells = <2>; };
+&cpu1  { #cooling-cells = <2>; };
+&cpu2  { #cooling-cells = <2>; };
+&cpu3  { #cooling-cells = <2>; };
+&cpu4  { #cooling-cells = <2>; };
+&cpu5  { #cooling-cells = <2>; };
+&cpu6  { #cooling-cells = <2>; };
+&cpu7  { #cooling-cells = <2>; };
+&cpu8  { #cooling-cells = <2>; };
+&cpu9  { #cooling-cells = <2>; };
+&cpu10 { #cooling-cells = <2>; };
+&cpu11 { #cooling-cells = <2>; };
+
+&{/thermal-zones/cpu0-0-top-thermal} {
+	polling-delay-passive = <250>;
+	polling-delay = <1000>;
+	trips {
+		cpu0_0_passive: trip-passive {
+			temperature = <85000>;
+			hysteresis = <5000>;
+			type = "passive";
+		};
+	};
+	cooling-maps {
+		map0 {
+			trip = <&cpu0_0_passive>;
+			cooling-device = <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+		};
+	};
+};
+
+&{/thermal-zones/cpu0-1-top-thermal} {
+	polling-delay-passive = <250>;
+	polling-delay = <1000>;
+	trips {
+		cpu0_1_passive: trip-passive {
+			temperature = <85000>;
+			hysteresis = <5000>;
+			type = "passive";
+		};
+	};
+	cooling-maps {
+		map0 {
+			trip = <&cpu0_1_passive>;
+			cooling-device = <&cpu1 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+		};
+	};
+};
+
+&{/thermal-zones/cpu0-2-top-thermal} {
+	polling-delay-passive = <250>;
+	polling-delay = <1000>;
+	trips {
+		cpu0_2_passive: trip-passive {
+			temperature = <85000>;
+			hysteresis = <5000>;
+			type = "passive";
+		};
+	};
+	cooling-maps {
+		map0 {
+			trip = <&cpu0_2_passive>;
+			cooling-device = <&cpu2 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+		};
+	};
+};
+
+&{/thermal-zones/cpu0-3-top-thermal} {
+	polling-delay-passive = <250>;
+	polling-delay = <1000>;
+	trips {
+		cpu0_3_passive: trip-passive {
+			temperature = <85000>;
+			hysteresis = <5000>;
+			type = "passive";
+		};
+	};
+	cooling-maps {
+		map0 {
+			trip = <&cpu0_3_passive>;
+			cooling-device = <&cpu3 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+		};
+	};
+};
+
+&{/thermal-zones/cpu1-0-top-thermal} {
+	polling-delay-passive = <250>;
+	polling-delay = <1000>;
+	trips {
+		cpu1_0_passive: trip-passive {
+			temperature = <85000>;
+			hysteresis = <5000>;
+			type = "passive";
+		};
+	};
+	cooling-maps {
+		map0 {
+			trip = <&cpu1_0_passive>;
+			cooling-device = <&cpu4 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+		};
+	};
+};
+
+&{/thermal-zones/cpu1-1-top-thermal} {
+	polling-delay-passive = <250>;
+	polling-delay = <1000>;
+	trips {
+		cpu1_1_passive: trip-passive {
+			temperature = <85000>;
+			hysteresis = <5000>;
+			type = "passive";
+		};
+	};
+	cooling-maps {
+		map0 {
+			trip = <&cpu1_1_passive>;
+			cooling-device = <&cpu5 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+		};
+	};
+};
+
+&{/thermal-zones/cpu1-2-top-thermal} {
+	polling-delay-passive = <250>;
+	polling-delay = <1000>;
+	trips {
+		cpu1_2_passive: trip-passive {
+			temperature = <85000>;
+			hysteresis = <5000>;
+			type = "passive";
+		};
+	};
+	cooling-maps {
+		map0 {
+			trip = <&cpu1_2_passive>;
+			cooling-device = <&cpu6 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+		};
+	};
+};
+
+&{/thermal-zones/cpu1-3-top-thermal} {
+	polling-delay-passive = <250>;
+	polling-delay = <1000>;
+	trips {
+		cpu1_3_passive: trip-passive {
+			temperature = <85000>;
+			hysteresis = <5000>;
+			type = "passive";
+		};
+	};
+	cooling-maps {
+		map0 {
+			trip = <&cpu1_3_passive>;
+			cooling-device = <&cpu7 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+		};
+	};
+};
+
+&{/thermal-zones/cpu2-0-top-thermal} {
+	polling-delay-passive = <250>;
+	polling-delay = <1000>;
+	trips {
+		cpu2_0_passive: trip-passive {
+			temperature = <85000>;
+			hysteresis = <5000>;
+			type = "passive";
+		};
+	};
+	cooling-maps {
+		map0 {
+			trip = <&cpu2_0_passive>;
+			cooling-device = <&cpu8 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+		};
+	};
+};
+
+&{/thermal-zones/cpu2-1-top-thermal} {
+	polling-delay-passive = <250>;
+	polling-delay = <1000>;
+	trips {
+		cpu2_1_passive: trip-passive {
+			temperature = <85000>;
+			hysteresis = <5000>;
+			type = "passive";
+		};
+	};
+	cooling-maps {
+		map0 {
+			trip = <&cpu2_1_passive>;
+			cooling-device = <&cpu9 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+		};
+	};
+};
+
+&{/thermal-zones/cpu2-2-top-thermal} {
+	polling-delay-passive = <250>;
+	polling-delay = <1000>;
+	trips {
+		cpu2_2_passive: trip-passive {
+			temperature = <85000>;
+			hysteresis = <5000>;
+			type = "passive";
+		};
+	};
+	cooling-maps {
+		map0 {
+			trip = <&cpu2_2_passive>;
+			cooling-device = <&cpu10 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+		};
+	};
+};
+
+&{/thermal-zones/cpu2-3-top-thermal} {
+	polling-delay-passive = <250>;
+	polling-delay = <1000>;
+	trips {
+		cpu2_3_passive: trip-passive {
+			temperature = <85000>;
+			hysteresis = <5000>;
+			type = "passive";
+		};
+	};
+	cooling-maps {
+		map0 {
+			trip = <&cpu2_3_passive>;
+			cooling-device = <&cpu11 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+		};
+	};
+};

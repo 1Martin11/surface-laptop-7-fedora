@@ -1,0 +1,59 @@
+#define TS_RESET_PIN "gpio48"
+#define TS_RESET 48
+
+#define TS_INT_PIN "gpio51"
+#define TS_INT 51
+
+#define TS_VDD 64
+
+&gpi_dma1 {
+    status = "okay";
+};
+
+&{/} {
+    ts_reg: ts-regulator {
+        compatible = "regulator-fixed";
+        regulator-name = "ts_reg";
+
+        gpio = <&tlmm TS_VDD 0>;
+        startup-delay-us = <1000000>;
+        enable-active-high;
+    };
+};
+
+&tlmm {
+    ts_reset: ts-reset-state {
+        pins = TS_RESET_PIN;
+        function = "gpio";
+        drive-strength = <16>;
+        bias-disable;
+    };
+
+    ts_int: ts-int-state {
+        pins = TS_INT_PIN;
+        function = "gpio";
+        input-enable;
+        bias-pull-up;
+    };
+};
+
+&spi10 {
+    status = "okay";
+
+    touchscreen: touchscreen@0 {
+        spi-max-frequency = <40000000>;
+        interrupts-extended = <&tlmm TS_INT IRQ_TYPE_LEVEL_LOW>;
+        pinctrl-0 = <&ts_reset>,
+                    <&ts_int>;
+
+        compatible = "hid-over-spi";
+        reg = <0>;
+        reset-gpios = <&tlmm TS_RESET GPIO_ACTIVE_LOW>;
+        vdd-supply = <&ts_reg>;
+        input-report-header-address = <0x1000>;
+        input-report-body-address = <0x1004>;
+        output-report-address = <0x2000>;
+        read-opcode = <0xEB>;
+        write-opcode = <0xE2>;
+    };
+};

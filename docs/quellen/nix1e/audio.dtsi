@@ -1,0 +1,5 @@
+&remoteproc_adsp {
+    firmware-name = "qcom/x1e80100/microsoft/romulus/qcadsp8380.mbn",
+                    "qcom/x1e80100/microsoft/romulus/adsp_dtbs.elf";
+    status = "okay";
+};

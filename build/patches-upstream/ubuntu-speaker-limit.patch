@@ -1,0 +1,46 @@
+From: Tobias Heider <tobias.heider@canonical.com>
+Subject: [PATCH] UBUNTU: SAUCE: ASoC: qcom: x1e80100: limit speaker volumes
+
+Set limit of -3 dB on Digital Volume and 0 dB on PA Volume to reduce the
+risk of speaker damage until we have active speaker protection in place.
+
+BugLink: https://bugs.launchpad.net/bugs/2149808
+[Projekt Linux SL7: aus Ubuntu resolute linux 7.0.0-38.38 (master-next, 2026-09-04)
+ als Diff gegen den ELLX-Tree 7.0.0-rc4-12 uebernommen]
+---
+ sound/soc/qcom/x1e80100.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/sound/soc/qcom/x1e80100.c b/sound/soc/qcom/x1e80100.c
+--- a/sound/soc/qcom/x1e80100.c
++++ b/sound/soc/qcom/x1e80100.c
+@@ -27,10 +27,29 @@
+ {
+ 	struct x1e80100_snd_data *data = snd_soc_card_get_drvdata(rtd->card);
+ 	struct snd_soc_dai *cpu_dai = snd_soc_rtd_to_cpu(rtd, 0);
++	struct snd_soc_card *card = rtd->card;
+ 	struct snd_soc_jack *dp_jack = NULL;
+ 	int dp_pcm_id = 0;
+
+ 	switch (cpu_dai->id) {
++	case WSA_CODEC_DMA_RX_0:
++	case WSA_CODEC_DMA_RX_1:
++		/*
++		 * Set limit of -3 dB on Digital Volume and 0 dB on PA Volume
++		 * to reduce the risk of speaker damage until we have active
++		 * speaker protection in place.
++		 */
++		snd_soc_limit_volume(card, "WSA WSA_RX0 Digital Volume", 81);
++		snd_soc_limit_volume(card, "WSA WSA_RX1 Digital Volume", 81);
++		snd_soc_limit_volume(card, "WSA2 WSA_RX0 Digital Volume", 81);
++		snd_soc_limit_volume(card, "WSA2 WSA_RX1 Digital Volume", 81);
++		snd_soc_limit_volume(card, "SpkrLeft PA Volume", 6);
++		snd_soc_limit_volume(card, "SpkrRight PA Volume", 6);
++		snd_soc_limit_volume(card, "WooferLeft PA Volume", 6);
++		snd_soc_limit_volume(card, "TweeterLeft PA Volume", 6);
++		snd_soc_limit_volume(card, "WooferRight PA Volume", 6);
++		snd_soc_limit_volume(card, "TweeterRight PA Volume", 6);
++		break;
+ 	case DISPLAY_PORT_RX_0:
+ 		dp_pcm_id = 0;
+ 		dp_jack = &data->dp_jack[dp_pcm_id];

@@ -1,0 +1,46 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * SL7-Projekt, Variante "i2cts": konservativer Romulus13-DT + Touchscreen als HID-over-I2C (ITCH MSHW0468, i2c8 @0x34).
+ * Quelle: fQwQf, "[PATCH] arm64: dts: qcom: microsoft-romulus13: enable touchscreen" (linux-input, 2026-09-07),
+ * "verified working on this machine". Alternative zur SPI-Variante (ItsLucas/Kernel B) - je nach Panel-Lieferant.
+ */
+/dts-v1/;
+#include <dt-bindings/interrupt-controller/irq.h>
+#include "x1e80100-microsoft-romulus.dtsi"
+
+/ {
+	model = "Microsoft Surface Laptop 7 (13.8 inch) [SL7-Projekt: Touchscreen I2C]";
+	compatible = "microsoft,romulus13", "qcom,x1e80100";
+};
+
+&i2c8 {
+	clock-frequency = <400000>;
+	status = "okay";
+
+	touchscreen@34 {
+		compatible = "hid-over-i2c";
+		reg = <0x34>;
+		hid-descr-addr = <0x0000>;
+		interrupts-extended = <&tlmm 38 IRQ_TYPE_LEVEL_LOW>;
+		reset-gpios = <&tlmm 31 GPIO_ACTIVE_LOW>;
+		pinctrl-0 = <&ts_i2c_default>;
+		pinctrl-names = "default";
+	};
+};
+
+&tlmm {
+	ts_i2c_default: ts-i2c-default-state {
+		int-n-pins {
+			pins = "gpio38";
+			function = "gpio";
+			drive-strength = <2>;
+			bias-pull-up;
+		};
+		reset-n-pins {
+			pins = "gpio31";
+			function = "gpio";
+			drive-strength = <2>;
+			bias-disable;
+		};
+	};
+};

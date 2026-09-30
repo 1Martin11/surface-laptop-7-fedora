@@ -1,0 +1,41 @@
+#define QCOM_GPI_QSPI 4
+
+&tlmm {
+    qup_spi10_data23: qup-spi10-data23-state {
+        pins = "gpio49",
+               "gpio50";
+        function = "qup1_se2";
+        drive-strength = <6>;
+        bias-disable;
+    };
+
+    qup_spi19_data23: qup-spi19-data23-state {
+        pins = "gpio66",
+               "gpio67";
+        function = "qup2_se3";
+        drive-strength = <6>;
+        bias-disable;
+    };
+};
+
+&spi10 {
+    compatible = "qcom,geni-spi-qspi";
+
+    dmas = <&gpi_dma1 0 2 QCOM_GPI_QSPI>,
+           <&gpi_dma1 1 2 QCOM_GPI_QSPI>;
+
+    pinctrl-0 = <&qup_spi10_data_clk>,
+                <&qup_spi10_data23>,
+                <&qup_spi10_cs>;
+};
+
+&spi19 {
+    compatible = "qcom,geni-spi-qspi";
+
+    dmas = <&gpi_dma2 0 3 QCOM_GPI_QSPI>,
+	       <&gpi_dma2 1 3 QCOM_GPI_QSPI>;
+
+	pinctrl-0 = <&qup_spi19_data_clk>,
+	            <&qup_spi19_data23>,
+	            <&qup_spi19_cs>;
+};

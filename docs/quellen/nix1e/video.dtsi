@@ -1,0 +1,9 @@
+&gpu_zap_shader {
+    firmware-name = "qcom/x1e80100/microsoft/romulus/qcdxkmsuc8380.mbn";
+};
+
+// TODO: in theory, `qcav1e8380.mbn` would interface with this driver
+&iris {
+    firmware-name = "qcom/x1e80100/microsoft/romulus/qcvss8380.mbn";
+    status = "okay";
+};

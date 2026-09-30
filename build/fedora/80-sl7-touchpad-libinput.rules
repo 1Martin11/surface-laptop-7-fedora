@@ -1,0 +1,2 @@
+# SL7: rohes spi-hid-Touchpad (platform-88c000.spi) fuer libinput ausblenden - die Eingaben kommen ueber das IPTSD Virtual Touchpad
+ACTION!="remove", SUBSYSTEM=="input", KERNEL=="event*", ENV{ID_PATH}=="platform-88c000.spi-cs-0", ENV{ID_INPUT_TOUCHPAD}=="1", ENV{LIBINPUT_IGNORE_DEVICE}="1"

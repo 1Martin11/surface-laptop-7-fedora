@@ -1,0 +1,4 @@
+#include "overlay.dtsi"
+
+#include "hardware/default.dtsi"
+#include "firmware/default.dtsi"

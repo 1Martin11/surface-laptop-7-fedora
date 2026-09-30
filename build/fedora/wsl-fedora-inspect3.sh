@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Nur lesen: Live-Payload-Kernelliste, anaconda.conf preserved_arguments, setfiles/xattr-Test, Kernel-RPM-Inhalt, stubble-Dateien.
+set -uo pipefail; export LC_ALL=C
+R=/work/sl7/fedora/rootfs; A="$R/usr/lib64/python3.14/site-packages/pyanaconda"
+echo "=== [a] live_os Kernelliste"; grep -rn 'kernel_version' "$A"/modules/payloads/payload/live_os/*.py | head -8; grep -rn 'def get_kernel_version_list' -A 14 "$A"/modules/payloads/base/utils.py 2>/dev/null | head -30
+echo "=== [b] anaconda.conf preserved_arguments"; grep -n -A 12 '^\[Bootloader\]' "$R/etc/anaconda/anaconda.conf" | grep -v '^\S*#' ; ls "$R/etc/anaconda/conf.d/" "$R/etc/anaconda/product.d/" 2>/dev/null | head; grep -rn 'preserved_arguments' "$R/etc/anaconda/" 2>/dev/null | head -3
+echo "=== [c] setfiles im Rootfs + xattr-Schreibtest"; ls "$R"/usr/sbin/setfiles "$R"/usr/sbin/restorecon "$R"/etc/selinux/targeted/contexts/files/file_contexts 2>&1
+T=/work/sl7/fedora/xattrtest; echo x > $T; setfattr -n security.selinux -v 'system_u:object_r:bin_t:s0' $T && getfattr --absolute-names -n security.selinux $T | tail -1; rm -f $T
+echo "=== [d] Kernel-RPM A Inhalt"; RPMA=$(ls /work/sl7/fedora/rpm/rpmbuild/RPMS/aarch64/kernel-7*.rpm | grep -v headers | head -1); echo "$RPMA"; rpm -qpl "$RPMA" | grep -vE '/kernel/.*\.ko|dtb-.*/(allwinner|amlogic|apm|apple|arm|broadcom|cavium|exynos|freescale|hisilicon|marvell|mediatek|nvidia|renesas|rockchip|socionext|sprd|synaptics|tesla|ti|toradex|xilinx)|/qcom/(?!x1e)' | grep -vE 'dtb-[^/]+/qcom/[^x]' | head -30; echo "--- Skripte:"; rpm -qp --scripts "$RPMA" | head -20
+echo "=== [e] stubble"; ls /work/sl7/stubble/a64/usr/lib/stubble/ /work/sl7/stubble/a64/usr/share/stubble/ 2>&1 | head; ls /work/sl7/stubble/a64/usr/share/stubble/hwids | grep -i -E 'romulus|surface|microsoft' ; find /work/sl7/stubble -name '*.efi' | head -3; ukify --version 2>/dev/null | head -1
+echo "=== [f] Firmware-Tar Inhalt (Kurz)"; tar -tJf "/mnt/c/Users/Martin/Desktop/Projekt Linux ARM/build/out/sl7-firmware-msi-26100_26.053.36539.0.tar.xz" | sed 's|/[^/]*$||' | sort -u
+echo "=== [g] DTB firmware-name Referenzen (Kernel A safe/exp, Kernel B)"; for d in /work/sl7/fedora/rpm/../../kernel/ellx-7.0-sl7/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dtb /work/sl7/kernel/ellx-7.0-sl7/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13-exp.dtb /work/sl7/kernel/ubuntu-7.3/arch/arm64/boot/dts/qcom/x1e80100-microsoft-romulus13.dtb; do echo "-- $d"; strings "$d" | grep -E '\.mbn|\.elf|\.bin|firmware' | sort -u | tr '\n' ' '; echo; done
