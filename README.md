@@ -23,6 +23,10 @@ Custom **Fedora KDE Live 44 (aarch64)** image for the Surface Laptop 7 "Romulus1
 
 ## Download
 
+**Single file (4.8 GB): [MEGA](https://mega.nz/file/YE8RibKT#KTTHuW7HEy8sEkO9AQoULRtfNSs7PrhJeWbU0vAri24)** – SHA256 `3a16e0d6108be68485f1de2043c64de70abadbefd9a5c734b1df7eb9dc5725f2`
+
+Alternative from GitHub (three parts):
+
 One-liner (downloads the parts, joins them, verifies the checksum):
 
 * **Windows (PowerShell):** `irm https://raw.githubusercontent.com/1Martin11/surface-laptop-7-fedora/main/download-iso.ps1 | iex`

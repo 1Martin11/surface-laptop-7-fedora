@@ -13,6 +13,10 @@ allen Konfigurationen – bootfähig vom Stick und per Anaconda installierbar. A
 **Stand 13.09.2026 (Ubuntu-Track, archiviert):** Kernel `7.0.0-rc4-sl7` in drei Paket-Revisionen gebaut und im arm64-Chroot getestet,
 Firmware-Paket aus dem aktuellen Microsoft-Treiberpaket erzeugt, Ziel-Installer geschrieben und im Probelauf geprüft.
 
+## Download
+
+ISO als eine Datei (4,8 GB): [MEGA](https://mega.nz/file/YE8RibKT#KTTHuW7HEy8sEkO9AQoULRtfNSs7PrhJeWbU0vAri24), SHA256 `3a16e0d6108be68485f1de2043c64de70abadbefd9a5c734b1df7eb9dc5725f2`. Alternativ in drei Teilen im GitHub-Release.
+
 ## Womit anfangen
 
 | Zuerst lesen | Wofür |
